@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Exit if any subcommand fails
+set -e
+
+# Ensure we're always running from the project root
+cd "$(dirname "$0")/.."
+
+bats test/*.bats
+shellcheck *.sh

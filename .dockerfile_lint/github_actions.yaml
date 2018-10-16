@@ -1,0 +1,138 @@
+# https://github.com/projectatomic/dockerfile_lint
+profile:
+  name: "GitHub Actions"
+  description: "Checks for GitHub Actions."
+  includes:
+    - default_rules.yaml
+general:
+  # It appears these get duplicated rather than overriding.  The hope was to use this as a counter to the
+  # `required_instructions` section, but perhaps it defines the `line_rules` map.  It would be great to either be able
+  # to set `required_instructions` to a 0 value or have an `invalid_instructions` section?
+  valid_instructions:
+    - FROM
+    - RUN
+    - CMD
+    - LABEL
+    - ENV
+    - ADD
+    - COPY
+    - ENTRYPOINT
+    - WORKDIR
+    - ONBUILD
+    - ARG
+    - STOPSIGNAL
+    - SHELL
+line_rules:
+  # Invalid Lines
+  ADD:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "add_antipattern"
+      regex: /.+/
+      level: "info"
+      message: "Avoid using ADD"
+      description: "It is generally an anti-pattern to us ADD, use COPY instead."
+  EXPOSE:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "expose_invalid"
+      regex: /.+/
+      level: "error"
+      message: "There should not be an 'EXPOSE' instruction"
+      description: "Actions should not expose ports."
+  HEALTHCHECK:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "healthcheck_invalid"
+      regex: /.+/
+      level: "error"
+      message: "There should not be a 'HEALTHCHECK' instruction"
+      description: "Actions should not require HEALTHCHECKs."
+  MAINTAINER:
+    paramSyntaxRegex: /.+/
+    rules:
+      -
+        label: "maintainer_deprecated"
+        regex: /.+/
+        level: "info"
+        message: "the MAINTAINER command is deprecated"
+        description: "MAINTAINER is deprecated in favor of using LABEL since Docker v1.13.0"
+        reference_url:
+          - "https://github.com/docker/cli/blob/master/docs/deprecated.md"
+          - "#maintainer-in-dockerfile"
+  SHELL:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "shell_invalid"
+      regex: /.+/
+      level: "info"
+      message: "There should not be a 'SHELL' instruction"
+      description: "Actions generally rely on sh and setting an alternative shell may have unexpected consequences."
+  USER:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "user_discouraged"
+      regex: /.+/
+      level: "warn"
+      message: "'USER' instruction exists"
+      description: "Actions don't expect a USER to be set."
+  VOLUME:
+    paramSyntaxRegex: /.+/
+    rules:
+    -
+      label: "volume_invalid"
+      regex: /.+/
+      level: "error"
+      message: "There should not be a 'VOLUME' instruction"
+      description: "Actions do not support volumes."
+
+  # Required Labels
+  LABEL:
+    paramSyntaxRegex: /.+/
+    defined_namevals:
+      com.github.actions.name:
+        valueRegex: /[\w]+/
+        message: "Label 'com.github.actions.name' is missing or has invalid format"
+        level: "error"
+        required: true
+      com.github.actions.description:
+        valueRegex: /[\w]+/
+        message: "Label 'com.github.actions.description' is missing or has invalid format"
+        level: "error"
+        required: true
+      com.github.actions.icon:
+        valueRegex: /[\w]+/
+        message: "Label 'com.github.actions.icon' is missing or has invalid format"
+        level: "error"
+        required: true
+      com.github.actions.color:
+        valueRegex: /[\w]+/
+        message: "Label 'com.github.actions.color' is missing or has invalid format"
+        level: "error"
+        required: true
+
+
+required_instructions:
+  -
+    instruction: "ENTRYPOINT"
+    count: 1
+    level: "error"
+    message: "There is no 'ENTRYPOINT' instruction"
+    description: "Actions require that a default ENTRYPOINT be set"
+    reference_url:
+    - "https://docs.docker.com/engine/reference/builder/"
+    - "#entrypoint"
+  -
+    instruction: "CMD"
+    count: 1
+    level: "info"
+    message: "There is no 'CMD' instruction"
+    description: "In most cases it is helpful to include reasonable defaults for CMD"
+    reference_url:
+    - "https://docs.docker.com/engine/reference/builder/"
+    - "#cmd"

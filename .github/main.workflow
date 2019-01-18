@@ -17,13 +17,14 @@ action "Test" {
 
 action "Acceptance Test Auth" {
   uses = "./auth"
-	secrets = ["GCLOUD_AUTH"]
+  secrets = ["GCLOUD_AUTH"]
 }
 
 action "Acceptance Test CLI" {
   needs = ["Acceptance Test Auth"]
   uses = "./cli"
   args = "auth list --filter no-such-account"
+  secrets = ["GCLOUD_AUTH"]
 }
 
 action "Build" {

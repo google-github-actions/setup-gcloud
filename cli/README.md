@@ -1,10 +1,9 @@
-# GitHub Action for Google Cloud Auth
+# GitHub Action for Google Cloud
 
-The GitHub Actions for [Google Cloud Platform](https://cloud.google.com/)  and wraps the [gcloud SDK](https://cloud.google.com/sdk/) to enable common Google Cloud commands.
+The GitHub Actions for [Google Cloud Platform](https://cloud.google.com/) and wraps the [gcloud SDK](https://cloud.google.com/sdk/) to enable common Google Cloud commands. This is a very thin wrapper around the `gcloud` utility.
 
 ## Usage
-An example workflow to authenticate with Google Cloud Platform and run the `gcloud` command:
-
+An example workflow to list clusters on Google Cloud Platform:
 
 ```
 workflow "Run gcloud Login" {
@@ -12,17 +11,19 @@ workflow "Run gcloud Login" {
   resolves = "Load credentials"
 }
 
-action "Setup Google Cloud" {
-  uses = "docker://github/gcloud-auth"
+action "GCP Authenticate" {
+  uses = "actions/gcloud/auth@master"
   secrets = ["GCLOUD_AUTH"]
 }
 
-action "Load credentials" {
-  needs = ["Setup Google Cloud"]
-  uses = "docker://github/gcloud"
-  args = "container clusters get-credentials example-project --zone us-central1-a --project data-services-engineering"
+action "GCP List Clusters" {
+  needs = ["GCP Authenticate"]
+  uses = "actions/gcloud/cli@master"
+  args = "container clusters list"
 }
 ```
+
+For more information about the authentication step, ([see `cli`](/cli)).
 
 ## License
 

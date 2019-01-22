@@ -1,6 +1,6 @@
 # GitHub Action for Google Cloud
 
-The GitHub Actions for [Google Cloud Platform](https://cloud.google.com/) and wraps the [gcloud SDK](https://cloud.google.com/sdk/) to enable common Google Cloud commands. This is a very thin wrapper around the `gcloud` utility.
+The GitHub Actions for [Google Cloud Platform](https://cloud.google.com/) and wraps the [gcloud SDK](https://cloud.google.com/sdk/) to enable common Google Cloud commands. This is a thin wrapper around the `gcloud` utility.
 
 ## Usage
 An example workflow to list clusters on Google Cloud Platform:

@@ -25,7 +25,7 @@ Subsequent actions in the workflow will then be able to use `gcloud` as that use
 ### Secrets
 
 * `GCLOUD_AUTH` **Required** Base64 encoded service account key exported as JSON
-   - For information about service accout keys please see the [Google Cloud docs](https://cloud.google.com/sdk/docs/authorizing)
+   - For information about service account keys please see the [Google Cloud docs](https://cloud.google.com/sdk/docs/authorizing)
    - For information about using Secrets in Actions please see the [Actions docs](https://developer.github.com/actions/creating-workflows/storing-secrets/).
 
 Example on encoding from a terminal : `base64 ~/<account_id>.json`

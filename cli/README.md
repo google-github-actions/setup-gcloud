@@ -23,7 +23,7 @@ action "GCP List Clusters" {
 }
 ```
 
-For more information about the authentication step, ([see `cli`](/cli)).
+For more information about the authentication step, [see `auth`](/auth).
 
 ## License
 

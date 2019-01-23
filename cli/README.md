@@ -6,7 +6,7 @@ The GitHub Actions for [Google Cloud Platform](https://cloud.google.com/) and wr
 An example workflow to list clusters on Google Cloud Platform:
 
 ```
-workflow "Run gcloud Login" {
+workflow "Run gcloud command" {
   on = "push"
   resolves = "Load credentials"
 }

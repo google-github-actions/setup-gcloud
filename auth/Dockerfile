@@ -1,7 +1,7 @@
-FROM gcr.io/cloud-builders/gcloud-slim@sha256:9ce2bb0f7459621450e1730c35c9620f23824e1c6d7a810c8eb1b80712d9af5a
+FROM gcr.io/cloud-builders/gcloud-slim@sha256:7e910b97dd13d8e32acb3e53c5f4d2164c5ea8e93de1ea51e610a1112fa6308e
 
 LABEL name="gcloud-auth"
-LABEL version="1.0.0"
+LABEL version="1.0.1"
 LABEL maintainer="GitHub Actions <support+actions@github.com>"
 
 LABEL "com.github.actions.name"="GitHub Action for Google Cloud SDK auth"

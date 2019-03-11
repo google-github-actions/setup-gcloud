@@ -11,7 +11,7 @@ An example workflow to authenticate with Google Cloud Platform:
 ```
 workflow "Run gcloud Login" {
   on = "push"
-  resolves = "Load credentials"
+  resolves = "Setup Google Cloud"
 }
 
 action "Setup Google Cloud" {

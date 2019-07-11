@@ -8,7 +8,7 @@ An example workflow to list clusters on Google Cloud Platform:
 ```
 workflow "Run gcloud command" {
   on = "push"
-  resolves = "GCP Authenticate"
+  resolves = "GCP List Clusters"
 }
 
 action "GCP Authenticate" {

@@ -1,3 +1,10 @@
+# Copyright (c) 2018 GitHub, Inc. and contributors
+# Copyright 2019 Google LLC
+#
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
+
 FROM gcr.io/cloud-builders/gcloud-slim@sha256:d4ca671e5764c0f8f494a2a7540ced1753fbbe62af249e74c2fc0bbac6fa94fc
 
 LABEL "name"="gcloud"

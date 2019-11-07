@@ -41,6 +41,7 @@ steps:
       service_account_email: ${{ secrets.GCP_SA_EMAIL }}
       service_account_key: ${{ secrets.GCP_SA_KEY }}
 - run: gcloud info
+```
 
 ## Inputs
 

@@ -29,7 +29,6 @@
         "@actions/tool-cache": "^1.0.0",
         "js-base64": "2.5.1",
         "semver": "^6.1.1",
-        "shelljs": "0.8.3",
         "tmp": "0.1.0",
         "typed-rest-client": "1.5.0"
     },
@@ -38,7 +37,6 @@
         "@types/js-base64": "^2.3.1",
         "@types/node": "^12.0.4",
         "@types/semver": "^6.0.0",
-        "@types/shelljs": "^0.8.6",
         "@types/tmp": "^0.1.0",
         "@typescript-eslint/eslint-plugin": "^2.6.0",
         "@typescript-eslint/parser": "^2.6.0",

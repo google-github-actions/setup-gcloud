@@ -21,7 +21,6 @@ import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as os from 'os';
 import path from 'path';
-import * as shell from 'shelljs';
 
 /**
  * Installs the gcloud SDK into the actions environment.

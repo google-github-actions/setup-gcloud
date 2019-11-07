@@ -43,4 +43,4 @@ information on using pull requests.
 
 ## Style Guide
 
-This project conforms to the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). All submitted PRs will be required to conform to this style guide before being merged.
+This project conforms to the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html). All submitted PRs will be required to conform to this style guide before being merged.

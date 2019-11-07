@@ -49,7 +49,7 @@ describe('downloadAndExtractTool tests', () => {
             if (os.platform() == 'win32') {
                 return;
             }
-            
+
             const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
                 'linux',
                 'x86_64',

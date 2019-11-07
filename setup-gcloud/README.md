@@ -14,11 +14,11 @@
 
 # setup-gcloud
 
-This action configures the [gcloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
+This action configures the [Google Cloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
 
 It does the following:
 
-1. Downloads a version of the [gcloud SDK](https://cloud.google.com/sdk/) according to the specified `version` input, as well as the environment OS and architecture.
+1. Downloads a version of the [Google Cloud SDK](https://cloud.google.com/sdk/) according to the specified `version` input, as well as the environment OS and architecture.
 
 2. Installs and caches the downloaded version into the actions environment.
 
@@ -26,7 +26,7 @@ It does the following:
 
 ## Prerequisites
 
-* This actions requires [Python](https://www.python.org/) 2.7.9 or later to be installed on the environment.
+* This action requires [Python](https://www.python.org/) 2.7.9 or later to be installed on the environment.
 
 * A pre-configured GCP service account. [More info](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
 
@@ -45,7 +45,7 @@ steps:
 
 ## Inputs
 
-* `version`: The version of the gcloud SDK to be installed.  Example: `270.0.0`
+* `version`: The version of the gcloud to be installed.  Example: `270.0.0`
 
 * `service_account_email`: The service account email which will be used for authentication.
 

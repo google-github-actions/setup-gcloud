@@ -20,6 +20,7 @@
 import fs from 'fs';
 import * as io from '@actions/io';
 import * as testUtil from '../src/test-util';
+import * as os from 'os';
 const toolDir = testUtil.setupTempDir('tools', 'RUNNER_TOOL_CACHE');
 const tempDir = testUtil.setupTempDir('temp', 'RUNNER_TEMP');
 
@@ -44,6 +45,11 @@ describe('downloadAndExtractTool tests', () => {
     it(
         'Downloads and extracts linux version',
         async () => {
+            // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
+            if (os.platform() == 'win32') {
+                return;
+            }
+            
             const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
                 'linux',
                 'x86_64',
@@ -75,6 +81,11 @@ describe('downloadAndExtractTool tests', () => {
     it(
         'Downloads and extracts darwin version',
         async () => {
+            // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
+            if (os.platform() == 'win32') {
+                return;
+            }
+
             const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
                 'darwin',
                 'x86_64',

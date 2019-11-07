@@ -20,6 +20,8 @@
 import * as testUtil from '../src/test-util';
 import * as util from '../src/client-util';
 
+const TEST_TIMEOUT_MILLIS = 10000;
+
 describe('queryGcloudSDKRelease tests', () => {
     it('Finds matching version linux', async () => {
         const release: util.IGcloudSDKRelease | null = await util.queryGcloudSDKRelease(
@@ -35,7 +37,7 @@ describe('queryGcloudSDKRelease tests', () => {
                 `https://www.googleapis.com/download/storage/v1/b/cloud-sdk-release/o/google-cloud-sdk-${testUtil.TEST_SDK_VERSION}-linux-x86_64.tar.gz`,
             ),
         );
-    });
+    }, TEST_TIMEOUT_MILLIS);
 
     it('Finds matching version windows', async () => {
         const release: util.IGcloudSDKRelease | null = await util.queryGcloudSDKRelease(
@@ -51,7 +53,7 @@ describe('queryGcloudSDKRelease tests', () => {
                 `https://www.googleapis.com/download/storage/v1/b/cloud-sdk-release/o/google-cloud-sdk-${testUtil.TEST_SDK_VERSION}-windows-x86_64.zip`,
             ),
         );
-    });
+    }, TEST_TIMEOUT_MILLIS);
 
     it('Finds matching version darwin', async () => {
         const release: util.IGcloudSDKRelease | null = await util.queryGcloudSDKRelease(
@@ -67,7 +69,7 @@ describe('queryGcloudSDKRelease tests', () => {
                 `https://www.googleapis.com/download/storage/v1/b/cloud-sdk-release/o/google-cloud-sdk-${testUtil.TEST_SDK_VERSION}-darwin-x86_64.tar.gz`,
             ),
         );
-    });
+    }, TEST_TIMEOUT_MILLIS);
 
     it('Errors on unsupported OS', async () => {
         await expect(util.queryGcloudSDKRelease('temple', 'x86_64', testUtil.TEST_SDK_VERSION)).rejects.toThrow(

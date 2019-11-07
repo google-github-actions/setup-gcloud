@@ -32,7 +32,7 @@ import * as downloadUtil from '../src/download-util';
 import * as clientUtil from '../src/client-util';
 
 // Installation can require a bit longer of a timeout.
-const TEST_TIMEOUT_MILLIS = 20000;
+const TEST_TIMEOUT_MILLIS = 60000;
 
 describe('installGcloudSDK tests', () => {
     beforeAll(async () => {

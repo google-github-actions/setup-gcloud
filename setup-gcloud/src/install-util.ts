@@ -19,6 +19,7 @@
  */
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
+import * as os from 'os';
 import path from 'path';
 import * as shell from 'shelljs';
 
@@ -34,8 +35,8 @@ export async function installGcloudSDK(version: string, gcloudExtPath: string): 
     let toolPath = await toolCache.cacheDir(toolRoot, 'gcloud', version);
     toolPath = path.join(toolPath, 'bin');
     core.addPath(toolPath);
-    configureExecutePermissions(toolPath, 'gcloud');
-    configureExecutePermissions(toolPath, 'gsutil');
+    configureExecutePermissions(toolPath, os.platform() == 'win32' ? 'gcloud.ps1' : 'gcloud');
+    configureExecutePermissions(toolPath, os.platform() == 'win32' ? 'gsutil.ps1' : 'gsutil');
     return toolPath;
 }
 

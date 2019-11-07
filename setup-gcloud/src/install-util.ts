@@ -35,14 +35,5 @@ export async function installGcloudSDK(version: string, gcloudExtPath: string): 
     let toolPath = await toolCache.cacheDir(toolRoot, 'gcloud', version);
     toolPath = path.join(toolPath, 'bin');
     core.addPath(toolPath);
-    configureExecutePermissions(toolPath, os.platform() == 'win32' ? 'gcloud.ps1' : 'gcloud');
-    configureExecutePermissions(toolPath, os.platform() == 'win32' ? 'gsutil.ps1' : 'gsutil');
     return toolPath;
-}
-
-function configureExecutePermissions(toolPath: string, binary: string) {
-    const shellResult = shell.chmod('+x', path.join(toolPath, binary));
-    if (shellResult.code != 0) {
-        throw new Error(`Failed to set execute permissions on gcloud ${binary}, error: ${shellResult.stderr}`);
-    }
 }

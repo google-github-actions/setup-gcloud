@@ -9,6 +9,7 @@
         "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
         "format": "prettier --write **/*.ts",
         "format-check": "prettier --check **/*.ts",
+        "precommit": "npm run build && git add dist/",
         "test": "jest"
     },
     "repository": {

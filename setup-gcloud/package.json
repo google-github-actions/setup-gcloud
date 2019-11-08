@@ -25,6 +25,7 @@
     "license": "Apache 2.0",
     "dependencies": {
         "@actions/core": "^1.0.0",
+        "@actions/exec": "^1.0.1",
         "@actions/github": "^1.0.0",
         "@actions/io": "^1.0.0",
         "@actions/tool-cache": "^1.0.0",

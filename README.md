@@ -17,9 +17,13 @@
 This repository contains a library of [Github Actions](https://github.com/actions) providing functionality
 for working with [Google Cloud Platform](http://cloud.google.com/).
 
-## Supported Actions:
+## Supported Actions
 
 * [setup-gcloud](./setup-gcloud/README.md): This action configures the [gcloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
+
+## Example Workflows
+
+* [gke](./example-workflows/gke/README.md): An example workflow that uses [GitHub Actions](https://help.github.com/en/categories/automating-your-workflow-with-github-actions) to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
 
 ## Feature requests and bug reports
 

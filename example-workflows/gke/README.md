@@ -18,7 +18,7 @@ An example workflow that uses [GitHub Actions](https://help.github.com/en/catego
 
 ## Workflow
 
-The [example workflow](./workflow.yml) will trigger on every push to this repo. This workflow would be placed under the repository folder: `.github/workflows/`.
+The [example workflow](.github/workflows/gke.yml) will trigger on every push to this repo.
 
 For pushes to the _feature_ branch, the workflow will:
 1. Build the Docker image

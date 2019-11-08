@@ -14,4 +14,4 @@ inputs:
     required: true
 runs:
   using: 'node12'
-  main: 'dist/setup-gcloud.js'
+  main: 'dist/index.js'

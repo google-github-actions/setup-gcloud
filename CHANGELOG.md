@@ -34,8 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Security
  
  ### Added
-  - Initial release.
-  - Support for configuring Google Cloud SDK within the GitHub Actions v2 environment.
+  - Initial release of setup-gcloud action.
+    - Provides support for configuring Google Cloud SDK within the GitHub Actions v2 environment.
   
  ### Changed
 				

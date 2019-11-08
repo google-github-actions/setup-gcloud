@@ -15,6 +15,7 @@
         "type": "git",
         "url": "git+https://github.com/GoogleCloudPlatform/github-actions/setup-gcloud.git"
     },
+    "pre-commit": "npm run build && git add dist/",
     "keywords": [
         "actions",
         "gcloud",

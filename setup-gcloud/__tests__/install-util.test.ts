@@ -35,30 +35,35 @@ import * as clientUtil from '../src/client-util';
 const TEST_TIMEOUT_MILLIS = 60000;
 
 describe('installGcloudSDK tests', () => {
-    beforeAll(async () => {
-        await io.rmRF(toolDir);
-        await io.rmRF(tempDir);
-    });
+  beforeAll(async () => {
+    await io.rmRF(toolDir);
+    await io.rmRF(tempDir);
+  });
 
-    afterAll(async () => {
-        await io.rmRF(toolDir);
-        await io.rmRF(tempDir);
-    });
+  afterAll(async () => {
+    await io.rmRF(toolDir);
+    await io.rmRF(tempDir);
+  });
 
-    it(
-        'Installs gcloud for current env',
-        async () => {
-            const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-                os.platform(),
-                os.arch(),
-                testUtil.TEST_SDK_VERSION,
-            );
-            const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
-            await installUtil.installGcloudSDK(testUtil.TEST_SDK_VERSION, extPath);
-            const gcloudDir = path.join(toolDir, 'gcloud', testUtil.TEST_SDK_VERSION, os.arch());
-            expect(fs.existsSync(gcloudDir)).toBe(true);
-            expect(fs.existsSync(path.join(gcloudDir, 'bin', 'gcloud'))).toBe(true);
-        },
-        TEST_TIMEOUT_MILLIS,
-    );
+  it(
+    'Installs gcloud for current env',
+    async () => {
+      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
+        os.platform(),
+        os.arch(),
+        testUtil.TEST_SDK_VERSION,
+      );
+      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      await installUtil.installGcloudSDK(testUtil.TEST_SDK_VERSION, extPath);
+      const gcloudDir = path.join(
+        toolDir,
+        'gcloud',
+        testUtil.TEST_SDK_VERSION,
+        os.arch(),
+      );
+      expect(fs.existsSync(gcloudDir)).toBe(true);
+      expect(fs.existsSync(path.join(gcloudDir, 'bin', 'gcloud'))).toBe(true);
+    },
+    TEST_TIMEOUT_MILLIS,
+  );
 });

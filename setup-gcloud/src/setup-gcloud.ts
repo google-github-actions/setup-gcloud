@@ -17,8 +17,8 @@
 import * as core from '@actions/core';
 import exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
-import { Base64 } from 'js-base64';
-import { promises as fs } from 'fs';
+import {Base64} from 'js-base64';
+import {promises as fs} from 'fs';
 import path from 'path';
 import * as tmp from 'tmp';
 import * as os from 'os';
@@ -27,65 +27,73 @@ import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
 
 async function run() {
-    try {
-        tmp.setGracefulCleanup();
+  try {
+    tmp.setGracefulCleanup();
 
-        const version = core.getInput('version');
-        if (!version) {
-            throw new Error('Missing required parameter: `version`');
-        }
-
-        const serviceAccountEmail = core.getInput('service_account_email');
-        if (!serviceAccountEmail) {
-            throw new Error('Missing required input: `service_account_email`');
-        }
-
-        const serviceAccountKey = core.getInput('service_account_key');
-        if (!serviceAccountKey) {
-            throw new Error('Missing required input: `service_account_key`');
-        }
-
-        // install the gcloud is not already present
-        let toolPath = toolCache.find('gcloud', version);
-        if (!toolPath) {
-            installGcloudSDK(version);
-        }
-
-        // write the service account key to a temporary file
-        const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-            tmp.file((err, path, fd, cleanupCallback) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(path);
-            });
-        });
-        await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
-
-        // authenticate as the specified service account
-        await exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-    } catch (error) {
-        core.setFailed(error.message);
+    const version = core.getInput('version');
+    if (!version) {
+      throw new Error('Missing required parameter: `version`');
     }
+
+    const serviceAccountEmail = core.getInput('service_account_email');
+    if (!serviceAccountEmail) {
+      throw new Error('Missing required input: `service_account_email`');
+    }
+
+    const serviceAccountKey = core.getInput('service_account_key');
+    if (!serviceAccountKey) {
+      throw new Error('Missing required input: `service_account_key`');
+    }
+
+    // install the gcloud is not already present
+    let toolPath = toolCache.find('gcloud', version);
+    if (!toolPath) {
+      installGcloudSDK(version);
+    }
+
+    // write the service account key to a temporary file
+    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
+      tmp.file((err, path, fd, cleanupCallback) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(path);
+      });
+    });
+    await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
+
+    // authenticate as the specified service account
+    await exec.exec(
+      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
+    );
+  } catch (error) {
+    core.setFailed(error.message);
+  }
 }
 
 async function installGcloudSDK(version: string) {
-    // retreive the release corresponding to the specified version and the current env
-    const osPlat = os.platform();
-    const osArch = os.arch();
-    const release = await clientUtil.queryGcloudSDKRelease(osPlat, osArch, version);
-    if (!release) {
-        throw new Error(`Failed to find release, os: ${osPlat} arch: ${osArch} version: ${version}`);
-    }
+  // retreive the release corresponding to the specified version and the current env
+  const osPlat = os.platform();
+  const osArch = os.arch();
+  const release = await clientUtil.queryGcloudSDKRelease(
+    osPlat,
+    osArch,
+    version,
+  );
+  if (!release) {
+    throw new Error(
+      `Failed to find release, os: ${osPlat} arch: ${osArch} version: ${version}`,
+    );
+  }
 
-    // download and extract the release
-    const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
-    if (!extPath) {
-        throw new Error(`Failed to download release, url: ${release!.url}`);
-    }
+  // download and extract the release
+  const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+  if (!extPath) {
+    throw new Error(`Failed to download release, url: ${release!.url}`);
+  }
 
-    // install the downloaded release into the github action env
-    await installUtil.installGcloudSDK(version, extPath);
+  // install the downloaded release into the github action env
+  await installUtil.installGcloudSDK(version, extPath);
 }
 
 run();

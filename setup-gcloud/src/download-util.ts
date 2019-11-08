@@ -26,16 +26,18 @@ import * as toolCache from '@actions/tool-cache';
  * @returns The path to the locally extracted tool.
  */
 export async function downloadAndExtractTool(url: string): Promise<string> {
-    const downloadPath = await toolCache.downloadTool(url);
-    let extractedPath: string;
-    if (url.indexOf('.zip') != -1) {
-        extractedPath = await toolCache.extractZip(downloadPath);
-    } else if (url.indexOf('.tar.gz') != -1) {
-        extractedPath = await toolCache.extractTar(downloadPath);
-    } else if (url.indexOf('.7z') != -1) {
-        extractedPath = await toolCache.extract7z(downloadPath);
-    } else {
-        throw new Error(`Unexpected download archive type, downloadPath: ${downloadPath}`);
-    }
-    return extractedPath;
+  const downloadPath = await toolCache.downloadTool(url);
+  let extractedPath: string;
+  if (url.indexOf('.zip') != -1) {
+    extractedPath = await toolCache.extractZip(downloadPath);
+  } else if (url.indexOf('.tar.gz') != -1) {
+    extractedPath = await toolCache.extractTar(downloadPath);
+  } else if (url.indexOf('.7z') != -1) {
+    extractedPath = await toolCache.extract7z(downloadPath);
+  } else {
+    throw new Error(
+      `Unexpected download archive type, downloadPath: ${downloadPath}`,
+    );
+  }
+  return extractedPath;
 }

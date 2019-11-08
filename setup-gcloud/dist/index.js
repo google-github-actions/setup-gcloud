@@ -8568,12 +8568,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const exec_1 = __importDefault(__webpack_require__(986));
+const exec = __importStar(__webpack_require__(986));
 const toolCache = __importStar(__webpack_require__(533));
 const js_base64_1 = __webpack_require__(867);
 const fs_1 = __webpack_require__(747);
@@ -8614,7 +8611,7 @@ function run() {
             });
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
-            yield exec_1.default.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
         }
         catch (error) {
             core.setFailed(error.message);

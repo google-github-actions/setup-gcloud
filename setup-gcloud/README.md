@@ -15,14 +15,18 @@
 # setup-gcloud
 
 This action configures the [Google Cloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
+The [Google Cloud SDK](https://cloud.google.com/sdk/) includes both the [gcloud]([Google Cloud SDK](https://cloud.google.com/sdk/))
+and [gsutil](https://cloud.google.com/storage/docs/gsutil) binaries.
 
 It does the following:
 
-1. Downloads a version of the [Google Cloud SDK](https://cloud.google.com/sdk/) according to the specified `version` input, as well as the environment OS and architecture.
+1. Downloads a version of the [Google Cloud SDK](https://cloud.google.com/sdk/) according to the specified `version` input,
+as well as the environment OS and architecture.
 
 2. Installs and caches the downloaded version into the actions environment.
 
-3. Authenticates the gcloud CLI tool using the inputs: `service_account_email` and `service_account_key`.
+3. Authenticates the gcloud CLI tool using the inputs: `service_account_email` and `service_account_key`. Further information on
+setting up GCP service accounts can be found here: https://cloud.google.com/iam/docs/service-accounts
 
 ## Prerequisites
 

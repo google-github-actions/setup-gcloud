@@ -53,4 +53,5 @@ steps:
 
 * `service_account_email`: The service account email which will be used for authentication.
 
-* `service_account_key`: The service account key which will be used for authentication.
+* `service_account_key`: The service account key which will be used for authentication. This key should be stored as a
+[Base64](https://en.wikipedia.org/wiki/Base64) encoded string.

@@ -20,23 +20,23 @@
 import * as rest from 'typed-rest-client/RestClient';
 
 interface IStorageObjects {
-    kind: string;
-    items: IStorageObject[];
+  kind: string;
+  items: IStorageObject[];
 }
 
 interface IStorageObject {
-    name: string;
-    generation: string;
-    mediaLink: string;
+  name: string;
+  generation: string;
+  mediaLink: string;
 }
 
 /**
  * Represents the data for a gcloud SDK release.
  */
 export interface IGcloudSDKRelease {
-    name: string;
-    url: string;
-    version: string;
+  name: string;
+  url: string;
+  version: string;
 }
 
 /**
@@ -48,63 +48,69 @@ export interface IGcloudSDKRelease {
  * @returns The matching release data or else null if not found.
  */
 export async function queryGcloudSDKRelease(
-    os: string,
-    arch: string,
-    version: string,
+  os: string,
+  arch: string,
+  version: string,
 ): Promise<IGcloudSDKRelease | null> {
-    // massage the arch to match gcloud sdk conventions
-    if (arch == 'x64') {
-        arch = 'x86_64';
-    }
+  // massage the arch to match gcloud sdk conventions
+  if (arch == 'x64') {
+    arch = 'x86_64';
+  }
 
-    const client = getClient();
-    const storageObjects = (await client.get<IStorageObjects>(formatReleaseURL(os, arch, version))).result;
-    // If no response was returned this indicates an error.
-    if (!storageObjects) {
-        throw new Error('Unable to retreieve cloud sdk version list');
-    }
-    // If an empty response was returned, this indicates no matches found.
-    if (!storageObjects.items) {
-        return null;
-    }
-
-    // Get the latest generation that matches the version spec.
-    const release: IStorageObject | null | undefined = storageObjects.items.sort((a, b) => {
-        if (a.generation > b.generation) {
-            return 1;
-        }
-        return -1;
-    })[0];
-
-    if (release) {
-        return {
-            name: release.name,
-            url: release.mediaLink,
-            version: version,
-        };
-    }
+  const client = getClient();
+  const storageObjects = (await client.get<IStorageObjects>(
+    formatReleaseURL(os, arch, version),
+  )).result;
+  // If no response was returned this indicates an error.
+  if (!storageObjects) {
+    throw new Error('Unable to retreieve cloud sdk version list');
+  }
+  // If an empty response was returned, this indicates no matches found.
+  if (!storageObjects.items) {
     return null;
+  }
+
+  // Get the latest generation that matches the version spec.
+  const release: IStorageObject | null | undefined = storageObjects.items.sort(
+    (a, b) => {
+      if (a.generation > b.generation) {
+        return 1;
+      }
+      return -1;
+    },
+  )[0];
+
+  if (release) {
+    return {
+      name: release.name,
+      url: release.mediaLink,
+      version: version,
+    };
+  }
+  return null;
 }
 
 function formatReleaseURL(os: string, arch: string, version: string): string {
-    let objectName: string;
-    switch (os) {
-        case 'linux':
-            objectName = `google-cloud-sdk-${version}-linux-${arch}.tar.gz`;
-            break;
-        case 'darwin':
-            objectName = `google-cloud-sdk-${version}-darwin-${arch}.tar.gz`;
-            break;
-        case 'win32':
-            objectName = `google-cloud-sdk-${version}-windows-${arch}.zip`;
-            break;
-        default:
-            throw new Error(`Unexpected OS '${os}'`);
-    }
+  let objectName: string;
+  switch (os) {
+    case 'linux':
+      objectName = `google-cloud-sdk-${version}-linux-${arch}.tar.gz`;
+      break;
+    case 'darwin':
+      objectName = `google-cloud-sdk-${version}-darwin-${arch}.tar.gz`;
+      break;
+    case 'win32':
+      objectName = `google-cloud-sdk-${version}-windows-${arch}.zip`;
+      break;
+    default:
+      throw new Error(`Unexpected OS '${os}'`);
+  }
 
-    return encodeURI(`https://www.googleapis.com/storage/v1/b/cloud-sdk-release/o?prefix=${objectName}`);
+  return encodeURI(
+    `https://www.googleapis.com/storage/v1/b/cloud-sdk-release/o?prefix=${objectName}`,
+  );
 }
 
 function getClient(): rest.RestClient {
-    return new rest.RestClient('github-actions-setup-gcloud');
+  return new rest.RestClient('github-actions-setup-gcloud');
 }

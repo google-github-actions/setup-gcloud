@@ -15,7 +15,7 @@
 # setup-gcloud
 
 This action configures the [Google Cloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
-The [Google Cloud SDK](https://cloud.google.com/sdk/) includes both the [gcloud]([Google Cloud SDK](https://cloud.google.com/sdk/))
+The [Google Cloud SDK](https://cloud.google.com/sdk/) includes both the [gcloud](https://cloud.google.com/sdk/gcloud/)
 and [gsutil](https://cloud.google.com/storage/docs/gsutil) binaries.
 
 It does the following:

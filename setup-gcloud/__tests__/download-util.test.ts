@@ -32,77 +32,79 @@ import * as clientUtil from '../src/client-util';
 const TEST_TIMEOUT_MILLIS = 10000;
 
 describe('downloadAndExtractTool tests', () => {
-    beforeAll(async () => {
-        await io.rmRF(toolDir);
-        await io.rmRF(tempDir);
-    });
+  beforeAll(async () => {
+    await io.rmRF(toolDir);
+    await io.rmRF(tempDir);
+  });
 
-    afterAll(async () => {
-        await io.rmRF(toolDir);
-        await io.rmRF(tempDir);
-    });
+  afterAll(async () => {
+    await io.rmRF(toolDir);
+    await io.rmRF(tempDir);
+  });
 
-    it(
-        'Downloads and extracts linux version',
-        async () => {
-            // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
-            if (os.platform() == 'win32') {
-                return;
-            }
+  it(
+    'Downloads and extracts linux version',
+    async () => {
+      // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
+      if (os.platform() == 'win32') {
+        return;
+      }
 
-            const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-                'linux',
-                'x86_64',
-                testUtil.TEST_SDK_VERSION,
-            );
-            const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
-            expect(extPath).toBeDefined();
-            expect(fs.existsSync(extPath)).toBe(true);
-        },
-        TEST_TIMEOUT_MILLIS,
-    );
+      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
+        'linux',
+        'x86_64',
+        testUtil.TEST_SDK_VERSION,
+      );
+      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      expect(extPath).toBeDefined();
+      expect(fs.existsSync(extPath)).toBe(true);
+    },
+    TEST_TIMEOUT_MILLIS,
+  );
 
-    it(
-        'Downloads and extracts windows version',
-        async () => {
-            // Use an older version of the Windows release, as the current release is 200MB+ and takes too long to download.
-            const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-                'win32',
-                'x86_64',
-                '0.9.83',
-            );
-            const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
-            expect(extPath).toBeDefined();
-            expect(fs.existsSync(extPath)).toBe(true);
-        },
-        TEST_TIMEOUT_MILLIS,
-    );
+  it(
+    'Downloads and extracts windows version',
+    async () => {
+      // Use an older version of the Windows release, as the current release is 200MB+ and takes too long to download.
+      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
+        'win32',
+        'x86_64',
+        '0.9.83',
+      );
+      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      expect(extPath).toBeDefined();
+      expect(fs.existsSync(extPath)).toBe(true);
+    },
+    TEST_TIMEOUT_MILLIS,
+  );
 
-    it(
-        'Downloads and extracts darwin version',
-        async () => {
-            // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
-            if (os.platform() == 'win32') {
-                return;
-            }
+  it(
+    'Downloads and extracts darwin version',
+    async () => {
+      // skip on windows until this issue is resolved: https://github.com/actions/toolkit/issues/194
+      if (os.platform() == 'win32') {
+        return;
+      }
 
-            const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-                'darwin',
-                'x86_64',
-                testUtil.TEST_SDK_VERSION,
-            );
-            const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
-            expect(extPath).toBeDefined();
-            expect(fs.existsSync(extPath)).toBe(true);
-        },
-        TEST_TIMEOUT_MILLIS,
-    );
+      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
+        'darwin',
+        'x86_64',
+        testUtil.TEST_SDK_VERSION,
+      );
+      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      expect(extPath).toBeDefined();
+      expect(fs.existsSync(extPath)).toBe(true);
+    },
+    TEST_TIMEOUT_MILLIS,
+  );
 
-    it(
-        'Errors when download not found',
-        async () => {
-            await expect(downloadUtil.downloadAndExtractTool('fakeUrl')).rejects.toThrow(expect.anything());
-        },
-        TEST_TIMEOUT_MILLIS,
-    );
+  it(
+    'Errors when download not found',
+    async () => {
+      await expect(
+        downloadUtil.downloadAndExtractTool('fakeUrl'),
+      ).rejects.toThrow(expect.anything());
+    },
+    TEST_TIMEOUT_MILLIS,
+  );
 });

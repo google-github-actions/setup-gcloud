@@ -28,18 +28,18 @@ import path from 'path';
  * temporary directory path will be saved to.
  */
 export function setupTempDir(leafName: string, envName?: string): string {
-    const tempDirPath = path.join(
-        __dirname,
-        'runner',
-        Math.random()
-            .toString(36)
-            .substring(8),
-        leafName,
-    );
-    if (envName) {
-        process.env[envName!] = tempDirPath;
-    }
-    return tempDirPath;
+  const tempDirPath = path.join(
+    __dirname,
+    'runner',
+    Math.random()
+      .toString(36)
+      .substring(8),
+    leafName,
+  );
+  if (envName) {
+    process.env[envName!] = tempDirPath;
+  }
+  return tempDirPath;
 }
 
 /**

@@ -8587,10 +8587,7 @@ function run() {
             if (!version) {
                 throw new Error('Missing required parameter: `version`');
             }
-            const serviceAccountEmail = core.getInput('service_account_email');
-            if (!serviceAccountEmail) {
-                throw new Error('Missing required input: `service_account_email`');
-            }
+            const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
             if (!serviceAccountKey) {
                 throw new Error('Missing required input: `service_account_key`');

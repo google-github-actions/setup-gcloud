@@ -53,5 +53,4 @@ steps:
 
 * `service_account_email`: (Optional) The service account email which will be used for authentication.
 
-* `service_account_key`: The service account key which will be used for authentication. This key should be stored as a
-[Base64](https://en.wikipedia.org/wiki/Base64) encoded string.
+* `service_account_key`: The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). 

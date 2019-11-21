@@ -16,7 +16,8 @@
 #
 # To configure this workflow:
 #
-# 1. Set up secrets in your workspace: GKE_PROJECT with the name of the project, GKE_EMAIL with the service account email, GKE_KEY with the service account key.
+# https://github.com/GoogleCloudPlatform/github-actions/tree/docs/service-account-key/setup-gcloud#inputs
+# 1. Set up secrets in your workspace: GKE_PROJECT with the name of the project, GKE_EMAIL with the service account email, GKE_KEY with the Base64 encoded JSON service account key.
 #
 # 2. Change the values for the GKE_ZONE, GKE_CLUSTER and IMAGE environment variables (below).
 

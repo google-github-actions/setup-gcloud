@@ -17,6 +17,10 @@
 import * as httpm from 'typed-rest-client/HttpClient';
 // Get the supposed release URL (no checks are performed)
 function formatReleaseURL(os: string, arch: string, version: string): string {
+  // massage the arch to match gcloud sdk conventions
+  if (arch == 'x64') {
+    arch = 'x86_64';
+  }
   let objectName: string;
   switch (os) {
     case 'linux':

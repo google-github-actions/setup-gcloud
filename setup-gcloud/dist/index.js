@@ -371,6 +371,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpm = __importStar(__webpack_require__(874));
 // Get the supposed release URL (no checks are performed)
 function formatReleaseURL(os, arch, version) {
+    // massage the arch to match gcloud sdk conventions
+    if (arch == 'x64') {
+        arch = 'x86_64';
+    }
     let objectName;
     switch (os) {
         case 'linux':

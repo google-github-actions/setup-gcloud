@@ -72,7 +72,7 @@ async function installGcloudSDK(version: string) {
   // retreive the release corresponding to the specified version and the current env
   const osPlat = os.platform();
   const osArch = os.arch();
-  const url = await getReleaseURL(osPlat, osArch, version); 
+  const url = await getReleaseURL(osPlat, osArch, version);
 
   // download and extract the release
   const extPath = await downloadUtil.downloadAndExtractTool(url);

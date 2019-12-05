@@ -50,7 +50,11 @@ describe('downloadAndExtractTool tests', () => {
         return;
       }
 
-      const url = await getReleaseURL('linux', 'x86_64', testUtil.TEST_SDK_VERSION);
+      const url = await getReleaseURL(
+        'linux',
+        'x86_64',
+        testUtil.TEST_SDK_VERSION,
+      );
       const extPath = await downloadUtil.downloadAndExtractTool(url);
       expect(extPath).toBeDefined();
       expect(fs.existsSync(extPath)).toBe(true);
@@ -79,7 +83,11 @@ describe('downloadAndExtractTool tests', () => {
         return;
       }
 
-      const url = await getReleaseURL('darwin', 'x86_64', testUtil.TEST_SDK_VERSION);
+      const url = await getReleaseURL(
+        'darwin',
+        'x86_64',
+        testUtil.TEST_SDK_VERSION,
+      );
       const extPath = await downloadUtil.downloadAndExtractTool(url);
       expect(extPath).toBeDefined();
       expect(fs.existsSync(extPath)).toBe(true);

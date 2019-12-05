@@ -36,19 +36,30 @@ function formatReleaseURL(os: string, arch: string, version: string): string {
       throw new Error(`Unexpected OS '${os}'`);
   }
 
-  return encodeURI( `https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${objectName}`);
+  return encodeURI(
+    `https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${objectName}`,
+  );
 }
 
-// Get the release URL, first validating that the data exists 
-export function getReleaseURL(os: string, arch: string, version: string):Promise<string> {
+// Get the release URL, first validating that the data exists
+export function getReleaseURL(
+  os: string,
+  arch: string,
+  version: string,
+): Promise<string> {
   try {
     const url = formatReleaseURL(os, arch, version);
-    const client: httpm.HttpClient = new httpm.HttpClient('github-actions-setup-gcloud');
-    return client.get(url)
-      .then(res => res.message.statusCode === 200 
-        ? Promise.resolve(url)
-        : Promise.reject(`error code: ${res.message.statusCode}`))
+    const client: httpm.HttpClient = new httpm.HttpClient(
+      'github-actions-setup-gcloud',
+    );
+    return client
+      .get(url)
+      .then(res =>
+        res.message.statusCode === 200
+          ? Promise.resolve(url)
+          : Promise.reject(`error code: ${res.message.statusCode}`),
+      );
   } catch (err) {
-    return Promise.reject("error trying to get release url!");
+    return Promise.reject('error trying to get release url!');
   }
 }

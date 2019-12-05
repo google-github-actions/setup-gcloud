@@ -23,11 +23,13 @@ const TEST_TIMEOUT_MILLIS = 10000;
 
 describe('queryGcloudSDKRelease tests', () => {
   TEST_SDK_VERSIONS.forEach(TEST_SDK_VERSION => {
-    const label = `[${TEST_SDK_VERSION}]`
+    const label = `[${TEST_SDK_VERSION}]`;
     it(
       `${label} Finds matching version linux`,
       async () => {
-        const result = await resolveAsBoolean(getReleaseURL('linux', 'x86_64', TEST_SDK_VERSION));
+        const result = await resolveAsBoolean(
+          getReleaseURL('linux', 'x86_64', TEST_SDK_VERSION),
+        );
         expect(result).toBe(true);
       },
       TEST_TIMEOUT_MILLIS,
@@ -36,7 +38,9 @@ describe('queryGcloudSDKRelease tests', () => {
     it(
       `${label} Finds matching version windows`,
       async () => {
-        const result = await resolveAsBoolean(getReleaseURL('win32', 'x86_64', TEST_SDK_VERSION));
+        const result = await resolveAsBoolean(
+          getReleaseURL('win32', 'x86_64', TEST_SDK_VERSION),
+        );
         expect(result).toBe(true);
       },
       TEST_TIMEOUT_MILLIS,
@@ -45,7 +49,9 @@ describe('queryGcloudSDKRelease tests', () => {
     it(
       `${label} Finds matching version darwin`,
       async () => {
-        const result = await resolveAsBoolean(getReleaseURL('darwin', 'x86_64', TEST_SDK_VERSION));
+        const result = await resolveAsBoolean(
+          getReleaseURL('darwin', 'x86_64', TEST_SDK_VERSION),
+        );
         expect(result).toBe(true);
       },
       TEST_TIMEOUT_MILLIS,
@@ -54,25 +60,28 @@ describe('queryGcloudSDKRelease tests', () => {
     it(
       `${label} Errors on unsupported OS`,
       async () => {
-        const result = await resolveAsBoolean(getReleaseURL('temple', 'x86_64', TEST_SDK_VERSION));
+        const result = await resolveAsBoolean(
+          getReleaseURL('temple', 'x86_64', TEST_SDK_VERSION),
+        );
         expect(result).toBe(false);
       },
       TEST_TIMEOUT_MILLIS,
     );
-
   });
 
   it(
     `Errors on unsupported version`,
     async () => {
-      const result = await resolveAsBoolean(getReleaseURL('linux', 'x86_64', "NONEXISTANT"));
+      const result = await resolveAsBoolean(
+        getReleaseURL('linux', 'x86_64', 'NONEXISTANT'),
+      );
       expect(result).toBe(false);
     },
     TEST_TIMEOUT_MILLIS,
   );
 });
 
-function resolveAsBoolean(p:Promise<any>):Promise<boolean> {
+function resolveAsBoolean(p: Promise<any>): Promise<boolean> {
   return p
     .then(() => Promise.resolve(true))
     .catch(() => Promise.resolve(false));

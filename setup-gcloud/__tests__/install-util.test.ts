@@ -48,8 +48,11 @@ describe('installGcloudSDK tests', () => {
   it(
     'Installs gcloud for current env',
     async () => {
-
-      const url = await getReleaseURL(os.platform(), os.arch(), testUtil.TEST_SDK_VERSION);
+      const url = await getReleaseURL(
+        os.platform(),
+        os.arch(),
+        testUtil.TEST_SDK_VERSION,
+      );
       const extPath = await downloadUtil.downloadAndExtractTool(url);
       await installUtil.installGcloudSDK(testUtil.TEST_SDK_VERSION, extPath);
       const gcloudDir = path.join(

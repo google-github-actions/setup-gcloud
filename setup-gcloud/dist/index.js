@@ -391,18 +391,19 @@ function formatReleaseURL(os, arch, version) {
     }
     return encodeURI(`https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${objectName}`);
 }
-// Get the release URL, first validating that the data exists 
+// Get the release URL, first validating that the data exists
 function getReleaseURL(os, arch, version) {
     try {
         const url = formatReleaseURL(os, arch, version);
         const client = new httpm.HttpClient('github-actions-setup-gcloud');
-        return client.get(url)
+        return client
+            .get(url)
             .then(res => res.message.statusCode === 200
             ? Promise.resolve(url)
             : Promise.reject(`error code: ${res.message.statusCode}`));
     }
     catch (err) {
-        return Promise.reject("error trying to get release url!");
+        return Promise.reject('error trying to get release url!');
     }
 }
 exports.getReleaseURL = getReleaseURL;

@@ -22,7 +22,7 @@ import {promises as fs} from 'fs';
 import path from 'path';
 import * as tmp from 'tmp';
 import * as os from 'os';
-import * as clientUtil from './client-util';
+import {getReleaseURL} from '../src/format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
 
@@ -72,21 +72,12 @@ async function installGcloudSDK(version: string) {
   // retreive the release corresponding to the specified version and the current env
   const osPlat = os.platform();
   const osArch = os.arch();
-  const release = await clientUtil.queryGcloudSDKRelease(
-    osPlat,
-    osArch,
-    version,
-  );
-  if (!release) {
-    throw new Error(
-      `Failed to find release, os: ${osPlat} arch: ${osArch} version: ${version}`,
-    );
-  }
+  const url = await getReleaseURL(osPlat, osArch, version); 
 
   // download and extract the release
-  const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+  const extPath = await downloadUtil.downloadAndExtractTool(url);
   if (!extPath) {
-    throw new Error(`Failed to download release, url: ${release!.url}`);
+    throw new Error(`Failed to download release, url: ${url}`);
   }
 
   // install the downloaded release into the github action env

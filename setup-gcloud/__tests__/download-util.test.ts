@@ -26,8 +26,8 @@ const tempDir = testUtil.setupTempDir('temp', 'RUNNER_TEMP');
 
 // Import modules being tested after test setup as run.
 import * as downloadUtil from '../src/download-util';
-import * as clientUtil from '../src/client-util';
 
+import {getReleaseURL} from '../src/format-url';
 // Downloads can require a bit longer of a timeout.
 const TEST_TIMEOUT_MILLIS = 10000;
 
@@ -50,12 +50,8 @@ describe('downloadAndExtractTool tests', () => {
         return;
       }
 
-      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-        'linux',
-        'x86_64',
-        testUtil.TEST_SDK_VERSION,
-      );
-      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      const url = await getReleaseURL('linux', 'x86_64', testUtil.TEST_SDK_VERSION);
+      const extPath = await downloadUtil.downloadAndExtractTool(url);
       expect(extPath).toBeDefined();
       expect(fs.existsSync(extPath)).toBe(true);
     },
@@ -66,12 +62,9 @@ describe('downloadAndExtractTool tests', () => {
     'Downloads and extracts windows version',
     async () => {
       // Use an older version of the Windows release, as the current release is 200MB+ and takes too long to download.
-      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-        'win32',
-        'x86_64',
-        '0.9.83',
-      );
-      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+
+      const url = await getReleaseURL('win32', 'x86_64', '0.9.83');
+      const extPath = await downloadUtil.downloadAndExtractTool(url);
       expect(extPath).toBeDefined();
       expect(fs.existsSync(extPath)).toBe(true);
     },
@@ -86,12 +79,8 @@ describe('downloadAndExtractTool tests', () => {
         return;
       }
 
-      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
-        'darwin',
-        'x86_64',
-        testUtil.TEST_SDK_VERSION,
-      );
-      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      const url = await getReleaseURL('darwin', 'x86_64', testUtil.TEST_SDK_VERSION);
+      const extPath = await downloadUtil.downloadAndExtractTool(url);
       expect(extPath).toBeDefined();
       expect(fs.existsSync(extPath)).toBe(true);
     },

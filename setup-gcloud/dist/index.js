@@ -340,6 +340,72 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
+/***/ 8:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const httpm = __importStar(__webpack_require__(874));
+// Get the supposed release URL (no checks are performed)
+function formatReleaseURL(os, arch, version) {
+    let objectName;
+    switch (os) {
+        case 'linux':
+            objectName = `google-cloud-sdk-${version}-linux-${arch}.tar.gz`;
+            break;
+        case 'darwin':
+            objectName = `google-cloud-sdk-${version}-darwin-${arch}.tar.gz`;
+            break;
+        case 'win32':
+            objectName = `google-cloud-sdk-${version}-windows-${arch}.zip`;
+            break;
+        default:
+            throw new Error(`Unexpected OS '${os}'`);
+    }
+    return encodeURI(`https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${objectName}`);
+}
+// Get the release URL, first validating that the data exists 
+function getReleaseURL(os, arch, version) {
+    try {
+        const url = formatReleaseURL(os, arch, version);
+        const client = new httpm.HttpClient('github-actions-setup-gcloud');
+        return client.get(url)
+            .then(res => res.message.statusCode === 200
+            ? Promise.resolve(url)
+            : Promise.reject(`error code: ${res.message.statusCode}`));
+    }
+    catch (err) {
+        return Promise.reject("error trying to get release url!");
+    }
+}
+exports.getReleaseURL = getReleaseURL;
+
+
+/***/ }),
+
 /***/ 9:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -1950,231 +2016,6 @@ function globUnescape (s) {
 function regExpEscape (s) {
   return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 }
-
-
-/***/ }),
-
-/***/ 105:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const httpm = __webpack_require__(874);
-const util = __webpack_require__(729);
-class RestClient {
-    /**
-     * Creates an instance of the RestClient
-     * @constructor
-     * @param {string} userAgent - userAgent for requests
-     * @param {string} baseUrl - (Optional) If not specified, use full urls per request.  If supplied and a function passes a relative url, it will be appended to this
-     * @param {ifm.IRequestHandler[]} handlers - handlers are typically auth handlers (basic, bearer, ntlm supplied)
-     * @param {ifm.IRequestOptions} requestOptions - options for each http requests (http proxy setting, socket timeout)
-     */
-    constructor(userAgent, baseUrl, handlers, requestOptions) {
-        this.client = new httpm.HttpClient(userAgent, handlers, requestOptions);
-        if (baseUrl) {
-            this._baseUrl = baseUrl;
-        }
-    }
-    /**
-     * Gets a resource from an endpoint
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} requestUrl - fully qualified or relative url
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    options(requestUrl, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(requestUrl, this._baseUrl);
-            let res = yield this.client.options(url, this._headersFromOptions(options));
-            return this._processResponse(res, options);
-        });
-    }
-    /**
-     * Gets a resource from an endpoint
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} resource - fully qualified url or relative path
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    get(resource, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(resource, this._baseUrl);
-            let res = yield this.client.get(url, this._headersFromOptions(options));
-            return this._processResponse(res, options);
-        });
-    }
-    /**
-     * Deletes a resource from an endpoint
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} resource - fully qualified or relative url
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    del(resource, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(resource, this._baseUrl);
-            let res = yield this.client.del(url, this._headersFromOptions(options));
-            return this._processResponse(res, options);
-        });
-    }
-    /**
-     * Creates resource(s) from an endpoint
-     * T type of object returned.
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} resource - fully qualified or relative url
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    create(resource, resources, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(resource, this._baseUrl);
-            let headers = this._headersFromOptions(options, true);
-            let data = JSON.stringify(resources, null, 2);
-            let res = yield this.client.post(url, data, headers);
-            return this._processResponse(res, options);
-        });
-    }
-    /**
-     * Updates resource(s) from an endpoint
-     * T type of object returned.
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} resource - fully qualified or relative url
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    update(resource, resources, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(resource, this._baseUrl);
-            let headers = this._headersFromOptions(options, true);
-            let data = JSON.stringify(resources, null, 2);
-            let res = yield this.client.patch(url, data, headers);
-            return this._processResponse(res, options);
-        });
-    }
-    /**
-     * Replaces resource(s) from an endpoint
-     * T type of object returned.
-     * Be aware that not found returns a null.  Other error conditions reject the promise
-     * @param {string} resource - fully qualified or relative url
-     * @param {IRequestOptions} requestOptions - (optional) requestOptions object
-     */
-    replace(resource, resources, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(resource, this._baseUrl);
-            let headers = this._headersFromOptions(options, true);
-            let data = JSON.stringify(resources, null, 2);
-            let res = yield this.client.put(url, data, headers);
-            return this._processResponse(res, options);
-        });
-    }
-    uploadStream(verb, requestUrl, stream, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = util.getUrl(requestUrl, this._baseUrl);
-            let headers = this._headersFromOptions(options, true);
-            let res = yield this.client.sendStream(verb, url, stream, headers);
-            return this._processResponse(res, options);
-        });
-    }
-    _headersFromOptions(options, contentType) {
-        options = options || {};
-        let headers = options.additionalHeaders || {};
-        headers["Accept"] = options.acceptHeader || "application/json";
-        if (contentType) {
-            let found = false;
-            for (let header in headers) {
-                if (header.toLowerCase() == "content-type") {
-                    found = true;
-                }
-            }
-            if (!found) {
-                headers["Content-Type"] = 'application/json; charset=utf-8';
-            }
-        }
-        return headers;
-    }
-    static dateTimeDeserializer(key, value) {
-        if (typeof value === 'string') {
-            let a = new Date(value);
-            if (!isNaN(a.valueOf())) {
-                return a;
-            }
-        }
-        return value;
-    }
-    _processResponse(res, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                const statusCode = res.message.statusCode;
-                const response = {
-                    statusCode: statusCode,
-                    result: null,
-                    headers: {}
-                };
-                // not found leads to null obj returned
-                if (statusCode == httpm.HttpCodes.NotFound) {
-                    resolve(response);
-                }
-                let obj;
-                let contents;
-                // get the result from the body
-                try {
-                    contents = yield res.readBody();
-                    if (contents && contents.length > 0) {
-                        if (options && options.deserializeDates) {
-                            obj = JSON.parse(contents, RestClient.dateTimeDeserializer);
-                        }
-                        else {
-                            obj = JSON.parse(contents);
-                        }
-                        if (options && options.responseProcessor) {
-                            response.result = options.responseProcessor(obj);
-                        }
-                        else {
-                            response.result = obj;
-                        }
-                    }
-                    response.headers = res.message.headers;
-                }
-                catch (err) {
-                    // Invalid resource (contents not json);  leaving result obj null
-                }
-                // note that 3xx redirects are handled by the http layer.
-                if (statusCode > 299) {
-                    let msg;
-                    // if exception/error in body, attempt to get better error
-                    if (obj && obj.message) {
-                        msg = obj.message;
-                    }
-                    else if (contents && contents.length > 0) {
-                        // it may be the case that the exception is in the body message as string
-                        msg = contents;
-                    }
-                    else {
-                        msg = "Failed request: (" + statusCode + ")";
-                    }
-                    let err = new Error(msg);
-                    // attach statusCode and body obj (if available) to the error object
-                    err['statusCode'] = statusCode;
-                    if (response.result) {
-                        err['result'] = response.result;
-                    }
-                    reject(err);
-                }
-                else {
-                    resolve(response);
-                }
-            }));
-        });
-    }
-}
-exports.RestClient = RestClient;
 
 
 /***/ }),
@@ -8351,113 +8192,6 @@ try {
 
 /***/ }),
 
-/***/ 699:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-/*
- * Copyright 2019 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Contains REST client utility functions.
- */
-const rest = __importStar(__webpack_require__(105));
-/**
- * Queries for a gcloud SDK release.
- *
- * @param os The OS of the release.
- * @param arch The architecutre of the release
- * @param version The version of the release.
- * @returns The matching release data or else null if not found.
- */
-function queryGcloudSDKRelease(os, arch, version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // massage the arch to match gcloud sdk conventions
-        if (arch == 'x64') {
-            arch = 'x86_64';
-        }
-        const client = getClient();
-        const storageObjects = (yield client.get(formatReleaseURL(os, arch, version))).result;
-        // If no response was returned this indicates an error.
-        if (!storageObjects) {
-            throw new Error('Unable to retreieve cloud sdk version list');
-        }
-        // If an empty response was returned, this indicates no matches found.
-        if (!storageObjects.items) {
-            return null;
-        }
-        // Get the latest generation that matches the version spec.
-        const release = storageObjects.items.sort((a, b) => {
-            if (a.generation > b.generation) {
-                return 1;
-            }
-            return -1;
-        })[0];
-        if (release) {
-            return {
-                name: release.name,
-                url: release.mediaLink,
-                version: version,
-            };
-        }
-        return null;
-    });
-}
-exports.queryGcloudSDKRelease = queryGcloudSDKRelease;
-function formatReleaseURL(os, arch, version) {
-    let objectName;
-    switch (os) {
-        case 'linux':
-            objectName = `google-cloud-sdk-${version}-linux-${arch}.tar.gz`;
-            break;
-        case 'darwin':
-            objectName = `google-cloud-sdk-${version}-darwin-${arch}.tar.gz`;
-            break;
-        case 'win32':
-            objectName = `google-cloud-sdk-${version}-windows-${arch}.zip`;
-            break;
-        default:
-            throw new Error(`Unexpected OS '${os}'`);
-    }
-    return encodeURI(`https://www.googleapis.com/storage/v1/b/cloud-sdk-release/o?prefix=${objectName}`);
-}
-function getClient() {
-    return new rest.RestClient('github-actions-setup-gcloud');
-}
-
-
-/***/ }),
-
 /***/ 722:
 /***/ (function(module) {
 
@@ -8485,49 +8219,6 @@ function bytesToUuid(buf, offset) {
 }
 
 module.exports = bytesToUuid;
-
-
-/***/ }),
-
-/***/ 729:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-Object.defineProperty(exports, "__esModule", { value: true });
-const url = __webpack_require__(835);
-const path = __webpack_require__(622);
-/**
- * creates an url from a request url and optional base url (http://server:8080)
- * @param {string} resource - a fully qualified url or relative path
- * @param {string} baseUrl - an optional baseUrl (http://server:8080)
- * @return {string} - resultant url
- */
-function getUrl(resource, baseUrl) {
-    const pathApi = path.posix || path;
-    if (!baseUrl) {
-        return resource;
-    }
-    else if (!resource) {
-        return baseUrl;
-    }
-    else {
-        const base = url.parse(baseUrl);
-        const resultantUrl = url.parse(resource);
-        // resource (specific per request) elements take priority
-        resultantUrl.protocol = resultantUrl.protocol || base.protocol;
-        resultantUrl.auth = resultantUrl.auth || base.auth;
-        resultantUrl.host = resultantUrl.host || base.host;
-        resultantUrl.pathname = pathApi.resolve(base.pathname, resultantUrl.pathname);
-        if (!resultantUrl.pathname.endsWith('/') && resource.endsWith('/')) {
-            resultantUrl.pathname += '/';
-        }
-        return url.format(resultantUrl);
-    }
-}
-exports.getUrl = getUrl;
 
 
 /***/ }),
@@ -8576,7 +8267,7 @@ const js_base64_1 = __webpack_require__(867);
 const fs_1 = __webpack_require__(747);
 const tmp = __importStar(__webpack_require__(150));
 const os = __importStar(__webpack_require__(87));
-const clientUtil = __importStar(__webpack_require__(699));
+const format_url_1 = __webpack_require__(8);
 const downloadUtil = __importStar(__webpack_require__(339));
 const installUtil = __importStar(__webpack_require__(962));
 function run() {
@@ -8620,14 +8311,11 @@ function installGcloudSDK(version) {
         // retreive the release corresponding to the specified version and the current env
         const osPlat = os.platform();
         const osArch = os.arch();
-        const release = yield clientUtil.queryGcloudSDKRelease(osPlat, osArch, version);
-        if (!release) {
-            throw new Error(`Failed to find release, os: ${osPlat} arch: ${osArch} version: ${version}`);
-        }
+        const url = yield format_url_1.getReleaseURL(osPlat, osArch, version);
         // download and extract the release
-        const extPath = yield downloadUtil.downloadAndExtractTool(release.url);
+        const extPath = yield downloadUtil.downloadAndExtractTool(url);
         if (!extPath) {
-            throw new Error(`Failed to download release, url: ${release.url}`);
+            throw new Error(`Failed to download release, url: ${url}`);
         }
         // install the downloaded release into the github action env
         yield installUtil.installGcloudSDK(version, extPath);

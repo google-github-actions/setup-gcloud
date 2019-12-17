@@ -15,13 +15,13 @@
  */
 
 /*
- * Tests client-util.
+ * Tests format-url.
  */
 import {TEST_SDK_VERSIONS} from '../src/test-util';
 import {getReleaseURL} from '../src/format-url';
 const TEST_TIMEOUT_MILLIS = 10000;
 
-describe('queryGcloudSDKRelease tests', () => {
+describe('getReleaseURL tests', () => {
   TEST_SDK_VERSIONS.forEach(TEST_SDK_VERSION => {
     const label = `[${TEST_SDK_VERSION}]`;
     it(

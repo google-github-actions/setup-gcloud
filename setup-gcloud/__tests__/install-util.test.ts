@@ -26,10 +26,10 @@ import * as testUtil from '../src/test-util';
 const toolDir = testUtil.setupTempDir('tools', 'RUNNER_TOOL_CACHE');
 const tempDir = testUtil.setupTempDir('temp', 'RUNNER_TEMP');
 
+import {getReleaseURL} from '../src/format-url';
 // Import modules being tested after test setup as run.
 import * as installUtil from '../src/install-util';
 import * as downloadUtil from '../src/download-util';
-import * as clientUtil from '../src/client-util';
 
 // Installation can require a bit longer of a timeout.
 const TEST_TIMEOUT_MILLIS = 60000;
@@ -48,12 +48,12 @@ describe('installGcloudSDK tests', () => {
   it(
     'Installs gcloud for current env',
     async () => {
-      const release: clientUtil.IGcloudSDKRelease | null = await clientUtil.queryGcloudSDKRelease(
+      const url = await getReleaseURL(
         os.platform(),
         os.arch(),
         testUtil.TEST_SDK_VERSION,
       );
-      const extPath = await downloadUtil.downloadAndExtractTool(release!.url);
+      const extPath = await downloadUtil.downloadAndExtractTool(url);
       await installUtil.installGcloudSDK(testUtil.TEST_SDK_VERSION, extPath);
       const gcloudDir = path.join(
         toolDir,

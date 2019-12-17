@@ -15,12 +15,21 @@
  */
 
 import * as httpm from 'typed-rest-client/HttpClient';
-// Get the supposed release URL (no checks are performed)
+
+/**
+ * Formats the gcloud SDK release URL according to the specified arguments.
+ *
+ * @param os The OS of the requested release.
+ * @param arch The system architecture of the requested release.
+ * @param version The version of the requested release.
+ * @returns The formatted gcloud SDK release URL.
+ */
 function formatReleaseURL(os: string, arch: string, version: string): string {
   // massage the arch to match gcloud sdk conventions
   if (arch == 'x64') {
     arch = 'x86_64';
   }
+
   let objectName: string;
   switch (os) {
     case 'linux':
@@ -41,7 +50,15 @@ function formatReleaseURL(os: string, arch: string, version: string): string {
   );
 }
 
-// Get the release URL, first validating that the data exists
+/**
+ * Creates the gcloud SDK release URL for the specified arguments, verifying
+ * its existence.
+ *
+ * @param os The OS of the requested release.
+ * @param arch The system architecture of the requested release.
+ * @param version The version of the requested release.
+ * @returns The verified gcloud SDK release URL.
+ */
 export function getReleaseURL(
   os: string,
   arch: string,
@@ -53,13 +70,15 @@ export function getReleaseURL(
       'github-actions-setup-gcloud',
     );
     return client
-      .get(url)
+      .head(url)
       .then(res =>
         res.message.statusCode === 200
           ? Promise.resolve(url)
           : Promise.reject(`error code: ${res.message.statusCode}`),
       );
   } catch (err) {
-    return Promise.reject('error trying to get release url!');
+    return Promise.reject(
+      `Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`,
+    );
   }
 }

@@ -43,7 +43,7 @@ async function run() {
     }
 
     // install the gcloud is not already present
-    let toolPath = toolCache.find('gcloud', version);
+    const toolPath = toolCache.find('gcloud', version);
     if (!toolPath) {
       installGcloudSDK(version);
     }

@@ -9121,7 +9121,7 @@ let Minimatch = minimatch.Minimatch
             let t = {};
             for (let i = 0, l = bin.length; i < l; i++) t[bin.charAt(i)] = i;
             return t;
-          })(b64chars);
+          }(b64chars);
           var fromCharCode = String.fromCharCode;
           // encoder stuff
           var cb_utob = function(c) {

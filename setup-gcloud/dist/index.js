@@ -7857,6 +7857,7 @@ let isWindows = (process.platform === "win32")
     'lstat',
     'rmdir',
     'readdir'
+  ]
         methods.forEach(function(m) {
           options[m] = options[m] || fs[m];
           m = m + 'Sync';

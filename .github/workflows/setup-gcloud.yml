@@ -23,6 +23,17 @@ jobs:
       working-directory: ./setup-gcloud
       run: npm run format-check
 
-    - name: npm test
+    - name: Unit tests
       working-directory: ./setup-gcloud
       run: npm test
+
+    - name: setup-gcloud local
+      uses: ./setup-gcloud/
+      with:
+        version: '274.0.0'
+        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+    - name: Integration Tests
+      shell: bash
+      run: ./setup-gcloud/__tests__/integration-tests.sh

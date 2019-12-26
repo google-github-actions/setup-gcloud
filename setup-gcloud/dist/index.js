@@ -8284,7 +8284,7 @@ const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const toolCache = __importStar(__webpack_require__(533));
 const js_base64_1 = __webpack_require__(867);
-const fs_1 = __webpack_require__(747);
+const fs = __importStar(__webpack_require__(747));
 const tmp = __importStar(__webpack_require__(150));
 const os = __importStar(__webpack_require__(87));
 const format_url_1 = __webpack_require__(8);
@@ -8300,6 +8300,7 @@ function run() {
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
+            const serviceAccountFileName = core.getInput('service_account_file_name');
             if (!serviceAccountKey) {
                 throw new Error('Missing required input: `service_account_key`');
             }
@@ -8309,7 +8310,7 @@ function run() {
                 installGcloudSDK(version);
             }
             // write the service account key to a temporary file
-            const tmpKeyFilePath = yield new Promise((resolve, reject) => {
+            let tmpKeyFilePath = yield new Promise((resolve, reject) => {
                 tmp.file((err, path, fd, cleanupCallback) => {
                     if (err) {
                         reject(err);
@@ -8317,7 +8318,12 @@ function run() {
                     resolve(path);
                 });
             });
-            yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+            if (serviceAccountFileName) {
+                tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
+            }
+            if (fs.existsSync(tmpKeyFilePath)) {
+                yield fs.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+            }
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
             // let result=execSync(

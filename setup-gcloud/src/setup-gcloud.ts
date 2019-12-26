@@ -18,7 +18,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
 import {Base64} from 'js-base64';
-import {promises as fs} from 'fs';
+import * as fs from 'fs';
 import path from 'path';
 import * as tmp from 'tmp';
 import * as os from 'os';
@@ -39,6 +39,7 @@ async function run() {
     const serviceAccountEmail = core.getInput('service_account_email') || '';
 
     const serviceAccountKey = core.getInput('service_account_key');
+    const serviceAccountFileName = core.getInput('service_account_file_name');
     if (!serviceAccountKey) {
       throw new Error('Missing required input: `service_account_key`');
     }
@@ -50,7 +51,7 @@ async function run() {
     }
 
     // write the service account key to a temporary file
-    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
+    let tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
       tmp.file((err, path, fd, cleanupCallback) => {
         if (err) {
           reject(err);
@@ -58,7 +59,13 @@ async function run() {
         resolve(path);
       });
     });
-    await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
+    if(serviceAccountFileName) {
+      tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
+    }
+    if (fs.existsSync(tmpKeyFilePath)){
+      await fs.promises.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
+
+    }
 
     // authenticate as the specified service account
     await exec.exec(

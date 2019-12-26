@@ -62,17 +62,17 @@ async function run() {
 
     // authenticate as the specified service account
     await exec.exec(
-      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}; export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
-    // let result =await sh(
-    //   `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
-    // );
-    // console.log(result);
-    //
-    // result= await sh(
-    //   "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
-    // );
-    // console.log(result);
+    let result =await sh(
+      `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+    );
+    console.log(result);
+
+    result= await sh(
+      "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+    );
+    console.log(result);
 
 
   } catch (error) {
@@ -83,8 +83,11 @@ async function sh(cmd:string) {
   return new Promise(function (resolve, reject) {
     exec_shell(cmd, (err, stdout, stderr) => {
       if (err) {
+        console.log("err:"+err);
         reject(err);
       } else {
+        console.log("stdout:"+stdout);
+        console.log("stderr:"+stderr);
         resolve(stdout);
       }
     });

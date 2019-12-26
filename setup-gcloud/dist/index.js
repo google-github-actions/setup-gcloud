@@ -8320,11 +8320,16 @@ function run() {
             });
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
-            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-            let result = yield sh(`export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`);
-            console.log(result);
-            result = yield sh("echo ${GOOGLE_APPLICATION_CREDENTIALS}");
-            console.log(result);
+            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}; export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`);
+            // let result =await sh(
+            //   `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+            // );
+            // console.log(result);
+            //
+            // result= await sh(
+            //   "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+            // );
+            // console.log(result);
         }
         catch (error) {
             core.setFailed(error.message);

@@ -62,17 +62,17 @@ async function run() {
 
     // authenticate as the specified service account
     await exec.exec(
-      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
+      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}; export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
     );
-    let result =await sh(
-      `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
-    );
-    console.log(result);
-    
-    result= await sh(
-      "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
-    );
-    console.log(result);
+    // let result =await sh(
+    //   `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+    // );
+    // console.log(result);
+    //
+    // result= await sh(
+    //   "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+    // );
+    // console.log(result);
 
 
   } catch (error) {

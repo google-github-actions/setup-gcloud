@@ -63,6 +63,9 @@ async function run() {
     await exec.exec(
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
+     await exec.exec(
+      `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+    );
    
   } catch (error) {
     core.setFailed(error.message);

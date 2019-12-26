@@ -65,7 +65,7 @@ async function run() {
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
     let result=execSync(
-      `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+      `export GOOGLE_APPLICATION_CREDENTIALS="test"`,
         { encoding: 'utf-8' }
     );
     console.log(result);

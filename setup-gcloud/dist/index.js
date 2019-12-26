@@ -8321,9 +8321,9 @@ function run() {
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-            let result = yield sh(`export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`);
+            let result = child_process_1.execSync(`export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`, { encoding: 'utf-8' });
             console.log(result);
-            result = yield sh("echo ${GOOGLE_APPLICATION_CREDENTIALS}");
+            result = child_process_1.execSync("echo ${GOOGLE_APPLICATION_CREDENTIALS}", { encoding: 'utf-8' });
             console.log(result);
         }
         catch (error) {
@@ -8331,23 +8331,20 @@ function run() {
         }
     });
 }
-function sh(cmd) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(function (resolve, reject) {
-            child_process_1.exec(cmd, (err, stdout, stderr) => {
-                if (err) {
-                    console.log("err:" + err);
-                    reject(err);
-                }
-                else {
-                    console.log("stdout:" + stdout);
-                    console.log("stderr:" + stderr);
-                    resolve(stdout);
-                }
-            });
-        });
-    });
-}
+// async function sh(cmd:string) {
+//   return new Promise(function (resolve, reject) {
+//     exec_shell(cmd, (err, stdout, stderr) => {
+//       if (err) {
+//         console.log("err:"+err);
+//         reject(err);
+//       } else {
+//         console.log("stdout:"+stdout);
+//         console.log("stderr:"+stderr);
+//         resolve(stdout);
+//       }
+//     });
+//   });
+// }
 function installGcloudSDK(version) {
     return __awaiter(this, void 0, void 0, function* () {
         // retreive the release corresponding to the specified version and the current env

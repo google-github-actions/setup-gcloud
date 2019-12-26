@@ -25,7 +25,7 @@ import * as os from 'os';
 import {getReleaseURL} from '../src/format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
-import { exec as exec_shell} from 'child_process';
+import { execSync} from 'child_process';
 
 async function run() {
   try {
@@ -64,13 +64,15 @@ async function run() {
     await exec.exec(
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
-    let result =await sh(
+    let result=execSync(
       `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
+        { encoding: 'utf-8' }
     );
     console.log(result);
 
-    result= await sh(
+    result= execSync(
       "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+        { encoding: 'utf-8' }
     );
     console.log(result);
 
@@ -79,20 +81,20 @@ async function run() {
     core.setFailed(error.message);
   }
 }
-async function sh(cmd:string) {
-  return new Promise(function (resolve, reject) {
-    exec_shell(cmd, (err, stdout, stderr) => {
-      if (err) {
-        console.log("err:"+err);
-        reject(err);
-      } else {
-        console.log("stdout:"+stdout);
-        console.log("stderr:"+stderr);
-        resolve(stdout);
-      }
-    });
-  });
-}
+// async function sh(cmd:string) {
+//   return new Promise(function (resolve, reject) {
+//     exec_shell(cmd, (err, stdout, stderr) => {
+//       if (err) {
+//         console.log("err:"+err);
+//         reject(err);
+//       } else {
+//         console.log("stdout:"+stdout);
+//         console.log("stderr:"+stderr);
+//         resolve(stdout);
+//       }
+//     });
+//   });
+// }
 
 async function installGcloudSDK(version: string) {
   // retreive the release corresponding to the specified version and the current env

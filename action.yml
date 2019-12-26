@@ -4,7 +4,7 @@ author: 'GoogleCloudPlatform'
 inputs:
   version:
     description: 'The version of the gcloud SDK to be installed.  Example: 270.0.0'
-    default: '270.0.0'
+    default: '270.0.1'
     required: false
   service_account_email:
     description: 'The service account email which will be used for authentication.'

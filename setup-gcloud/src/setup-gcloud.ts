@@ -66,6 +66,10 @@ async function run() {
      await exec.exec(
       `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
     );
+    
+     await exec.exec(
+      "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+    );
    
   } catch (error) {
     core.setFailed(error.message);

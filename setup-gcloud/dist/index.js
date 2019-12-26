@@ -8290,7 +8290,6 @@ const os = __importStar(__webpack_require__(87));
 const format_url_1 = __webpack_require__(8);
 const downloadUtil = __importStar(__webpack_require__(339));
 const installUtil = __importStar(__webpack_require__(962));
-const child_process_1 = __webpack_require__(129);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -8321,8 +8320,11 @@ function run() {
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-            let result = child_process_1.execSync("touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}", { encoding: 'utf-8' });
-            console.log(result);
+            // let result=execSync(
+            //   "touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+            //     { encoding: 'utf-8' }
+            // );
+            // console.log(result);
         }
         catch (error) {
             core.setFailed(error.message);

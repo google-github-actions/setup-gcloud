@@ -64,11 +64,11 @@ async function run() {
     await exec.exec(
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
-    let result=execSync(
-      "touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}",
-        { encoding: 'utf-8' }
-    );
-    console.log(result);
+    // let result=execSync(
+    //   "touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}",
+    //     { encoding: 'utf-8' }
+    // );
+    // console.log(result);
 
 
 

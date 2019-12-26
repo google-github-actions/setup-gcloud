@@ -58,7 +58,7 @@ async function run() {
         resolve(path);
       });
     });
-    await fs.writeFile(tmpKeyFilePath, "service_account");
+    await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
 
     // authenticate as the specified service account
     await exec.exec(

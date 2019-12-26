@@ -11319,6 +11319,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
@@ -11330,7 +11333,7 @@ const os = __importStar(__webpack_require__(87));
 const format_url_1 = __webpack_require__(8);
 const downloadUtil = __importStar(__webpack_require__(339));
 const installUtil = __importStar(__webpack_require__(962));
-const shelljs_1 = __webpack_require__(739);
+const shelljs_1 = __importDefault(__webpack_require__(739));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -11361,9 +11364,9 @@ function run() {
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-            let result = shelljs_1.exec(`export GOOGLE_APPLICATION_CREDENTIALS="test"`, { encoding: 'utf-8' });
+            let result = shelljs_1.default.exec(`export GOOGLE_APPLICATION_CREDENTIALS="test"`, { encoding: 'utf-8' });
             console.log(result);
-            result = shelljs_1.echo("GOOGLE_APPLICATION_CREDENTIALS");
+            result = shelljs_1.default.echo("GOOGLE_APPLICATION_CREDENTIALS");
             console.log(result);
         }
         catch (error) {

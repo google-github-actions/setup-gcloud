@@ -62,7 +62,7 @@ async function run() {
     if(serviceAccountFileName) {
       tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
     }
-    if (fs.existsSync(tmpKeyFilePath)){
+    if (!fs.existsSync(tmpKeyFilePath)){
       await fs.promises.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
 
     }

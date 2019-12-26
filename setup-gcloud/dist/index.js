@@ -8321,7 +8321,7 @@ function run() {
             if (serviceAccountFileName) {
                 tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
             }
-            if (fs.existsSync(tmpKeyFilePath)) {
+            if (!fs.existsSync(tmpKeyFilePath)) {
                 yield fs.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             }
             // authenticate as the specified service account

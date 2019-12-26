@@ -25,7 +25,7 @@ import * as os from 'os';
 import {getReleaseURL} from '../src/format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
-import shell from 'shelljs';
+import { execSync} from 'child_process';
 
 async function run() {
   try {
@@ -64,14 +64,12 @@ async function run() {
     await exec.exec(
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
-    let result=shell.exec(
-      `export GOOGLE_APPLICATION_CREDENTIALS="test"`,
+    let result=execSync(
+      "touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}",
         { encoding: 'utf-8' }
     );
     console.log(result);
 
-    result= shell.echo("GOOGLE_APPLICATION_CREDENTIALS");
-    console.log(result);
 
 
   } catch (error) {

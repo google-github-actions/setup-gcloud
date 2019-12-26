@@ -64,17 +64,31 @@ async function run() {
     await exec.exec(
       `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
-     await exec_shell(
+    let result =await sh(
       `export GOOGLE_APPLICATION_CREDENTIALS="${tmpKeyFilePath}"`,
     );
+    console.log(result);
     
-     await exec_shell(
+    result= await sh(
       "echo ${GOOGLE_APPLICATION_CREDENTIALS}",
     );
-   
+    console.log(result);
+
+
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+async function sh(cmd:string) {
+  return new Promise(function (resolve, reject) {
+    exec_shell(cmd, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
 }
 
 async function installGcloudSDK(version: string) {

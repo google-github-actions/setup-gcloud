@@ -61,13 +61,9 @@ async function run() {
 
     // authenticate as the specified service account
     await exec.exec(
-      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
+      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath};export GOOGLE_APPLICATION_CREDENTIALS=${tmpKeyFilePath}`,
     );
     
-     // set GOOGLE_APPLICATION_CREDENTIALS
-    await exec.exec(
-      `export GOOGLE_APPLICATION_CREDENTIALS=${tmpKeyFilePath}`,
-    );
     
     // print GOOGLE_APPLICATION_CREDENTIALS
      await exec.exec(

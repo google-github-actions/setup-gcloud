@@ -8320,7 +8320,7 @@ function run() {
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-	    yield exec.exec(`export GOOGLE_APPLICATION_CREDENTIALS=${tmpKeyFilePath}`);
+	    yield exec.exec(`export GOOGLE_APPLICATION_CREDENTIALS=abc-test`);
 	    yield exec.exec("echo ${GOOGLE_APPLICATION_CREDENTIALS}");	
 		
         }

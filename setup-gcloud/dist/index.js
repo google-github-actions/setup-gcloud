@@ -8300,7 +8300,6 @@ function run() {
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
-            const serviceAccountFileName = core.getInput('service_account_file_name');
             if (!serviceAccountKey) {
                 throw new Error('Missing required input: `service_account_key`');
             }
@@ -8318,6 +8317,7 @@ function run() {
                     resolve(path);
                 });
             });
+            const serviceAccountFileName = core.getInput('service_account_file_name');
             if (serviceAccountFileName) {
                 tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
             }
@@ -8326,31 +8326,12 @@ function run() {
             }
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
-            // let result=execSync(
-            //   "touch set-env.sh; echo GOOGLE_APPLICATION_CREDENTIALS=test>>set-env.sh; source set-env.sh; echo ${GOOGLE_APPLICATION_CREDENTIALS}",
-            //     { encoding: 'utf-8' }
-            // );
-            // console.log(result);
         }
         catch (error) {
             core.setFailed(error.message);
         }
     });
 }
-// async function sh(cmd:string) {
-//   return new Promise(function (resolve, reject) {
-//     exec_shell(cmd, (err, stdout, stderr) => {
-//       if (err) {
-//         console.log("err:"+err);
-//         reject(err);
-//       } else {
-//         console.log("stdout:"+stdout);
-//         console.log("stderr:"+stderr);
-//         resolve(stdout);
-//       }
-//     });
-//   });
-// }
 function installGcloudSDK(version) {
     return __awaiter(this, void 0, void 0, function* () {
         // retreive the release corresponding to the specified version and the current env

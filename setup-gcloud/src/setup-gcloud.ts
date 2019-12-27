@@ -60,12 +60,15 @@ async function run() {
 
     const serviceAccountFileName = core.getInput('service_account_file_name');
 
-    if(serviceAccountFileName) {
+    if (serviceAccountFileName) {
       tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
     }
 
-    if (!fs.existsSync(tmpKeyFilePath)){
-      await fs.promises.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
+    if (!fs.existsSync(tmpKeyFilePath)) {
+      await fs.promises.writeFile(
+        tmpKeyFilePath,
+        Base64.decode(serviceAccountKey),
+      );
     }
 
     // authenticate as the specified service account

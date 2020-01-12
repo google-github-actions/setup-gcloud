@@ -41,7 +41,7 @@ steps:
 - uses: actions/checkout@v1
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
-      version: '270.0.0'
+      version: '275.0.0'
       service_account_email: ${{ secrets.GCP_SA_EMAIL }}
       service_account_key: ${{ secrets.GCP_SA_KEY }}
 - run: gcloud info
@@ -49,7 +49,7 @@ steps:
 
 ## Inputs
 
-* `version`: The version of the gcloud to be installed.  Example: `270.0.0`
+* `version`: The version of the gcloud to be installed.  Example: `275.0.0`
 
 * `service_account_email`: (Optional) The service account email which will be used for authentication.
 

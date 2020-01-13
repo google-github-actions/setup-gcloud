@@ -45,6 +45,6 @@ export function setupTempDir(leafName: string, envName?: string): string {
 /**
  * The version of the gcloud SDK being tested against.
  */
-export const TEST_SDK_VERSIONS = ['0.9.83', '270.0.0', '272.0.0'];
+export const TEST_SDK_VERSIONS = ['0.9.83', '270.0.0', '272.0.0', '275.0.0'];
 
 export const TEST_SDK_VERSION = TEST_SDK_VERSIONS[TEST_SDK_VERSIONS.length - 1];

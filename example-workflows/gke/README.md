@@ -40,11 +40,13 @@ For pushes to the _default_ branch, `master`, the workflow will:
 
 1. [Create a GKE cluster][cluster] or select an existing GKE cluster.
 
-1. Update `deployment.yml` with the following values:
+1. Update `gke.yml` with the following values:
 
   * `GKE_CLUSTER`: the name of your cluster.
 
   * `GKE_ZONE`: the zone your cluster resides.
+
+  * `IMAGE`: your preferred Docker image name.
 
   You can find the names of your clusters using the command: `gcloud container clusters list`,
 and the zone using the command: `gcloud container clusters describe <CLUSTER_NAME>`.

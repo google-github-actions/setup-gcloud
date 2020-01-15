@@ -41,10 +41,10 @@ For pushes to the _default_ branch, `master`, the workflow will:
 1. [Add the the following role to your service account][roles]:
 
   * `Cloud Run Admin`
-
-1. Add the following role to your Cloud Build service account, `<PROJECT_NUMBER>@cloudbuild.gserviceaccount.com`:
-
+  * `Cloud Build Editor`
   * `Viewer`
+
+1. Enable the [Cloud Run API and Cloud Build API.](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.248833607.-1346582427.1578963531). 
 
 ## Run the workflow
 

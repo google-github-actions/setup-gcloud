@@ -71,7 +71,7 @@ steps:
        version: '270.0.0'
        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
        service_account_key: ${{ secrets.GCP_SA_KEY }}
-       service_account_file_name: service_account
-    - name: add gcp cradentilas
+       service_account_file_name: /tmp/service_account
+    - name: add gcp credentilas
       run:  echo ::set-env name=GOOGLE_APPLICATION_CREDENTIALS::/tmp/service_account
 ```

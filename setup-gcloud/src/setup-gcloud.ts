@@ -45,7 +45,7 @@ async function run() {
     // install the gcloud is not already present
     const toolPath = toolCache.find('gcloud', version);
     if (!toolPath) {
-      installGcloudSDK(version);
+      await installGcloudSDK(version);
     }
 
     // write the service account key to a temporary file

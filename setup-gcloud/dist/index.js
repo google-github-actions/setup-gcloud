@@ -8306,7 +8306,7 @@ function run() {
             // install the gcloud is not already present
             const toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
-                installGcloudSDK(version);
+                yield installGcloudSDK(version);
             }
             // write the service account key to a temporary file
             const tmpKeyFilePath = yield new Promise((resolve, reject) => {

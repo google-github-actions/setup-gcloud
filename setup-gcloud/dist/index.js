@@ -8305,21 +8305,23 @@ function run() {
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
-            // is a service account key is provided, utilize it to authenticate
-            if (serviceAccountKey) {
-                // write the service account key to a temporary file
-                const tmpKeyFilePath = yield new Promise((resolve, reject) => {
-                    tmp.file((err, path, fd, cleanupCallback) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        resolve(path);
-                    });
-                });
-                yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
-                // authenticate as the specified service account
-                yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            // if a service account key isn't provided, log that a un-authenticated notice
+            if (!serviceAccountKey) {
+                console.log('gcloud SDK installed without authentication.');
+                return;
             }
+            // write the service account key to a temporary file
+            const tmpKeyFilePath = yield new Promise((resolve, reject) => {
+                tmp.file((err, path, fd, cleanupCallback) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve(path);
+                });
+            });
+            yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+            // authenticate as the specified service account
+            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
         }
         catch (error) {
             core.setFailed(error.message);

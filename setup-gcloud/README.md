@@ -25,8 +25,9 @@ as well as the environment OS and architecture.
 
 2. Installs and caches the downloaded version into the actions environment.
 
-3. Authenticates the gcloud CLI tool using the inputs: `service_account_email` and `service_account_key`. Further information on
-setting up GCP service accounts can be found here: https://cloud.google.com/iam/docs/service-accounts
+3. (If `service_account_key` is specified), authenticates the gcloud CLI tool using the
+inputs: `service_account_email` and `service_account_key`. Further information on setting
+up GCP service accounts can be found here: https://cloud.google.com/iam/docs/service-accounts
 
 ## Prerequisites
 
@@ -41,7 +42,7 @@ steps:
 - uses: actions/checkout@v1
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
-      version: '270.0.0'
+      version: '275.0.0'
       service_account_email: ${{ secrets.GCP_SA_EMAIL }}
       service_account_key: ${{ secrets.GCP_SA_KEY }}
 - run: gcloud info
@@ -49,11 +50,11 @@ steps:
 
 ## Inputs
 
-* `version`: The version of the gcloud to be installed.  Example: `270.0.0`
+* `version`: The version of the gcloud to be installed.  Example: `275.0.0`
 
 * `service_account_email`: (Optional) The service account email which will be used for authentication.
 
-* `service_account_key`: The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
+* `service_account_key`: The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). 
 
 * `service_account_file_path`: (Optional) Full file path, where the service account ADC will be saved into, if not specified, name will be randomize.
 

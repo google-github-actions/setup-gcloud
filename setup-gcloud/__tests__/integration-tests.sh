@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2019 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
-
 # This file contains integration tests for the setup-gcloud action.
 
 # fail on error
@@ -24,6 +23,10 @@ echo "Testing authentication..."
 gcloud projects list > /dev/null && echo "Passed."
 
 # Ensure gsutil was properly configured
-echo "Testing gsutil..."
-gsutil ls > /dev/null && echo "Passed."
-
+# NOTE(craigdbarber): does not currently work for Windows as
+# the gcloud SDK windows release is currently missing the
+# gsutil bash entrypoint script.
+if which "gsutil" &> /dev/null; then
+    echo "Testing gsutil..."
+    gsutil ls gs://cloud-sdk-release > /dev/null && echo "Passed."
+fi

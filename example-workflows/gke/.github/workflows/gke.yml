@@ -35,7 +35,7 @@ env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: example-gke-cluster
   GKE_ZONE: us-west1-a
-  IMAGE: gke-test
+  IMAGE: static-site
 
 jobs:
   setup-build-publish-deploy:

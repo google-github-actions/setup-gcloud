@@ -26,15 +26,9 @@ These example workflows use the [setup-gcloud][action] to build and deploy appli
 
   * Add the service account email, `<NAME@PROJECT_ID.iam.gserviceaccount.com`, to the repository's secrets, named `SA_EMAIL`.
 
-## Resources
+## Github Actions Resources
 
-#### Example Actions
-* [`actions/setup-node`](https://github.com/actions/setup-node)
-* [`actions/setup-gcloud`](https://github.com/GoogleCloudPlatform/github-actions/tree/master/setup-gcloud)
-* [Actions in GitHub Marketplace](https://github.com/marketplace?type=actions)
-
-#### Example Workflows
-* [`actions/starter-workflows`](https://github.com/actions/starter-workflows)
+Learn more about [Automating your workflow with Github Actions](https://help.github.com/en/actions/automating-your-workflow-with-github-actions).
 
 
 <!-- links -->

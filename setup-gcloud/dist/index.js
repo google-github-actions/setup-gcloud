@@ -8298,15 +8298,17 @@ function run() {
             if (!version) {
                 throw new Error('Missing required parameter: `version`');
             }
-            const serviceAccountEmail = core.getInput('service_account_email') || '';
-            const serviceAccountKey = core.getInput('service_account_key');
-            if (!serviceAccountKey) {
-                throw new Error('Missing required input: `service_account_key`');
-            }
             // install the gcloud is not already present
             const toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
                 yield installGcloudSDK(version);
+            }
+            const serviceAccountEmail = core.getInput('service_account_email') || '';
+            const serviceAccountKey = core.getInput('service_account_key');
+            // if a service account key isn't provided, log an un-authenticated notice
+            if (!serviceAccountKey) {
+                console.log('gcloud SDK installed without authentication.');
+                return;
             }
             // write the service account key to a temporary file
             const tmpKeyFilePath = yield new Promise((resolve, reject) => {

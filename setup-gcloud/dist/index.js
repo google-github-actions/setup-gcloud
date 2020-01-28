@@ -8298,28 +8298,28 @@ function run() {
             if (!version) {
                 throw new Error('Missing required parameter: `version`');
             }
-            const serviceAccountEmail = core.getInput('service_account_email') || '';
-            const serviceAccountKey = core.getInput('service_account_key');
-            if (!serviceAccountKey) {
-                throw new Error('Missing required input: `service_account_key`');
-            }
             // install the gcloud is not already present
             const toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
                 yield installGcloudSDK(version);
             }
-            // write the service account key to a temporary file
-            const tmpKeyFilePath = yield new Promise((resolve, reject) => {
-                tmp.file((err, path, fd, cleanupCallback) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(path);
+            const serviceAccountEmail = core.getInput('service_account_email') || '';
+            const serviceAccountKey = core.getInput('service_account_key');
+            // is a service account key is provided, utilize it to authenticate
+            if (serviceAccountKey) {
+                // write the service account key to a temporary file
+                const tmpKeyFilePath = yield new Promise((resolve, reject) => {
+                    tmp.file((err, path, fd, cleanupCallback) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve(path);
+                    });
                 });
-            });
-            yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
-            // authenticate as the specified service account
-            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+                yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+                // authenticate as the specified service account
+                yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            }
         }
         catch (error) {
             core.setFailed(error.message);

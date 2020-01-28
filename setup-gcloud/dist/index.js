@@ -9426,6 +9426,7 @@ function installGcloudSDK(version, gcloudExtPath) {
         let toolPath = yield toolCache.cacheDir(toolRoot, 'gcloud', version);
         toolPath = path_1.default.join(toolPath, 'bin');
         core.addPath(toolPath);
+        core.exportVariable('CLOUDSDK_METRICS_ENVIRONMENT', 'github-actions-setup-gcloud');
         return toolPath;
     });
 }

@@ -37,5 +37,9 @@ export async function installGcloudSDK(
   let toolPath = await toolCache.cacheDir(toolRoot, 'gcloud', version);
   toolPath = path.join(toolPath, 'bin');
   core.addPath(toolPath);
+  core.exportVariable(
+    'CLOUDSDK_METRICS_ENVIRONMENT',
+    'github-actions-setup-gcloud',
+  );
   return toolPath;
 }

@@ -1,0 +1,22 @@
+name: Integration Tests
+on: [push, pull_request]
+jobs:
+  run:
+    name: setup-gcloud
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup-gcloud local
+      uses: ./setup-gcloud/
+      with:
+        version: '274.0.0'
+        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+    - name: Integration Tests
+      shell: bash
+      run: ./setup-gcloud/__tests__/integration-tests.sh

@@ -8305,7 +8305,7 @@ function run() {
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
-            // if a service account key isn't provided, log that a un-authenticated notice
+            // if a service account key isn't provided, log an un-authenticated notice
             if (!serviceAccountKey) {
                 console.log('gcloud SDK installed without authentication.');
                 return;

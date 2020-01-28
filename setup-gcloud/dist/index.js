@@ -8319,13 +8319,13 @@ function run() {
             });
             const serviceAccountFileName = core.getInput('service_account_file_name');
             if (serviceAccountFileName) {
-                tmpKeyFilePath = `/tmp/${serviceAccountFileName}`;
+                tmpKeyFilePath = `${serviceAccountFileName}`;
             }
-            if (!fs.existsSync(tmpKeyFilePath)) {
-                yield fs.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
-            }
+            yield fs.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
             // authenticate as the specified service account
             yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            //export the file path into GOOGLE_APPLICATION_CREDENTIALS
+            core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', tmpKeyFilePath);
         }
         catch (error) {
             core.setFailed(error.message);

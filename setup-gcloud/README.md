@@ -55,13 +55,14 @@ steps:
 
 * `service_account_key`: The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
 
-* `service_account_file_name`: (Optional) The name of the file that the service account ADC will be saved into, this is used when you need to reference this file with `GOOGLE_APPLICATION_CREDENTIALS`, if not specify, name will be randomize.
+* `service_account_file_path`: (Optional) Full file path, where the service account ADC will be saved into.
+Note: this file will be ***created*** in the runner environment and will be exported into runner env variable: `GOOGLE_APPLICATION_CREDENTIALS`
+This is used when you need to reference this file with `GOOGLE_APPLICATION_CREDENTIALS`, if not specified, name will be randomize.
 
 #### setup GOOGLE_APPLICATION_CREDENTIALS
 
 In case you need to set environment variable:`GOOGLE_APPLICATION_CREDENTIALS` (when using gcloud sdk in a code: Java/Python/JS and not from CLI):
-1. Set a name for the input `service_account_file_name`.
-2. Add this as environment variable using [::set-env](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-an-environment-variable-set-env).
+1. Set a full path for the input `service_account_file_name`.
 
 ```yaml
 steps:
@@ -72,6 +73,4 @@ steps:
        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
        service_account_key: ${{ secrets.GCP_SA_KEY }}
        service_account_file_name: /tmp/service_account
-    - name: add gcp credentilas
-      run:  echo ::set-env name=GOOGLE_APPLICATION_CREDENTIALS::/tmp/service_account
 ```

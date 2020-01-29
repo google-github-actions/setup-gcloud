@@ -1103,6 +1103,74 @@ function onceStrict (fn) {
 
 /***/ }),
 
+/***/ 71:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Contains version utility functions.
+ */
+const httpm = __importStar(__webpack_require__(874));
+/**
+ * @returns The latest stable version of the gcloud SDK.
+ */
+function getLatestGcloudSDKVersion() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new httpm.HttpClient('github-actions-setup-gcloud');
+        return client
+            .get('https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json')
+            .then(res => {
+            if (res.message.statusCode != 200) {
+                return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode}`);
+            }
+            return res.readBody().then(body => {
+                const responseObject = JSON.parse(body);
+                if (!responseObject.version) {
+                    return Promise.reject(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
+                }
+                return Promise.resolve(responseObject.version);
+            });
+        });
+    });
+}
+exports.getLatestGcloudSDKVersion = getLatestGcloudSDKVersion;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -8288,15 +8356,16 @@ const fs_1 = __webpack_require__(747);
 const tmp = __importStar(__webpack_require__(150));
 const os = __importStar(__webpack_require__(87));
 const format_url_1 = __webpack_require__(8);
+const version_util_1 = __webpack_require__(71);
 const downloadUtil = __importStar(__webpack_require__(339));
 const installUtil = __importStar(__webpack_require__(962));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             tmp.setGracefulCleanup();
-            const version = core.getInput('version');
-            if (!version) {
-                throw new Error('Missing required parameter: `version`');
+            let version = core.getInput('version');
+            if (!version || version == 'latest') {
+                version = yield version_util_1.getLatestGcloudSDKVersion();
             }
             // install the gcloud is not already present
             let toolPath = toolCache.find('gcloud', version);

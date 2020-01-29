@@ -3,8 +3,8 @@ description: 'Setup a gcloud environment and add it to the PATH'
 author: 'GoogleCloudPlatform'
 inputs:
   version:
-    description: 'The version of the gcloud SDK to be installed.  Example: 275.0.0'
-    default: '275.0.0'
+    description: 'The version of the gcloud SDK to be installed.  Example: 278.0.0'
+    default: 'latest'
     required: false
   service_account_email:
     description: 'The service account email which will be used for authentication.'

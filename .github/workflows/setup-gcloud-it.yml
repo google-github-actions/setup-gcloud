@@ -16,10 +16,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
-    - name: setup-gcloud local
+    - name: setup-gcloud versioned
       uses: ./setup-gcloud/
       with:
         version: '278.0.0'
+        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+    - name: setup-gcloud latest
+      uses: ./setup-gcloud/
+      with:
+        version: 'latest'
         service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
         service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 

@@ -23,9 +23,9 @@ echo "Testing authentication..."
 gcloud projects list > /dev/null && echo "Passed."
 
 # Ensure gsutil was properly configured
-# NOTE(craigdbarber): does not currently work for Windows as
-# the gcloud SDK windows release is currently missing the
-# gsutil bash entrypoint script.
+# NOTE(craigdbarber): does not work for Windows as the gcloud
+# SDK windows release is currently missing the gsutil bash
+# entrypoint script.
 if which "gsutil" &> /dev/null; then
     echo "Testing gsutil..."
     gsutil ls gs://cloud-sdk-release > /dev/null && echo "Passed."

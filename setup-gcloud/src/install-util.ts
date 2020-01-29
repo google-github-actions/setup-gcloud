@@ -22,8 +22,6 @@ import * as core from '@actions/core';
 import * as os from 'os';
 import path from 'path';
 
-import * as exec from '@actions/exec';
-
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 

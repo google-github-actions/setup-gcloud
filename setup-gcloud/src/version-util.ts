@@ -28,7 +28,9 @@ export async function getLatestGcloudSDKVersion(): Promise<string> {
     'github-actions-setup-gcloud',
   );
   return client
-    .get('https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json')
+    .get(
+      'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags',
+    )
     .then(res => {
       if (res.message.statusCode != 200) {
         return Promise.reject(
@@ -38,12 +40,13 @@ export async function getLatestGcloudSDKVersion(): Promise<string> {
 
       return res.readBody().then(body => {
         const responseObject = JSON.parse(body);
-        if (!responseObject.version) {
+        const firstEntry = responseObject.shift();
+        if (!firstEntry || !firstEntry.name) {
           return Promise.reject(
             `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
           );
         }
-        return Promise.resolve(responseObject.version);
+        return Promise.resolve(firstEntry.name);
       });
     });
 }

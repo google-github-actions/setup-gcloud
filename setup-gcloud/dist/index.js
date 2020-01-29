@@ -1151,17 +1151,18 @@ function getLatestGcloudSDKVersion() {
     return __awaiter(this, void 0, void 0, function* () {
         const client = new httpm.HttpClient('github-actions-setup-gcloud');
         return client
-            .get('https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json')
+            .get('https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags')
             .then(res => {
             if (res.message.statusCode != 200) {
                 return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode}`);
             }
             return res.readBody().then(body => {
                 const responseObject = JSON.parse(body);
-                if (!responseObject.version) {
+                const firstEntry = responseObject.shift();
+                if (!firstEntry || !firstEntry.name) {
                     return Promise.reject(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
                 }
-                return Promise.resolve(responseObject.version);
+                return Promise.resolve(firstEntry.name);
             });
         });
     });

@@ -8299,9 +8299,9 @@ function run() {
                 throw new Error('Missing required parameter: `version`');
             }
             // install the gcloud is not already present
-            const toolPath = toolCache.find('gcloud', version);
+            let toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
-                yield installGcloudSDK(version);
+                toolPath = yield installGcloudSDK(version);
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
@@ -8320,8 +8320,12 @@ function run() {
                 });
             });
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+            let toolCommand = 'gcloud';
+            if (process.platform == 'win32') {
+                toolCommand = 'gcloud.cmd';
+            }
             // authenticate as the specified service account
-            yield exec.exec(`gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            yield exec.exec(`${toolCommand} auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -8340,7 +8344,7 @@ function installGcloudSDK(version) {
             throw new Error(`Failed to download release, url: ${url}`);
         }
         // install the downloaded release into the github action env
-        yield installUtil.installGcloudSDK(version, extPath);
+        return yield installUtil.installGcloudSDK(version, extPath);
     });
 }
 run();

@@ -23,6 +23,6 @@ jobs:
       working-directory: ./setup-gcloud
       run: npm run format-check
 
-    - name: npm test
+    - name: Unit tests
       working-directory: ./setup-gcloud
       run: npm test

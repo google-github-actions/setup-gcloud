@@ -1,0 +1,28 @@
+name: Integration Tests
+# The integration tests have to be pulled out into a separate workflow,
+# as GH Actions currently doesn't project secrets onto PR initiated runs.
+# Therefore these will only be run on branch pushes, which requires a
+# project maintainer to manually create branches from PRs and to
+# kick off integration test runs for the time being.
+on: [push]
+jobs:
+  run:
+    name: setup-gcloud
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: setup-gcloud local
+      uses: ./setup-gcloud/
+      with:
+        version: '278.0.0'
+        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+    - name: Integration Tests
+      shell: bash
+      run: ./setup-gcloud/__tests__/integration-tests.sh

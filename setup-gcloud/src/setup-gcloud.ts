@@ -36,9 +36,9 @@ async function run() {
     }
 
     // install the gcloud is not already present
-    const toolPath = toolCache.find('gcloud', version);
+    let toolPath = toolCache.find('gcloud', version);
     if (!toolPath) {
-      await installGcloudSDK(version);
+      toolPath = await installGcloudSDK(version);
     }
 
     const serviceAccountEmail = core.getInput('service_account_email') || '';
@@ -61,16 +61,23 @@ async function run() {
     });
     await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
 
+    // A workaround for https://github.com/actions/toolkit/issues/229
+    // Currently exec on windows runs as cmd shell.
+    let toolCommand = 'gcloud';
+    if (process.platform == 'win32') {
+      toolCommand = 'gcloud.cmd';
+    }
+
     // authenticate as the specified service account
     await exec.exec(
-      `gcloud auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
+      `${toolCommand} auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
   } catch (error) {
     core.setFailed(error.message);
   }
 }
 
-async function installGcloudSDK(version: string) {
+async function installGcloudSDK(version: string): Promise<string> {
   // retreive the release corresponding to the specified version and the current env
   const osPlat = os.platform();
   const osArch = os.arch();
@@ -83,7 +90,7 @@ async function installGcloudSDK(version: string) {
   }
 
   // install the downloaded release into the github action env
-  await installUtil.installGcloudSDK(version, extPath);
+  return await installUtil.installGcloudSDK(version, extPath);
 }
 
 run();

@@ -61,6 +61,8 @@ async function run() {
     });
     await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
 
+    // A workaround for https://github.com/actions/toolkit/issues/229
+    // Currently exec on windows runs as cmd shell.
     let toolCommand = 'gcloud';
     if (process.platform == 'win32') {
       toolCommand = 'gcloud.cmd';

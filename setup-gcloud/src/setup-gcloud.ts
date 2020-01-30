@@ -36,7 +36,7 @@ async function run() {
       version = await getLatestGcloudSDKVersion();
     }
 
-    // install the gcloud is not already present
+    // install the gcloud if not already present
     let toolPath = toolCache.find('gcloud', version);
     if (!toolPath) {
       toolPath = await installGcloudSDK(version);

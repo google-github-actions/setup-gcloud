@@ -8368,7 +8368,7 @@ function run() {
             if (!version || version == 'latest') {
                 version = yield version_util_1.getLatestGcloudSDKVersion();
             }
-            // install the gcloud is not already present
+            // install the gcloud if not already present
             let toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
                 toolPath = yield installGcloudSDK(version);

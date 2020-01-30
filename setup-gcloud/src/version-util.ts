@@ -19,32 +19,40 @@
  */
 
 import * as httpm from 'typed-rest-client/HttpClient';
+import {retry} from '@lifeomic/attempt';
 
 /**
  * @returns The latest stable version of the gcloud SDK.
  */
 export async function getLatestGcloudSDKVersion(): Promise<string> {
   const queryUrl =
-    'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags';
+    'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
   const client: httpm.HttpClient = new httpm.HttpClient(
     'github-actions-setup-gcloud',
   );
-  return client.get(queryUrl).then(res => {
-    if (res.message.statusCode != 200) {
-      return Promise.reject(
-        `Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode} url: ${queryUrl}`,
-      );
-    }
+  return await retry(
+    async context =>
+      client.get(queryUrl).then(res => {
+        if (res.message.statusCode != 200) {
+          return Promise.reject(
+            `Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`,
+          );
+        }
 
-    return res.readBody().then(body => {
-      const responseObject = JSON.parse(body);
-      const firstEntry = responseObject.shift();
-      if (!firstEntry || !firstEntry.name) {
-        return Promise.reject(
-          `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
-        );
-      }
-      return Promise.resolve(firstEntry.name);
-    });
-  });
+        return res.readBody().then(body => {
+          const responseObject = JSON.parse(body);
+          if (!responseObject.version) {
+            return Promise.reject(
+              `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
+            );
+          }
+          return Promise.resolve(responseObject.version);
+        });
+      }),
+    {
+      delay: 200,
+      factor: 2,
+      maxAttempts: 4,
+    },
+  );
 }

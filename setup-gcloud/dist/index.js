@@ -360,6 +360,15 @@ function copyFile(srcFile, destFile, force) {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -369,6 +378,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const httpm = __importStar(__webpack_require__(874));
+const attempt_1 = __webpack_require__(503);
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
  *
@@ -408,18 +418,26 @@ function formatReleaseURL(os, arch, version) {
  * @returns The verified gcloud SDK release URL.
  */
 function getReleaseURL(os, arch, version) {
-    try {
-        const url = formatReleaseURL(os, arch, version);
-        const client = new httpm.HttpClient('github-actions-setup-gcloud');
-        return client
-            .head(url)
-            .then(res => res.message.statusCode === 200
-            ? Promise.resolve(url)
-            : Promise.reject(`error code: ${res.message.statusCode}`));
-    }
-    catch (err) {
-        return Promise.reject(`Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`);
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const url = formatReleaseURL(os, arch, version);
+            const client = new httpm.HttpClient('github-actions-setup-gcloud');
+            return attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
+                return client
+                    .head(url)
+                    .then(res => res.message.statusCode === 200
+                    ? Promise.resolve(url)
+                    : Promise.reject(`error code: ${res.message.statusCode}`));
+            }), {
+                delay: 200,
+                factor: 2,
+                maxAttempts: 4,
+            });
+        }
+        catch (err) {
+            return Promise.reject(`Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`);
+        }
+    });
 }
 exports.getReleaseURL = getReleaseURL;
 
@@ -1144,25 +1162,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Contains version utility functions.
  */
 const httpm = __importStar(__webpack_require__(874));
+const attempt_1 = __webpack_require__(503);
 /**
  * @returns The latest stable version of the gcloud SDK.
  */
 function getLatestGcloudSDKVersion() {
     return __awaiter(this, void 0, void 0, function* () {
-        const queryUrl = 'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags';
+        const queryUrl = 'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
         const client = new httpm.HttpClient('github-actions-setup-gcloud');
-        return client.get(queryUrl).then(res => {
-            if (res.message.statusCode != 200) {
-                return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode} url: ${queryUrl}`);
-            }
-            return res.readBody().then(body => {
-                const responseObject = JSON.parse(body);
-                const firstEntry = responseObject.shift();
-                if (!firstEntry || !firstEntry.name) {
-                    return Promise.reject(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
+        return yield attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
+            return client.get(queryUrl).then(res => {
+                if (res.message.statusCode != 200) {
+                    return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`);
                 }
-                return Promise.resolve(firstEntry.name);
+                return res.readBody().then(body => {
+                    const responseObject = JSON.parse(body);
+                    if (!responseObject.version) {
+                        return Promise.reject(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
+                    }
+                    return Promise.resolve(responseObject.version);
+                });
             });
+        }), {
+            delay: 200,
+            factor: 2,
+            maxAttempts: 4,
         });
     });
 }
@@ -5923,6 +5947,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Contains download utility functions.
  */
 const toolCache = __importStar(__webpack_require__(533));
+const attempt_1 = __webpack_require__(503);
 /**
  * Downloads and extracts the tool at the specified URL.
  *
@@ -5931,7 +5956,11 @@ const toolCache = __importStar(__webpack_require__(533));
  */
 function downloadAndExtractTool(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        const downloadPath = yield toolCache.downloadTool(url);
+        const downloadPath = yield attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () { return toolCache.downloadTool(url); }), {
+            delay: 200,
+            factor: 2,
+            maxAttempts: 4,
+        });
         let extractedPath;
         if (url.indexOf('.zip') != -1) {
             extractedPath = yield toolCache.extractZip(downloadPath);
@@ -7044,6 +7073,158 @@ function getState(name) {
 }
 exports.getState = getState;
 //# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 503:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function applyDefaults(options) {
+    if (!options) {
+        options = {};
+    }
+    return {
+        delay: (options.delay === undefined) ? 200 : options.delay,
+        initialDelay: (options.initialDelay === undefined) ? 0 : options.initialDelay,
+        minDelay: (options.minDelay === undefined) ? 0 : options.minDelay,
+        maxDelay: (options.maxDelay === undefined) ? 0 : options.maxDelay,
+        factor: (options.factor === undefined) ? 0 : options.factor,
+        maxAttempts: (options.maxAttempts === undefined) ? 3 : options.maxAttempts,
+        timeout: (options.timeout === undefined) ? 0 : options.timeout,
+        jitter: (options.jitter === true),
+        handleError: (options.handleError === undefined) ? null : options.handleError,
+        handleTimeout: (options.handleTimeout === undefined) ? null : options.handleTimeout,
+        beforeAttempt: (options.beforeAttempt === undefined) ? null : options.beforeAttempt,
+        calculateDelay: (options.calculateDelay === undefined) ? null : options.calculateDelay
+    };
+}
+async function sleep(delay) {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, delay);
+    });
+}
+exports.sleep = sleep;
+function defaultCalculateDelay(context, options) {
+    let delay = options.delay;
+    if (delay === 0) {
+        // no delay between attempts
+        return 0;
+    }
+    if (options.factor) {
+        delay *= Math.pow(options.factor, context.attemptNum - 1);
+        if (options.maxDelay !== 0) {
+            delay = Math.min(delay, options.maxDelay);
+        }
+    }
+    if (options.jitter) {
+        // Jitter will result in a random value between `minDelay` and
+        // calculated delay for a given attempt.
+        // See https://www.awsarchitectureblog.com/2015/03/backoff.html
+        // We're using the "full jitter" strategy.
+        const min = Math.ceil(options.minDelay);
+        const max = Math.floor(delay);
+        delay = Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    return Math.round(delay);
+}
+exports.defaultCalculateDelay = defaultCalculateDelay;
+async function retry(attemptFunc, attemptOptions) {
+    const options = applyDefaults(attemptOptions);
+    for (const prop of [
+        'delay',
+        'initialDelay',
+        'minDelay',
+        'maxDelay',
+        'maxAttempts',
+        'timeout'
+    ]) {
+        const value = options[prop];
+        if (!Number.isInteger(value) || (value < 0)) {
+            throw new Error(`Value for ${prop} must be an integer greater than or equal to 0`);
+        }
+    }
+    if ((options.factor.constructor !== Number) || (options.factor < 0)) {
+        throw new Error(`Value for factor must be a number greater than or equal to 0`);
+    }
+    if (options.delay < options.minDelay) {
+        throw new Error(`delay cannot be less than minDelay (delay: ${options.delay}, minDelay: ${options.minDelay}`);
+    }
+    const context = {
+        attemptNum: 0,
+        attemptsRemaining: options.maxAttempts ? options.maxAttempts : -1,
+        aborted: false,
+        abort() {
+            context.aborted = true;
+        }
+    };
+    const calculateDelay = options.calculateDelay || defaultCalculateDelay;
+    async function makeAttempt() {
+        if (options.beforeAttempt) {
+            options.beforeAttempt(context, options);
+        }
+        if (context.aborted) {
+            const err = new Error(`Attempt aborted`);
+            err.code = 'ATTEMPT_ABORTED';
+            throw err;
+        }
+        const onError = async (err) => {
+            if (options.handleError) {
+                options.handleError(err, context, options);
+            }
+            if (context.aborted || (context.attemptsRemaining === 0)) {
+                throw err;
+            }
+            // We are about to try again so increment attempt number
+            context.attemptNum++;
+            const delay = calculateDelay(context, options);
+            if (delay) {
+                await sleep(delay);
+            }
+            return makeAttempt();
+        };
+        if (context.attemptsRemaining > 0) {
+            context.attemptsRemaining--;
+        }
+        if (options.timeout) {
+            return new Promise((resolve, reject) => {
+                const timer = setTimeout(() => {
+                    if (options.handleTimeout) {
+                        resolve(options.handleTimeout(context, options));
+                    }
+                    else {
+                        const err = new Error(`Retry timeout (attemptNum: ${context.attemptNum}, timeout: ${options.timeout})`);
+                        err.code = 'ATTEMPT_TIMEOUT';
+                        reject(err);
+                    }
+                }, options.timeout);
+                attemptFunc(context, options).then((result) => {
+                    clearTimeout(timer);
+                    resolve(result);
+                }).catch((err) => {
+                    clearTimeout(timer);
+                    resolve(onError(err));
+                });
+            });
+        }
+        else {
+            // No timeout provided so wait indefinitely for the returned promise
+            // to be resolved.
+            return attemptFunc(context, options).catch(onError);
+        }
+    }
+    const initialDelay = options.calculateDelay
+        ? options.calculateDelay(context, options)
+        : options.initialDelay;
+    if (initialDelay) {
+        await sleep(initialDelay);
+    }
+    return makeAttempt();
+}
+exports.retry = retry;
+
 
 /***/ }),
 

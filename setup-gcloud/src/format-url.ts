@@ -68,16 +68,16 @@ export async function getReleaseURL(
 ): Promise<string> {
   try {
     const url = formatReleaseURL(os, arch, version);
-    const client: httpm.HttpClient = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
+    const client = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
     return retry(
-      async context =>
-        client
-          .head(url)
-          .then(res =>
-            res.message.statusCode === 200
-              ? Promise.resolve(url)
-              : Promise.reject(`error code: ${res.message.statusCode}`),
-          ),
+      async context => {
+        const res = await client.head(url);
+        if (res.message.statusCode === 200) {
+          return url;
+        } else {
+          throw new Error(`error code: ${res.message.statusCode}`);
+        }
+      },
       {
         delay: 200,
         factor: 2,
@@ -85,7 +85,7 @@ export async function getReleaseURL(
       },
     );
   } catch (err) {
-    return Promise.reject(
+    throw new Error(
       `Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`,
     );
   }

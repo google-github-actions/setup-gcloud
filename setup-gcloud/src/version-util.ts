@@ -30,24 +30,23 @@ export async function getLatestGcloudSDKVersion(): Promise<string> {
     'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
   const client: httpm.HttpClient = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
   return await retry(
-    async context =>
-      client.get(queryUrl).then(res => {
-        if (res.message.statusCode != 200) {
-          return Promise.reject(
-            `Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`,
-          );
-        }
+    async context => {
+      const res = await client.get(queryUrl);
+      if (res.message.statusCode != 200) {
+        throw new Error(
+          `Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`,
+        );
+      }
 
-        return res.readBody().then(body => {
-          const responseObject = JSON.parse(body);
-          if (!responseObject.version) {
-            return Promise.reject(
-              `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
-            );
-          }
-          return Promise.resolve(responseObject.version);
-        });
-      }),
+      const body = await res.readBody();
+      const responseObject = JSON.parse(body);
+      if (!responseObject.version) {
+        throw new Error(
+          `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
+        );
+      }
+      return responseObject.version;
+    },
     {
       delay: 200,
       factor: 2,

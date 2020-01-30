@@ -424,11 +424,13 @@ function getReleaseURL(os, arch, version) {
             const url = formatReleaseURL(os, arch, version);
             const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
             return attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
-                return client
-                    .head(url)
-                    .then(res => res.message.statusCode === 200
-                    ? Promise.resolve(url)
-                    : Promise.reject(`error code: ${res.message.statusCode}`));
+                const res = yield client.head(url);
+                if (res.message.statusCode === 200) {
+                    return url;
+                }
+                else {
+                    throw new Error(`error code: ${res.message.statusCode}`);
+                }
             }), {
                 delay: 200,
                 factor: 2,
@@ -436,7 +438,7 @@ function getReleaseURL(os, arch, version) {
             });
         }
         catch (err) {
-            return Promise.reject(`Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`);
+            throw new Error(`Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`);
         }
     });
 }
@@ -1173,18 +1175,16 @@ function getLatestGcloudSDKVersion() {
         const queryUrl = 'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
         const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
         return yield attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
-            return client.get(queryUrl).then(res => {
-                if (res.message.statusCode != 200) {
-                    return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`);
-                }
-                return res.readBody().then(body => {
-                    const responseObject = JSON.parse(body);
-                    if (!responseObject.version) {
-                        return Promise.reject(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
-                    }
-                    return Promise.resolve(responseObject.version);
-                });
-            });
+            const res = yield client.get(queryUrl);
+            if (res.message.statusCode != 200) {
+                throw new Error(`Failed to retrieve gcloud SDK version, HTTP error code: ${res.message.statusCode} url: ${queryUrl}`);
+            }
+            const body = yield res.readBody();
+            const responseObject = JSON.parse(body);
+            if (!responseObject.version) {
+                throw new Error(`Failed to retrieve gcloud SDK version, invalid response body: ${body}`);
+            }
+            return responseObject.version;
         }), {
             delay: 200,
             factor: 2,

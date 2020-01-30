@@ -8390,6 +8390,8 @@ function run() {
                 });
             });
             yield fs_1.promises.writeFile(tmpKeyFilePath, js_base64_1.Base64.decode(serviceAccountKey));
+            // A workaround for https://github.com/actions/toolkit/issues/229
+            // Currently exec on windows runs as cmd shell.
             let toolCommand = 'gcloud';
             if (process.platform == 'win32') {
                 toolCommand = 'gcloud.cmd';

@@ -6,8 +6,8 @@ name: Integration Tests
 # kick off integration test runs for the time being.
 on: [push]
 jobs:
-  run:
-    name: setup-gcloud
+  versioned:
+    name: setup-gcloud versioned
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
@@ -16,20 +16,35 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
-    - name: setup-gcloud versioned
+    - name: setup-gcloud
       uses: ./setup-gcloud/
       with:
         version: '278.0.0'
         service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
         service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
-    - name: setup-gcloud latest
-      uses: ./setup-gcloud/
-      with:
-        version: 'latest'
-        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
-        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-
     - name: Integration Tests
       shell: bash
       run: ./setup-gcloud/__tests__/integration-tests.sh
+  latest:
+    name: setup-gcloud latested
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+            
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          version: 'latest'
+          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+              
+      - name: Integration Tests
+        shell: bash
+        run: ./setup-gcloud/__tests__/integration-tests.sh
+
+                  

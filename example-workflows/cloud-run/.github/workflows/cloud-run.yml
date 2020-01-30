@@ -45,7 +45,6 @@ jobs:
       - name: gcloud Set up
         run: |
           gcloud config set project $PROJECT_ID
-          gcloud config set run/region $RUN_REGION
 
       # Build and push image to Google Container Registry
       - name: Build
@@ -56,6 +55,6 @@ jobs:
       - name: Deploy
         run: |
           gcloud run deploy $SERVICE_NAME \
+            --region $RUN_REGION \
             --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
-            --platform managed \
-            --allow-unauthenticated
+            --platform managed

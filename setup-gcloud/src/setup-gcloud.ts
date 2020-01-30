@@ -23,6 +23,7 @@ import path from 'path';
 import * as tmp from 'tmp';
 import * as os from 'os';
 import {getReleaseURL} from '../src/format-url';
+import {getLatestGcloudSDKVersion} from '../src/version-util';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
 
@@ -30,12 +31,12 @@ async function run() {
   try {
     tmp.setGracefulCleanup();
 
-    const version = core.getInput('version');
-    if (!version) {
-      throw new Error('Missing required parameter: `version`');
+    let version = core.getInput('version');
+    if (!version || version == 'latest') {
+      version = await getLatestGcloudSDKVersion();
     }
 
-    // install the gcloud is not already present
+    // install the gcloud if not already present
     let toolPath = toolCache.find('gcloud', version);
     if (!toolPath) {
       toolPath = await installGcloudSDK(version);

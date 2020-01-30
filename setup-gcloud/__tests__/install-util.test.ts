@@ -44,7 +44,7 @@ describe('installGcloudSDK tests', () => {
   afterAll(async () => {
     await io.rmRF(toolDir);
     await io.rmRF(tempDir);
-  });
+  }, TEST_TIMEOUT_MILLIS);
 
   it(
     'Installs gcloud for current env',

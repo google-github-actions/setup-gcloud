@@ -18,6 +18,7 @@
  * Contains download utility functions.
  */
 import * as toolCache from '@actions/tool-cache';
+import {retry} from '@lifeomic/attempt';
 
 /**
  * Downloads and extracts the tool at the specified URL.
@@ -26,7 +27,14 @@ import * as toolCache from '@actions/tool-cache';
  * @returns The path to the locally extracted tool.
  */
 export async function downloadAndExtractTool(url: string): Promise<string> {
-  const downloadPath = await toolCache.downloadTool(url);
+  const downloadPath = await retry(
+    async context => toolCache.downloadTool(url),
+    {
+      delay: 200,
+      factor: 2,
+      maxAttempts: 4,
+    },
+  );
   let extractedPath: string;
   if (url.indexOf('.zip') != -1) {
     extractedPath = await toolCache.extractZip(downloadPath);

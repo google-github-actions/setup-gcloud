@@ -15,6 +15,8 @@
  */
 
 import * as httpm from 'typed-rest-client/HttpClient';
+import {retry} from '@lifeomic/attempt';
+import {GCLOUD_METRICS_LABEL} from './install-util';
 
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
@@ -59,25 +61,31 @@ function formatReleaseURL(os: string, arch: string, version: string): string {
  * @param version The version of the requested release.
  * @returns The verified gcloud SDK release URL.
  */
-export function getReleaseURL(
+export async function getReleaseURL(
   os: string,
   arch: string,
   version: string,
 ): Promise<string> {
   try {
     const url = formatReleaseURL(os, arch, version);
-    const client: httpm.HttpClient = new httpm.HttpClient(
-      'github-actions-setup-gcloud',
+    const client = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
+    return retry(
+      async context => {
+        const res = await client.head(url);
+        if (res.message.statusCode === 200) {
+          return url;
+        } else {
+          throw new Error(`error code: ${res.message.statusCode}`);
+        }
+      },
+      {
+        delay: 200,
+        factor: 2,
+        maxAttempts: 4,
+      },
     );
-    return client
-      .head(url)
-      .then(res =>
-        res.message.statusCode === 200
-          ? Promise.resolve(url)
-          : Promise.reject(`error code: ${res.message.statusCode}`),
-      );
   } catch (err) {
-    return Promise.reject(
+    throw new Error(
       `Error trying to get gcloud SDK release URL: os: ${os} arch: ${arch} version: ${version}, err: ${err}`,
     );
   }

@@ -379,6 +379,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const httpm = __importStar(__webpack_require__(874));
 const attempt_1 = __webpack_require__(503);
+const install_util_1 = __webpack_require__(962);
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
  *
@@ -421,7 +422,7 @@ function getReleaseURL(os, arch, version) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const url = formatReleaseURL(os, arch, version);
-            const client = new httpm.HttpClient('github-actions-setup-gcloud');
+            const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
             return attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
                 return client
                     .head(url)
@@ -1163,13 +1164,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const httpm = __importStar(__webpack_require__(874));
 const attempt_1 = __webpack_require__(503);
+const install_util_1 = __webpack_require__(962);
 /**
  * @returns The latest stable version of the gcloud SDK.
  */
 function getLatestGcloudSDKVersion() {
     return __awaiter(this, void 0, void 0, function* () {
         const queryUrl = 'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
-        const client = new httpm.HttpClient('github-actions-setup-gcloud');
+        const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
         return yield attempt_1.retry((context) => __awaiter(this, void 0, void 0, function* () {
             return client.get(queryUrl).then(res => {
                 if (res.message.statusCode != 200) {

@@ -20,6 +20,7 @@
 
 import * as httpm from 'typed-rest-client/HttpClient';
 import {retry} from '@lifeomic/attempt';
+import {GCLOUD_METRICS_LABEL} from './install-util';
 
 /**
  * @returns The latest stable version of the gcloud SDK.
@@ -27,9 +28,7 @@ import {retry} from '@lifeomic/attempt';
 export async function getLatestGcloudSDKVersion(): Promise<string> {
   const queryUrl =
     'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
-  const client: httpm.HttpClient = new httpm.HttpClient(
-    'github-actions-setup-gcloud',
-  );
+  const client: httpm.HttpClient = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
   return await retry(
     async context =>
       client.get(queryUrl).then(res => {

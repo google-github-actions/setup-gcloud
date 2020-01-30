@@ -27,7 +27,7 @@ jobs:
       shell: bash
       run: ./setup-gcloud/__tests__/integration-tests.sh
   latest:
-    name: setup-gcloud latested
+    name: setup-gcloud latest
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false

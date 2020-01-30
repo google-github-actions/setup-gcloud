@@ -29,6 +29,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 				 
  ### Fixed
 
+## [0.1.1] - 2020-01-30
+
+ ### Security
+ 
+ ### Added
+ - [setup-gcloud]: Added support for specifying 'latest' SDK version
+ - [setup-gcloud]: Made authentication optional
+ - [setup-gcloud]: Added metrics tracking label
+ - [setup-gcloud]: Added CoudRun example workflow
+ - [setup-gcloud]: Added integration tests
+
+ ### Changed
+				
+ ### Removed
+				 
+ ### Fixed
+
 ## [0.1.0] - 2019-11-08
 
  ### Security

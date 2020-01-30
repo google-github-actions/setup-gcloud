@@ -1149,12 +1149,11 @@ const httpm = __importStar(__webpack_require__(874));
  */
 function getLatestGcloudSDKVersion() {
     return __awaiter(this, void 0, void 0, function* () {
+        const queryUrl = 'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags';
         const client = new httpm.HttpClient('github-actions-setup-gcloud');
-        return client
-            .get('https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags')
-            .then(res => {
+        return client.get(queryUrl).then(res => {
             if (res.message.statusCode != 200) {
-                return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode}`);
+                return Promise.reject(`Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode} url: ${queryUrl}`);
             }
             return res.readBody().then(body => {
                 const responseObject = JSON.parse(body);

@@ -24,29 +24,27 @@ import * as httpm from 'typed-rest-client/HttpClient';
  * @returns The latest stable version of the gcloud SDK.
  */
 export async function getLatestGcloudSDKVersion(): Promise<string> {
+  const queryUrl =
+    'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags';
   const client: httpm.HttpClient = new httpm.HttpClient(
     'github-actions-setup-gcloud',
   );
-  return client
-    .get(
-      'https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags',
-    )
-    .then(res => {
-      if (res.message.statusCode != 200) {
+  return client.get(queryUrl).then(res => {
+    if (res.message.statusCode != 200) {
+      return Promise.reject(
+        `Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode} url: ${queryUrl}`,
+      );
+    }
+
+    return res.readBody().then(body => {
+      const responseObject = JSON.parse(body);
+      const firstEntry = responseObject.shift();
+      if (!firstEntry || !firstEntry.name) {
         return Promise.reject(
-          `Failed to retrieve gcloud SDK version, HTTP error code ${res.message.statusCode}`,
+          `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
         );
       }
-
-      return res.readBody().then(body => {
-        const responseObject = JSON.parse(body);
-        const firstEntry = responseObject.shift();
-        if (!firstEntry || !firstEntry.name) {
-          return Promise.reject(
-            `Failed to retrieve gcloud SDK version, invalid response body: ${body}`,
-          );
-        }
-        return Promise.resolve(firstEntry.name);
-      });
+      return Promise.resolve(firstEntry.name);
     });
+  });
 }

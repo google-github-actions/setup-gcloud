@@ -23,7 +23,9 @@ for working with [Google Cloud Platform](http://cloud.google.com/).
 
 ## Example Workflows
 
-* [gke](./example-workflows/gke/README.md): An example workflow that uses [GitHub Actions](https://help.github.com/en/categories/automating-your-workflow-with-github-actions) to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
+* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses [GitHub Actions][github-action] to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
+
+* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses [GitHub Actions][github-action] to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
 
 ## Feature requests and bug reports
 
@@ -34,7 +36,7 @@ Please file feature requests and bug reports as
 
 The GCP GitHub Actions community uses the **#gcp-github-actions** slack channel on
 [https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
-to ask questions and share feedback. Invitation link available here: 
+to ask questions and share feedback. Invitation link available here:
 [http://bit.ly/gcp-slack](http://bit.ly/gcp-slack).
 
 ## Contributing
@@ -44,3 +46,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 ## License
 
 See [LICENSE](LICENSE)
+
+
+[github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions

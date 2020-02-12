@@ -37,7 +37,7 @@ Please file feature requests and bug reports as
 The GCP GitHub Actions community uses the **#gcp-github-actions** slack channel on
 [https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
 to ask questions and share feedback. Invitation link available here:
-[http://bit.ly/gcp-slack](http://bit.ly/gcp-slack).
+[gcp-slack](https://cloud.google.com/community#home-support).
 
 ## Contributing
 

@@ -21,8 +21,8 @@ on:
 
 env:
   GCE_PROJECT: ${{ secrets.GCE_PROJECT }}
-  GCE_INSTANCE: container-optimized-vm
-  GCE_INSTANCE_ZONE: us-central1-a
+  GCE_INSTANCE: <YOUR_VM_NAME>
+  GCE_INSTANCE_ZONE: <YOUR_VM_ZONE> # e.g. us-central1-a
 
 jobs:
   setup-build-publish-deploy:

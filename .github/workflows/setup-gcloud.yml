@@ -1,4 +1,4 @@
-name: Main workflow
+name: setup-gcloud Unit
 on: [push, pull_request]
 jobs:
   run:

@@ -1,0 +1,17 @@
+name: Get Secret Manager secrets
+author: Google Cloud
+description: |-
+  Get secrets from Google Secret Manager and make their results available as
+  output variables. See https://cloud.google.com/secret-manager for more
+  information about Secret Manager.
+
+inputs:
+  secrets:
+    description: |-
+      Comma-separated or newline-separated list of secrets to fetch. Secrets
+      must be of the format <project>/<secret> or <project>/<secret>/<version>.
+    required: true
+
+runs:
+  using: node12
+  main: dist/index.js

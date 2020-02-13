@@ -1,0 +1,36 @@
+{
+  "name": "get-secretmanager-secrets",
+  "version": "0.1.0",
+  "description": "Get Secret Manager secrets GitHub action",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/main.ts",
+    "test": "mocha -r ts-node/register 'tests/*.spec.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleCloudPlatform/github-actions"
+  },
+  "keywords": [
+    "actions",
+    "google cloud",
+    "secret manager",
+    "setup"
+  ],
+  "author": "GoogleCloudPlatform",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "@actions/core": "^1.2.2",
+    "google-auth-library": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.x",
+    "@types/mocha": "^7.0.x",
+    "@types/node": "^12.12.27",
+    "@zeit/ncc": "^0.20.x",
+    "chai": "^4.2.x",
+    "mocha": "^7.0.x",
+    "ts-node": "^8.6.x",
+    "typescript": "^3.7.x"
+  }
+}

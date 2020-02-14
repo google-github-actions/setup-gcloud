@@ -23,35 +23,29 @@ For pushes to the _default_ branch, `master`, the workflow will:
 1. Verify the Google Cloud Platform credentials are correct.
 1. Build, tag, and push the image to Google Container Registry.
 1. Deploy the container image to a Google Compute Engine instance.
-    * Note that a GCE deployment requires an existing [container-optimized VM][create-vm].
+   Note that a GCE deployment requires an existing [container-optimized VM][create-vm].
 
 ## Setup
 
 1. Create or reuse a Github repository for the example workflow:
-
-  1. [Create a repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
-  1. Move into your repository directory.
-  1. Copy the example into the repository:
+  * [Create a repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
+  * Move into your repository directory.
+  * Copy the example into the repository:
   ```
   cp -r <path_to>/github-actions/example-workflows/gce/ ./
   ```
----
 
-1. Add your Project ID to the [repository's secret][secrets], named `GCE_PROJECT`.
-
-1. [Create a container-optimized GCE VM][create-vm] or use an existing
+2. Add your Project ID to the [repository's secret][secrets], named `GCE_PROJECT`.
+3. [Create a container-optimized GCE VM][create-vm] or use an existing
 container-optimized VM.
-
-1. Update `gce.yml` with the following values:
-
+4. Update `gce.yml` with the following values:
   * `GCE_INSTANCE`: the instance name of the VM.
   * `GCE_INSTANCE_ZONE`: the zone your VM resides.
 
-You can find the VM name and the zone on the
+Note: You can find the VM name and the zone on the
 [Cloud Console](http://console.cloud.google.com/compute/instances).
 
-1. [Add the the following roles to your service account][roles]:
-
+5. [Add the the following roles to your service account][roles]:
   * `Compute Instance Admin`
   * `Storage Admin`
 

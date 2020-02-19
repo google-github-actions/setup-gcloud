@@ -27,6 +27,8 @@ for working with [Google Cloud Platform](http://cloud.google.com/).
 
 * [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses [GitHub Actions][github-action] to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
 
+* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses [GitHub Actions](https://help.github.com/en/categories/automating-your-workflow-with-github-actions) to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
+
 ## Feature requests and bug reports
 
 Please file feature requests and bug reports as

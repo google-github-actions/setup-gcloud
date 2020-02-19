@@ -16,7 +16,7 @@ limitations under the License.
 
 # get-secretmanager-secrets
 
-This action fetches secrets from [Secret Manager][sm] and makes then available
+This action fetches secrets from [Secret Manager][sm] and makes them available
 to later build steps via outputs. This is useful when you want Secret Manager to
 be the source of truth for secrets in your organization, but you need access to
 those secrets in build steps.

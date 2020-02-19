@@ -1,0 +1,51 @@
+name: "build-test"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "releases/*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        npm install
+        npm run build
+        npm run pack
+        npm test
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: make temp folder and files
+        run: |
+          mkdir -p test
+          touch test/test1.txt
+          touch test/test2.txt
+      - uses: ./
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          folder-to-upload: ./test
+          bucket-name: gh-test-tf-1
+          object-key-prefix: myfolderprefix/
+          clear-existing-files-first: true
+  test2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: make temp folder and files
+        run: |
+          mkdir -p test
+          touch test/test2.txt
+      - uses: ./
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          file-to-upload: ./test/test2.txt
+          bucket-name: gh-test-tf-1
+          object-key-prefix: myfileprefix/
+          clear-existing-files-first: false

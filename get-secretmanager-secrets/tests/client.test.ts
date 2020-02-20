@@ -25,7 +25,7 @@ const secretRef =
 describe('Client', () => {
   it('initializes with JSON creds', () => {
     const client = new Client({
-      credentials: `{'foo':'bar'}`,
+      credentials: `{"foo":"bar"}`,
     });
     expect(client.auth.jsonContent).eql({ foo: 'bar' });
   });
@@ -35,7 +35,7 @@ describe('Client', () => {
     expect(client.auth.jsonContent).eql(null);
   });
 
-  it('accesses secrets', async function() {
+  it('accesses secrets', async function () {
     if (!secretRef) {
       this.skip();
     }

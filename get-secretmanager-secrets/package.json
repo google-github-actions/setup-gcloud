@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ncc build src/main.ts",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "mocha -r ts-node/register 'tests/*.spec.ts'"
+    "test": "mocha -r ts-node/register 'tests/*.test.ts'"
   },
   "repository": {
     "type": "git",

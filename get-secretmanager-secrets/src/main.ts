@@ -26,7 +26,7 @@ import { Reference } from './reference';
  * comma-delimited or newline, whitespace around secret entires is removed.
  * @returns Array of References for each secret, in the same order they were
  * given.
-*/
+ */
 function parseSecretsRefs(secretsInput: string): Reference[] {
   const secrets = new Array<Reference>();
   for (const line of secretsInput.split(`\n`)) {

@@ -35,7 +35,7 @@ describe('Client', () => {
     expect(client.auth.jsonContent).eql(null);
   });
 
-  it('accesses secrets', async function () {
+  it('accesses secrets', async function() {
     if (!secretRef) {
       this.skip();
     }
@@ -43,5 +43,13 @@ describe('Client', () => {
     const client = new Client();
     const result = await client.accessSecret(secretRef);
     expect(result).to.not.eql(null);
+  });
+
+  it('fails to access secrets with bad creds', () => {
+    const fn = async (): Promise<string> => {
+      const client = new Client({ credentials: `{"definitely":"bad"}` });
+      return await client.accessSecret(secretRef);
+    };
+    expect(fn).to.throw(TypeError);
   });
 });

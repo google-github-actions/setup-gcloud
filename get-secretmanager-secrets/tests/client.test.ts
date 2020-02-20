@@ -20,7 +20,7 @@ import 'mocha';
 import { Client } from '../src/client';
 
 const secretRef =
-  process.env.GITHUB_ACTIONS_GET_SECRETMANAGER_SECRET_SECRET_REF;
+  process.env.GITHUB_ACTIONS_GET_SECRETMANAGER_SECRETS_SECRET_REF;
 
 describe('Client', () => {
   it('initializes with JSON creds', () => {
@@ -43,13 +43,5 @@ describe('Client', () => {
     const client = new Client();
     const result = await client.accessSecret(secretRef);
     expect(result).to.not.eql(null);
-  });
-
-  it('fails to access secrets with bad creds', () => {
-    const fn = async (): Promise<string> => {
-      const client = new Client({ credentials: `{"definitely":"bad"}` });
-      return await client.accessSecret(secretRef);
-    };
-    expect(fn).to.throw(TypeError);
   });
 });

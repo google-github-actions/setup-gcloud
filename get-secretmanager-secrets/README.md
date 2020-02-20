@@ -124,6 +124,8 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+  with:
+    export_default_credentials: true
 - uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
 ```
 

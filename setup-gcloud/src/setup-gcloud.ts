@@ -20,6 +20,7 @@ import * as toolCache from '@actions/tool-cache';
 import {Base64} from 'js-base64';
 import {promises as fs} from 'fs';
 import path from 'path';
+import {v4 as uuidv4} from 'uuid';
 import * as tmp from 'tmp';
 import * as os from 'os';
 import {getReleaseURL} from '../src/format-url';
@@ -47,11 +48,20 @@ async function run() {
 
     // if a service account key isn't provided, log an un-authenticated notice
     if (!serviceAccountKey) {
-      console.log('gcloud SDK installed without authentication.');
+      core.info('gcloud SDK installed without authentication.');
       return;
     }
 
+    // Handle base64-encoded credentials
+    let serviceAccountJSON = serviceAccountKey;
+    if (!serviceAccountKey.trim().startsWith('{')) {
+      serviceAccountJSON = Base64.decode(serviceAccountKey);
+    }
+
     // write the service account key to a temporary file
+    //
+    // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
+    // writing a file to disk.
     const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
       tmp.file((err, path, fd, cleanupCallback) => {
         if (err) {
@@ -60,7 +70,7 @@ async function run() {
         resolve(path);
       });
     });
-    await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey));
+    await fs.writeFile(tmpKeyFilePath, serviceAccountJSON);
 
     // A workaround for https://github.com/actions/toolkit/issues/229
     // Currently exec on windows runs as cmd shell.
@@ -73,6 +83,23 @@ async function run() {
     await exec.exec(
       `${toolCommand} auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`,
     );
+
+    // Export credentials if requested - these credentials must be exported in
+    // the shared workspace directory, since the filesystem must be shared among
+    // all steps.
+    const exportCreds = core.getInput('export_default_credentials');
+    if (String(exportCreds).toLowerCase() === 'true') {
+      const workspace = process.env.GITHUB_WORKSPACE;
+      if (!workspace) {
+        throw new Error('Missing GITHUB_WORKSPACE!');
+      }
+
+      const credsPath = path.join(workspace, uuidv4());
+      await fs.writeFile(credsPath, serviceAccountJSON);
+
+      core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
+      core.info('Successfully exported Default Application Credentials');
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

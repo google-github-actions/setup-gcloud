@@ -12,6 +12,14 @@ inputs:
   service_account_key:
     description: 'The service account key which will be used for authentication.'
     required: true
+  export_default_credentials:
+    description: |-
+      Export the provided credentials as Google Default Application Credentials.
+      This will make the credentials available to later steps. Future steps that
+      consume Default Application Credentials will automatically detect and use
+      these credentials.
+    default: false
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

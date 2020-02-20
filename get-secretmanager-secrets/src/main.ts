@@ -18,7 +18,30 @@ import * as core from "@actions/core";
 import { Client } from "./client";
 import { Reference } from "./reference";
 
-async function run() {
+/**
+ * parseSecretsRefs accepts the actions list of secrets and parses them as
+ * References.
+ *
+ * @param secretsInput List of secrets, from the actions input, can be
+ * comma-delimited or newline, whitespace around secret entires is removed.
+ * @returns Array of References for each secret, in the same order they were
+ * given.
+*/
+function parseSecretsRefs(secretsInput: string): Reference[] {
+  const secrets = new Array<Reference>();
+  for (const line of secretsInput.split(`\n`)) {
+    for (const piece of line.split(',')) {
+      secrets.push(new Reference(piece.trim()));
+    }
+  }
+  return secrets;
+}
+
+/**
+ * run executes the main action. It includes the main business logic and is the
+ * primary entry point. It is documented inline.
+ */
+async function run(): Promise<void> {
   try {
     // Fetch the list of secrets provided by the user.
     const secretsInput = core.getInput('secrets', { required: true });
@@ -35,7 +58,7 @@ async function run() {
     const secretsRefs = parseSecretsRefs(secretsInput);
 
     // Access and export each secret.
-    for (let ref of secretsRefs) {
+    for (const ref of secretsRefs) {
       const value = await client.accessSecret(ref.selfLink());
       core.setSecret(value);
       core.setOutput(ref.output, value);
@@ -43,19 +66,6 @@ async function run() {
   } catch (error) {
     core.setFailed(error.message);
   }
-}
-
-// parseSecretsRefs accepts the given input string "secretsInput" as a list of
-// secrets from actions input. Secrets can be comma-delimited or newline
-// delimited. Whitespace around secret entires is removed.
-function parseSecretsRefs(secretsInput: string): Reference[] {
-  const secrets = new Array<Reference>();
-  for (let line of secretsInput.split("\n")) {
-    for (let piece of line.split(",")) {
-      secrets.push(new Reference(piece.trim()));
-    }
-  }
-  return secrets;
 }
 
 run();

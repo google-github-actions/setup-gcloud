@@ -16,14 +16,27 @@
 
 import { GoogleAuth } from 'google-auth-library';
 
+/**
+ * ClientOptions are available options to create the client.
+ *
+ * @param credentials GCP JSON credentials (default uses ADC).
+ * @param endpoint GCP endpoint (useful for testing).
+ */
 type ClientOptions = {
   credentials?: string,
   endpoint?: string,
 }
 
+/**
+ * Client wraps interactions with the Google Secret Manager API, handling
+ * credential lookup and registration.
+ *
+ * @param opts list of ClientOptions
+ * @returns Client
+ */
 export class Client {
-  readonly defaultEndpoint: string = 'https://secretmanager.googleapis.com/v1beta1';
-  readonly defaultScope: string = 'https://www.googleapis.com/auth/cloud-platform';
+  readonly defaultEndpoint = 'https://secretmanager.googleapis.com/v1beta1';
+  readonly defaultScope = 'https://www.googleapis.com/auth/cloud-platform';
   readonly userAgent = 'github-action-google-secretmanager/0.1.0';
 
   readonly auth: GoogleAuth;
@@ -54,6 +67,12 @@ export class Client {
     }
   }
 
+  /**
+   * accessSecret retrieves the secret by name.
+   *
+   * @param ref String of the full secret reference.
+   * @returns string secret contents.
+   */
   async accessSecret(ref: string): Promise<string> {
     const client = await this.auth.getClient();
 
@@ -71,6 +90,10 @@ export class Client {
   }
 }
 
+/**
+ * PayloadResponse is the deeply-nested response from the Secret Manager API. It
+ * is primarily used for processing the response.
+ */
 type PayloadResponse = {
   data: {
     name: string,

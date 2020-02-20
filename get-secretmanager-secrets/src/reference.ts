@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-// Reference parses a string of the format output:secret, like:
-//
-//     output:project/secret/version
-//
+/**
+ * Reference parses a string of the format `outout:secret`. For example:
+ *
+ *     output:project/secret/version
+ *
+ * @param s String reference to parse
+ * @returns Reference
+ */
 export class Reference {
   // output is the name of the output variable.
   readonly output: string;
@@ -68,6 +72,11 @@ export class Reference {
     }
   }
 
+  /**
+   * selfLink returns the full GCP self link.
+   *
+   * @returns String self link.
+   */
   public selfLink(): string {
     return `projects/${this.project}/secrets/${this.name}/versions/${this.version}`;
   }

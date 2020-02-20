@@ -42,24 +42,28 @@ export class Reference {
     const ref = sParts.slice(1).join(':');
     const refParts = ref.split('/');
     switch (refParts.length) {
+      // projects/<p>/secrets/<s>/versions/<v>
       case 6: {
         this.project = refParts[1];
         this.name = refParts[3];
         this.version = refParts[5];
         break;
       }
+      // projects/<p>/secrets/<s>
       case 4: {
         this.project = refParts[1];
         this.name = refParts[3];
         this.version = 'latest';
         break;
       }
+      // <p>/<s>/<v>
       case 3: {
         this.project = refParts[0];
         this.name = refParts[1];
         this.version = refParts[2];
         break;
       }
+      // <p>/<s>
       case 2: {
         this.project = refParts[0];
         this.name = refParts[1];

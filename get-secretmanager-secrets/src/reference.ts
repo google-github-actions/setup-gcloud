@@ -32,15 +32,15 @@ export class Reference {
   readonly version: string;
 
   constructor(s: string) {
-    const sParts = s.split(":");
+    const sParts = s.split(':');
     if (sParts.length < 2) {
       throw new TypeError(`Invalid reference "${s}" - missing destination`);
     }
 
     this.output = sParts[0].trim();
 
-    const ref = sParts.slice(1).join(":");
-    const refParts = ref.split("/");
+    const ref = sParts.slice(1).join(':');
+    const refParts = ref.split('/');
     switch (refParts.length) {
       case 6: {
         this.project = refParts[1];
@@ -51,7 +51,7 @@ export class Reference {
       case 4: {
         this.project = refParts[1];
         this.name = refParts[3];
-        this.version = "latest";
+        this.version = 'latest';
         break;
       }
       case 3: {
@@ -63,7 +63,7 @@ export class Reference {
       case 2: {
         this.project = refParts[0];
         this.name = refParts[1];
-        this.version = "latest";
+        this.version = 'latest';
         break;
       }
       default: {

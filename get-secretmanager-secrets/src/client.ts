@@ -23,9 +23,9 @@ import { GoogleAuth } from 'google-auth-library';
  * @param endpoint GCP endpoint (useful for testing).
  */
 type ClientOptions = {
-  credentials?: string,
-  endpoint?: string,
-}
+  credentials?: string;
+  endpoint?: string;
+};
 
 /**
  * Client wraps interactions with the Google Secret Manager API, handling
@@ -80,10 +80,10 @@ export class Client {
     headers['User-Agent'] = this.userAgent;
 
     const url = `${this.endpoint}/${ref}:access`;
-    const resp = await client.request({
+    const resp = (await client.request({
       url: url,
       headers: headers,
-    }) as PayloadResponse;
+    })) as PayloadResponse;
     const b64data = resp.data.payload.data;
     const data = Buffer.from(b64data, 'base64');
     return data.toString();
@@ -96,9 +96,9 @@ export class Client {
  */
 type PayloadResponse = {
   data: {
-    name: string,
+    name: string;
     payload: {
-      data: string,
-    },
-  }
-}
+      data: string;
+    };
+  };
+};

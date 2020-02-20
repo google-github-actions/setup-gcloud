@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-import { expect } from "chai";
-import "mocha";
+import { expect } from 'chai';
+import 'mocha';
 
-import { Client } from "../src/client";
+import { Client } from '../src/client';
 
-const secretRef = process.env.GITHUB_ACTIONS_GET_SECRETMANAGER_SECRET_SECRET_REF!;
+const secretRef =
+  process.env.GITHUB_ACTIONS_GET_SECRETMANAGER_SECRET_SECRET_REF;
 
-describe("Client", () => {
-  it("initializes with JSON creds", () => {
+describe('Client', () => {
+  it('initializes with JSON creds', () => {
     const client = new Client({
-      credentials: '{"foo":"bar"}',
+      credentials: `{'foo':'bar'}`,
     });
-    expect(client.auth.jsonContent).eql({ foo: "bar" });
+    expect(client.auth.jsonContent).eql({ foo: 'bar' });
   });
 
-  it("initializes with ADC", () => {
+  it('initializes with ADC', () => {
     const client = new Client();
     expect(client.auth.jsonContent).eql(null);
   });
 
-  it("accesses secrets", async function () {
+  it('accesses secrets', async function() {
     if (!secretRef) {
       this.skip();
     }

@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/main.ts",
+    "lint": "eslint . --ext .ts,.tsx",
     "test": "mocha -r ts-node/register 'tests/*.spec.ts'"
   },
   "repository": {
@@ -27,9 +28,15 @@
     "@types/chai": "^4.2.x",
     "@types/mocha": "^7.0.x",
     "@types/node": "^12.12.27",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.20.x",
     "chai": "^4.2.x",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint": "^6.8.0",
     "mocha": "^7.0.x",
+    "prettier": "^1.19.1",
     "ts-node": "^8.6.x",
     "typescript": "^3.7.x"
   }

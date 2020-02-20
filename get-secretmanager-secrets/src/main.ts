@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as core from "@actions/core";
-import { Client } from "./client";
-import { Reference } from "./reference";
+import * as core from '@actions/core';
+import { Client } from './client';
+import { Reference } from './reference';
 
 /**
  * parseSecretsRefs accepts the actions list of secrets and parses them as

@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 
-import { expect } from "chai";
-import "mocha";
+import { expect } from 'chai';
+import 'mocha';
 
-import { Reference } from "../src/reference";
+import { Reference } from '../src/reference';
 
-describe("Reference", () => {
-  it("parses a full ref", () => {
-    const ref = new Reference("out:projects/fruits/secrets/apple/versions/123");
-    expect(ref.selfLink()).equal("projects/fruits/secrets/apple/versions/123");
+describe('Reference', () => {
+  it('parses a full ref', () => {
+    const ref = new Reference('out:projects/fruits/secrets/apple/versions/123');
+    const link = ref.selfLink();
+    expect(link).equal('projects/fruits/secrets/apple/versions/123');
   });
 
-  it("parses a full ref sans version", () => {
-    const ref = new Reference("out:projects/fruits/secrets/apple");
-    expect(ref.selfLink()).equal(
-      "projects/fruits/secrets/apple/versions/latest"
-    );
+  it('parses a full ref sans version', () => {
+    const ref = new Reference('out:projects/fruits/secrets/apple');
+    const link = ref.selfLink();
+    expect(link).equal('projects/fruits/secrets/apple/versions/latest');
   });
 
-  it("parses a short ref", () => {
-    const ref = new Reference("out:fruits/apple/123");
-    expect(ref.selfLink()).equal("projects/fruits/secrets/apple/versions/123");
+  it('parses a short ref', () => {
+    const ref = new Reference('out:fruits/apple/123');
+    const link = ref.selfLink();
+    expect(link).equal('projects/fruits/secrets/apple/versions/123');
   });
 
-  it("parses a short ref sans version", () => {
-    const ref = new Reference("out:fruits/apple");
-    expect(ref.selfLink()).equal(
-      "projects/fruits/secrets/apple/versions/latest"
-    );
+  it('parses a short ref sans version', () => {
+    const ref = new Reference('out:fruits/apple');
+    const link = ref.selfLink();
+    expect(link).equal('projects/fruits/secrets/apple/versions/latest');
   });
 
-  it("errors on invalid format", () => {
-    const fn = () => {
-      new Reference(
-        "out:projects/fruits/secrets/apple/versions/123/subversions/5"
+  it('errors on invalid format', () => {
+    const fn = (): Reference => {
+      return new Reference(
+        'out:projects/fruits/secrets/apple/versions/123/subversions/5',
       );
     };
     expect(fn).to.throw(TypeError);
   });
 
-  it("errors on missing output", () => {
-    const fn = () => {
-      new Reference("fruits/apple/123");
+  it('errors on missing output', () => {
+    const fn = (): Reference => {
+      return new Reference('fruits/apple/123');
     };
     expect(fn).to.throw(TypeError);
   });

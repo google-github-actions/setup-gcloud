@@ -607,6 +607,193 @@ module.exports = DataStream;
 
 /***/ }),
 
+/***/ 40:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const net_1 = __importDefault(__webpack_require__(631));
+const tls_1 = __importDefault(__webpack_require__(16));
+const url_1 = __importDefault(__webpack_require__(835));
+const assert_1 = __importDefault(__webpack_require__(357));
+const debug_1 = __importDefault(__webpack_require__(784));
+const agent_base_1 = __webpack_require__(443);
+const parse_proxy_response_1 = __importDefault(__webpack_require__(428));
+const debug = debug_1.default('https-proxy-agent:agent');
+/**
+ * The `HttpsProxyAgent` implements an HTTP Agent subclass that connects to
+ * the specified "HTTP(s) proxy server" in order to proxy HTTPS requests.
+ *
+ * Outgoing HTTP requests are first tunneled through the proxy server using the
+ * `CONNECT` HTTP request method to establish a connection to the proxy server,
+ * and then the proxy server connects to the destination target and issues the
+ * HTTP request from the proxy server.
+ *
+ * `https:` requests have their socket connection upgraded to TLS once
+ * the connection to the proxy server has been established.
+ *
+ * @api public
+ */
+class HttpsProxyAgent extends agent_base_1.Agent {
+    constructor(_opts) {
+        let opts;
+        if (typeof _opts === 'string') {
+            opts = url_1.default.parse(_opts);
+        }
+        else {
+            opts = _opts;
+        }
+        if (!opts) {
+            throw new Error('an HTTP(S) proxy server `host` and `port` must be specified!');
+        }
+        debug('creating new HttpsProxyAgent instance: %o', opts);
+        super(opts);
+        const proxy = Object.assign({}, opts);
+        // If `true`, then connect to the proxy server over TLS.
+        // Defaults to `false`.
+        this.secureProxy = opts.secureProxy || isHTTPS(proxy.protocol);
+        // Prefer `hostname` over `host`, and set the `port` if needed.
+        proxy.host = proxy.hostname || proxy.host;
+        if (typeof proxy.port === 'string') {
+            proxy.port = parseInt(proxy.port, 10);
+        }
+        if (!proxy.port && proxy.host) {
+            proxy.port = this.secureProxy ? 443 : 80;
+        }
+        // ALPN is supported by Node.js >= v5.
+        // attempt to negotiate http/1.1 for proxy servers that support http/2
+        if (this.secureProxy && !('ALPNProtocols' in proxy)) {
+            proxy.ALPNProtocols = ['http 1.1'];
+        }
+        if (proxy.host && proxy.path) {
+            // If both a `host` and `path` are specified then it's most likely
+            // the result of a `url.parse()` call... we need to remove the
+            // `path` portion so that `net.connect()` doesn't attempt to open
+            // that as a Unix socket file.
+            delete proxy.path;
+            delete proxy.pathname;
+        }
+        this.proxy = proxy;
+    }
+    /**
+     * Called when the node-core HTTP client library is creating a
+     * new HTTP request.
+     *
+     * @api protected
+     */
+    callback(req, opts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { proxy, secureProxy } = this;
+            // Create a socket connection to the proxy server.
+            let socket;
+            if (secureProxy) {
+                debug('Creating `tls.Socket`: %o', proxy);
+                socket = tls_1.default.connect(proxy);
+            }
+            else {
+                debug('Creating `net.Socket`: %o', proxy);
+                socket = net_1.default.connect(proxy);
+            }
+            const headers = Object.assign({}, proxy.headers);
+            const hostname = `${opts.host}:${opts.port}`;
+            let payload = `CONNECT ${hostname} HTTP/1.1\r\n`;
+            // Inject the `Proxy-Authorization` header if necessary.
+            if (proxy.auth) {
+                headers['Proxy-Authorization'] = `Basic ${Buffer.from(proxy.auth).toString('base64')}`;
+            }
+            // The `Host` header should only include the port
+            // number when it is not the default port.
+            let { host, port, secureEndpoint } = opts;
+            if (!isDefaultPort(port, secureEndpoint)) {
+                host += `:${port}`;
+            }
+            headers.Host = host;
+            headers.Connection = 'close';
+            for (const name of Object.keys(headers)) {
+                payload += `${name}: ${headers[name]}\r\n`;
+            }
+            const proxyResponsePromise = parse_proxy_response_1.default(socket);
+            socket.write(`${payload}\r\n`);
+            const { statusCode, buffered } = yield proxyResponsePromise;
+            if (statusCode === 200) {
+                req.once('socket', resume);
+                if (opts.secureEndpoint) {
+                    const servername = opts.servername || opts.host;
+                    if (!servername) {
+                        throw new Error('Could not determine "servername"');
+                    }
+                    // The proxy is connecting to a TLS server, so upgrade
+                    // this socket connection to a TLS connection.
+                    debug('Upgrading socket connection to TLS');
+                    return tls_1.default.connect(Object.assign(Object.assign({}, omit(opts, 'host', 'hostname', 'path', 'port')), { socket,
+                        servername }));
+                }
+                return socket;
+            }
+            // Some other status code that's not 200... need to re-play the HTTP
+            // header "data" events onto the socket once the HTTP machinery is
+            // attached so that the node core `http` can parse and handle the
+            // error status code.
+            // Close the original socket, and a new "fake" socket is returned
+            // instead, so that the proxy doesn't get the HTTP request
+            // written to it (which may contain `Authorization` headers or other
+            // sensitive data).
+            //
+            // See: https://hackerone.com/reports/541502
+            socket.destroy();
+            const fakeSocket = new net_1.default.Socket();
+            fakeSocket.readable = true;
+            // Need to wait for the "socket" event to re-play the "data" events.
+            req.once('socket', (s) => {
+                debug('replaying proxy buffer for failed request');
+                assert_1.default(s.listenerCount('data') > 0);
+                // Replay the "buffered" Buffer onto the fake `socket`, since at
+                // this point the HTTP module machinery has been hooked up for
+                // the user.
+                s.push(buffered);
+                s.push(null);
+            });
+            return fakeSocket;
+        });
+    }
+}
+exports.default = HttpsProxyAgent;
+function resume(socket) {
+    socket.resume();
+}
+function isDefaultPort(port, secure) {
+    return Boolean((!secure && port === 80) || (secure && port === 443));
+}
+function isHTTPS(protocol) {
+    return typeof protocol === 'string' ? /^https:?$/i.test(protocol) : false;
+}
+function omit(obj, ...keys) {
+    const ret = {};
+    let key;
+    for (key in obj) {
+        if (!keys.includes(key)) {
+            ret[key] = obj[key];
+        }
+    }
+    return ret;
+}
+//# sourceMappingURL=agent.js.map
+
+/***/ }),
+
 /***/ 65:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -3580,6 +3767,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const client_1 = __webpack_require__(976);
 const reference_1 = __webpack_require__(803);
+/**
+ * parseSecretsRefs accepts the actions list of secrets and parses them as
+ * References.
+ *
+ * @param secretsInput List of secrets, from the actions input, can be
+ * comma-delimited or newline, whitespace around secret entires is removed.
+ * @returns Array of References for each secret, in the same order they were
+ * given.
+*/
+function parseSecretsRefs(secretsInput) {
+    const secrets = new Array();
+    for (const line of secretsInput.split(`\n`)) {
+        for (const piece of line.split(',')) {
+            secrets.push(new reference_1.Reference(piece.trim()));
+        }
+    }
+    return secrets;
+}
+/**
+ * run executes the main action. It includes the main business logic and is the
+ * primary entry point. It is documented inline.
+ */
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -3594,7 +3803,7 @@ function run() {
             // Parse all the provided secrets into references.
             const secretsRefs = parseSecretsRefs(secretsInput);
             // Access and export each secret.
-            for (let ref of secretsRefs) {
+            for (const ref of secretsRefs) {
                 const value = yield client.accessSecret(ref.selfLink());
                 core.setSecret(value);
                 core.setOutput(ref.output, value);
@@ -3604,18 +3813,6 @@ function run() {
             core.setFailed(error.message);
         }
     });
-}
-// parseSecretsRefs accepts the given input string "secretsInput" as a list of
-// secrets from actions input. Secrets can be comma-delimited or newline
-// delimited. Whitespace around secret entires is removed.
-function parseSecretsRefs(secretsInput) {
-    const secrets = new Array();
-    for (let line of secretsInput.split("\n")) {
-        for (let piece of line.split(",")) {
-            secrets.push(new reference_1.Reference(piece.trim()));
-        }
-    }
-    return secrets;
 }
 run();
 
@@ -3821,6 +4018,8 @@ if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow)
 function SafeBuffer (arg, encodingOrOffset, length) {
   return Buffer(arg, encodingOrOffset, length)
 }
+
+SafeBuffer.prototype = Object.create(Buffer.prototype)
 
 // Copy static methods from Buffer
 copyProps(Buffer, SafeBuffer)
@@ -17331,6 +17530,43 @@ function plural(ms, msAbs, n, name) {
 
 /***/ }),
 
+/***/ 323:
+/***/ (function(module) {
+
+"use strict";
+
+
+const isStream = stream =>
+	stream !== null &&
+	typeof stream === 'object' &&
+	typeof stream.pipe === 'function';
+
+isStream.writable = stream =>
+	isStream(stream) &&
+	stream.writable !== false &&
+	typeof stream._write === 'function' &&
+	typeof stream._writableState === 'object';
+
+isStream.readable = stream =>
+	isStream(stream) &&
+	stream.readable !== false &&
+	typeof stream._read === 'function' &&
+	typeof stream._readableState === 'object';
+
+isStream.duplex = stream =>
+	isStream.writable(stream) &&
+	isStream.readable(stream);
+
+isStream.transform = stream =>
+	isStream.duplex(stream) &&
+	typeof stream._transform === 'function' &&
+	typeof stream._transformState === 'object';
+
+module.exports = isStream;
+
+
+/***/ }),
+
 /***/ 331:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -17778,6 +18014,27 @@ var json_parse = function (options) {
 
 module.exports = json_parse;
 
+
+/***/ }),
+
+/***/ 338:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const agent_1 = __importDefault(__webpack_require__(40));
+function createHttpsProxyAgent(opts) {
+    return new agent_1.default(opts);
+}
+(function (createHttpsProxyAgent) {
+    createHttpsProxyAgent.HttpsProxyAgent = agent_1.default;
+    createHttpsProxyAgent.prototype = agent_1.default.prototype;
+})(createHttpsProxyAgent || (createHttpsProxyAgent = {}));
+module.exports = createHttpsProxyAgent;
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 
@@ -23817,6 +24074,79 @@ function _createCipher(options) {
 
 /***/ }),
 
+/***/ 428:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const debug_1 = __importDefault(__webpack_require__(784));
+const debug = debug_1.default('https-proxy-agent:parse-proxy-response');
+function parseProxyResponse(socket) {
+    return new Promise((resolve, reject) => {
+        // we need to buffer any HTTP traffic that happens with the proxy before we get
+        // the CONNECT response, so that if the response is anything other than an "200"
+        // response code, then we can re-play the "data" events on the socket once the
+        // HTTP parser is hooked up...
+        let buffersLength = 0;
+        const buffers = [];
+        function read() {
+            const b = socket.read();
+            if (b)
+                ondata(b);
+            else
+                socket.once('readable', read);
+        }
+        function cleanup() {
+            socket.removeListener('end', onend);
+            socket.removeListener('error', onerror);
+            socket.removeListener('close', onclose);
+            socket.removeListener('readable', read);
+        }
+        function onclose(err) {
+            debug('onclose had error %o', err);
+        }
+        function onend() {
+            debug('onend');
+        }
+        function onerror(err) {
+            cleanup();
+            debug('onerror %o', err);
+            reject(err);
+        }
+        function ondata(b) {
+            buffers.push(b);
+            buffersLength += b.length;
+            const buffered = Buffer.concat(buffers, buffersLength);
+            const endOfHeaders = buffered.indexOf('\r\n\r\n');
+            if (endOfHeaders === -1) {
+                // keep buffering
+                debug('have not received end of HTTP headers yet...');
+                read();
+                return;
+            }
+            const firstLine = buffered.toString('ascii', 0, buffered.indexOf('\r\n'));
+            const statusCode = +firstLine.split(' ')[1];
+            debug('got proxy server response: %o', firstLine);
+            resolve({
+                statusCode,
+                buffered
+            });
+        }
+        socket.on('error', onerror);
+        socket.on('close', onclose);
+        socket.on('end', onend);
+        read();
+    });
+}
+exports.default = parseProxyResponse;
+//# sourceMappingURL=parse-proxy-response.js.map
+
+/***/ }),
+
 /***/ 431:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -23911,11 +24241,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const events_1 = __webpack_require__(614);
+const debug_1 = __importDefault(__webpack_require__(784));
 const promisify_1 = __importDefault(__webpack_require__(537));
-function isAgentBase(v) {
-    return Boolean(v) && typeof v.addRequest === 'function';
-}
-function isHttpAgent(v) {
+const debug = debug_1.default('agent-base');
+function isAgent(v) {
     return Boolean(v) && typeof v.addRequest === 'function';
 }
 function isSecureEndpoint() {
@@ -23938,8 +24267,6 @@ function createAgent(callback, opts) {
     class Agent extends events_1.EventEmitter {
         constructor(callback, _opts) {
             super();
-            // The callback gets promisified lazily
-            this.promisifiedCallback = undefined;
             let opts = _opts;
             if (typeof callback === 'function') {
                 this.callback = callback;
@@ -23947,24 +24274,23 @@ function createAgent(callback, opts) {
             else if (callback) {
                 opts = callback;
             }
-            // timeout for the socket to be returned from the callback
+            // Timeout for the socket to be returned from the callback
             this.timeout = null;
             if (opts && typeof opts.timeout === 'number') {
                 this.timeout = opts.timeout;
             }
-            this.options = opts || {};
+            // These aren't actually used by `agent-base`, but are required
+            // for the TypeScript definition files in `@types/node` :/
             this.maxFreeSockets = 1;
             this.maxSockets = 1;
-            this.sockets = [];
-            this.requests = [];
+            this.sockets = {};
+            this.requests = {};
         }
         get defaultPort() {
             if (typeof this.explicitDefaultPort === 'number') {
                 return this.explicitDefaultPort;
             }
-            else {
-                return isSecureEndpoint() ? 443 : 80;
-            }
+            return isSecureEndpoint() ? 443 : 80;
         }
         set defaultPort(v) {
             this.explicitDefaultPort = v;
@@ -23973,9 +24299,7 @@ function createAgent(callback, opts) {
             if (typeof this.explicitProtocol === 'string') {
                 return this.explicitProtocol;
             }
-            else {
-                return isSecureEndpoint() ? 'https:' : 'http:';
-            }
+            return isSecureEndpoint() ? 'https:' : 'http:';
         }
         set protocol(v) {
             this.explicitProtocol = v;
@@ -23990,23 +24314,24 @@ function createAgent(callback, opts) {
          * @api public
          */
         addRequest(req, _opts) {
-            const ownOpts = Object.assign({}, _opts);
-            if (typeof ownOpts.secureEndpoint !== 'boolean') {
-                ownOpts.secureEndpoint = isSecureEndpoint();
+            const opts = Object.assign({}, _opts);
+            if (typeof opts.secureEndpoint !== 'boolean') {
+                opts.secureEndpoint = isSecureEndpoint();
             }
-            // Set default `host` for HTTP to localhost
-            if (ownOpts.host == null) {
-                ownOpts.host = 'localhost';
+            if (opts.host == null) {
+                opts.host = 'localhost';
             }
-            // Set default `port` for HTTP if none was explicitly specified
-            if (ownOpts.port == null) {
-                ownOpts.port = ownOpts.secureEndpoint ? 443 : 80;
+            if (opts.port == null) {
+                opts.port = opts.secureEndpoint ? 443 : 80;
             }
-            const opts = Object.assign(Object.assign({}, this.options), ownOpts);
+            if (opts.protocol == null) {
+                opts.protocol = opts.secureEndpoint ? 'https:' : 'http:';
+            }
             if (opts.host && opts.path) {
-                // If both a `host` and `path` are specified then it's most likely the
-                // result of a `url.parse()` call... we need to remove the `path` portion so
-                // that `net.connect()` doesn't attempt to open that as a unix socket file.
+                // If both a `host` and `path` are specified then it's most
+                // likely the result of a `url.parse()` call... we need to
+                // remove the `path` portion so that `net.connect()` doesn't
+                // attempt to open that as a unix socket file.
                 delete opts.path;
             }
             delete opts.agent;
@@ -24018,69 +24343,65 @@ function createAgent(callback, opts) {
             // XXX: non-documented `http` module API :(
             req._last = true;
             req.shouldKeepAlive = false;
-            // Create the `stream.Duplex` instance
             let timedOut = false;
-            let timeout = null;
-            const timeoutMs = this.timeout;
-            const freeSocket = this.freeSocket;
-            function onerror(err) {
+            let timeoutId = null;
+            const timeoutMs = opts.timeout || this.timeout;
+            const onerror = (err) => {
                 if (req._hadError)
                     return;
                 req.emit('error', err);
                 // For Safety. Some additional errors might fire later on
                 // and we need to make sure we don't double-fire the error event.
                 req._hadError = true;
-            }
-            function ontimeout() {
-                timeout = null;
+            };
+            const ontimeout = () => {
+                timeoutId = null;
                 timedOut = true;
                 const err = new Error(`A "socket" was not created for HTTP request before ${timeoutMs}ms`);
                 err.code = 'ETIMEOUT';
                 onerror(err);
-            }
-            function callbackError(err) {
+            };
+            const callbackError = (err) => {
                 if (timedOut)
                     return;
-                if (timeout !== null) {
-                    clearTimeout(timeout);
-                    timeout = null;
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
                 }
                 onerror(err);
-            }
-            function onsocket(socket) {
-                let sock;
-                function onfree() {
-                    freeSocket(sock, opts);
-                }
+            };
+            const onsocket = (socket) => {
                 if (timedOut)
                     return;
-                if (timeout != null) {
-                    clearTimeout(timeout);
-                    timeout = null;
+                if (timeoutId != null) {
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
                 }
-                if (isAgentBase(socket) || isHttpAgent(socket)) {
+                if (isAgent(socket)) {
                     // `socket` is actually an `http.Agent` instance, so
                     // relinquish responsibility for this `req` to the Agent
                     // from here on
+                    debug('Callback returned another Agent instance %o', socket.constructor.name);
                     socket.addRequest(req, opts);
                     return;
                 }
                 if (socket) {
-                    sock = socket;
-                    sock.on('free', onfree);
-                    req.onSocket(sock);
+                    socket.once('free', () => {
+                        this.freeSocket(socket, opts);
+                    });
+                    req.onSocket(socket);
                     return;
                 }
                 const err = new Error(`no Duplex stream was returned to agent-base for \`${req.method} ${req.path}\``);
                 onerror(err);
-            }
+            };
             if (typeof this.callback !== 'function') {
                 onerror(new Error('`callback` is not defined'));
                 return;
             }
             if (!this.promisifiedCallback) {
                 if (this.callback.length >= 3) {
-                    // Legacy callback function - convert to a Promise
+                    debug('Converting legacy callback function to promise');
                     this.promisifiedCallback = promisify_1.default(this.callback);
                 }
                 else {
@@ -24088,12 +24409,13 @@ function createAgent(callback, opts) {
                 }
             }
             if (typeof timeoutMs === 'number' && timeoutMs > 0) {
-                timeout = setTimeout(ontimeout, timeoutMs);
+                timeoutId = setTimeout(ontimeout, timeoutMs);
             }
             if ('port' in opts && typeof opts.port !== 'number') {
                 opts.port = Number(opts.port);
             }
             try {
+                debug('Resolving socket for %o request: %o', opts.protocol, `${req.method} ${req.path}`);
                 Promise.resolve(this.promisifiedCallback(req, opts)).then(onsocket, callbackError);
             }
             catch (err) {
@@ -24101,15 +24423,17 @@ function createAgent(callback, opts) {
             }
         }
         freeSocket(socket, opts) {
-            // TODO reuse sockets
+            debug('Freeing socket %o %o', socket.constructor.name, opts);
             socket.destroy();
         }
-        destroy() { }
+        destroy() {
+            debug('Destroying agent %o', this.constructor.name);
+        }
     }
     createAgent.Agent = Agent;
+    // So that `instanceof` works correctly
+    createAgent.prototype = createAgent.Agent.prototype;
 })(createAgent || (createAgent = {}));
-// So that `instanceof` works correctly
-createAgent.prototype = createAgent.Agent.prototype;
 module.exports = createAgent;
 //# sourceMappingURL=index.js.map
 
@@ -31265,43 +31589,6 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 625:
-/***/ (function(module) {
-
-"use strict";
-
-
-const isStream = stream =>
-	stream !== null &&
-	typeof stream === 'object' &&
-	typeof stream.pipe === 'function';
-
-isStream.writable = stream =>
-	isStream(stream) &&
-	stream.writable !== false &&
-	typeof stream._write === 'function' &&
-	typeof stream._writableState === 'object';
-
-isStream.readable = stream =>
-	isStream(stream) &&
-	stream.readable !== false &&
-	typeof stream._read === 'function' &&
-	typeof stream._readableState === 'object';
-
-isStream.duplex = stream =>
-	isStream.writable(stream) &&
-	isStream.readable(stream);
-
-isStream.transform = stream =>
-	isStream.duplex(stream) &&
-	typeof stream._transform === 'function' &&
-	typeof stream._transformState === 'object';
-
-module.exports = isStream;
-
-
-/***/ }),
-
 /***/ 631:
 /***/ (function(module) {
 
@@ -33368,252 +33655,6 @@ module.exports = forge.random;
 })(typeof(jQuery) !== 'undefined' ? jQuery : null);
 
 })();
-
-
-/***/ }),
-
-/***/ 717:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-/**
- * Module dependencies.
- */
-
-var net = __webpack_require__(631);
-var tls = __webpack_require__(16);
-var url = __webpack_require__(835);
-var assert = __webpack_require__(357);
-var Agent = __webpack_require__(443);
-var inherits = __webpack_require__(669).inherits;
-var debug = __webpack_require__(784)('https-proxy-agent');
-
-/**
- * Module exports.
- */
-
-module.exports = HttpsProxyAgent;
-
-/**
- * The `HttpsProxyAgent` implements an HTTP Agent subclass that connects to the
- * specified "HTTP(s) proxy server" in order to proxy HTTPS requests.
- *
- * @api public
- */
-
-function HttpsProxyAgent(opts) {
-	if (!(this instanceof HttpsProxyAgent)) return new HttpsProxyAgent(opts);
-	if ('string' == typeof opts) opts = url.parse(opts);
-	if (!opts)
-		throw new Error(
-			'an HTTP(S) proxy server `host` and `port` must be specified!'
-		);
-	debug('creating new HttpsProxyAgent instance: %o', opts);
-	Agent.call(this, opts);
-
-	var proxy = Object.assign({}, opts);
-
-	// if `true`, then connect to the proxy server over TLS. defaults to `false`.
-	this.secureProxy = proxy.protocol
-		? /^https:?$/i.test(proxy.protocol)
-		: false;
-
-	// prefer `hostname` over `host`, and set the `port` if needed
-	proxy.host = proxy.hostname || proxy.host;
-	proxy.port = +proxy.port || (this.secureProxy ? 443 : 80);
-
-	// ALPN is supported by Node.js >= v5.
-	// attempt to negotiate http/1.1 for proxy servers that support http/2
-	if (this.secureProxy && !('ALPNProtocols' in proxy)) {
-		proxy.ALPNProtocols = ['http 1.1'];
-	}
-
-	if (proxy.host && proxy.path) {
-		// if both a `host` and `path` are specified then it's most likely the
-		// result of a `url.parse()` call... we need to remove the `path` portion so
-		// that `net.connect()` doesn't attempt to open that as a unix socket file.
-		delete proxy.path;
-		delete proxy.pathname;
-	}
-
-	this.proxy = proxy;
-}
-inherits(HttpsProxyAgent, Agent);
-
-/**
- * Called when the node-core HTTP client library is creating a new HTTP request.
- *
- * @api public
- */
-
-HttpsProxyAgent.prototype.callback = function connect(req, opts, fn) {
-	var proxy = this.proxy;
-
-	// create a socket connection to the proxy server
-	var socket;
-	if (this.secureProxy) {
-		socket = tls.connect(proxy);
-	} else {
-		socket = net.connect(proxy);
-	}
-
-	// we need to buffer any HTTP traffic that happens with the proxy before we get
-	// the CONNECT response, so that if the response is anything other than an "200"
-	// response code, then we can re-play the "data" events on the socket once the
-	// HTTP parser is hooked up...
-	var buffers = [];
-	var buffersLength = 0;
-
-	function read() {
-		var b = socket.read();
-		if (b) ondata(b);
-		else socket.once('readable', read);
-	}
-
-	function cleanup() {
-		socket.removeListener('end', onend);
-		socket.removeListener('error', onerror);
-		socket.removeListener('close', onclose);
-		socket.removeListener('readable', read);
-	}
-
-	function onclose(err) {
-		debug('onclose had error %o', err);
-	}
-
-	function onend() {
-		debug('onend');
-	}
-
-	function onerror(err) {
-		cleanup();
-		fn(err);
-	}
-
-	function ondata(b) {
-		buffers.push(b);
-		buffersLength += b.length;
-		var buffered = Buffer.concat(buffers, buffersLength);
-		var str = buffered.toString('ascii');
-
-		if (!~str.indexOf('\r\n\r\n')) {
-			// keep buffering
-			debug('have not received end of HTTP headers yet...');
-			read();
-			return;
-		}
-
-		var firstLine = str.substring(0, str.indexOf('\r\n'));
-		var statusCode = +firstLine.split(' ')[1];
-		debug('got proxy server response: %o', firstLine);
-
-		if (200 == statusCode) {
-			// 200 Connected status code!
-			var sock = socket;
-
-			// nullify the buffered data since we won't be needing it
-			buffers = buffered = null;
-
-			if (opts.secureEndpoint) {
-				// since the proxy is connecting to an SSL server, we have
-				// to upgrade this socket connection to an SSL connection
-				debug(
-					'upgrading proxy-connected socket to TLS connection: %o',
-					opts.host
-				);
-				opts.socket = socket;
-				opts.servername = opts.servername || opts.host;
-				opts.host = null;
-				opts.hostname = null;
-				opts.port = null;
-				sock = tls.connect(opts);
-			}
-
-			cleanup();
-			req.once('socket', resume);
-			fn(null, sock);
-		} else {
-			// some other status code that's not 200... need to re-play the HTTP header
-			// "data" events onto the socket once the HTTP machinery is attached so
-			// that the node core `http` can parse and handle the error status code
-			cleanup();
-
-			// the original socket is closed, and a new closed socket is
-			// returned instead, so that the proxy doesn't get the HTTP request
-			// written to it (which may contain `Authorization` headers or other
-			// sensitive data).
-			//
-			// See: https://hackerone.com/reports/541502
-			socket.destroy();
-			socket = new net.Socket();
-			socket.readable = true;
-
-			// save a reference to the concat'd Buffer for the `onsocket` callback
-			buffers = buffered;
-
-			// need to wait for the "socket" event to re-play the "data" events
-			req.once('socket', onsocket);
-
-			fn(null, socket);
-		}
-	}
-
-	function onsocket(socket) {
-		debug('replaying proxy buffer for failed request');
-		assert(socket.listenerCount('data') > 0);
-
-		// replay the "buffers" Buffer onto the `socket`, since at this point
-		// the HTTP module machinery has been hooked up for the user
-		socket.push(buffers);
-
-		// nullify the cached Buffer instance
-		buffers = null;
-	}
-
-	socket.on('error', onerror);
-	socket.on('close', onclose);
-	socket.on('end', onend);
-
-	read();
-
-	var hostname = opts.host + ':' + opts.port;
-	var msg = 'CONNECT ' + hostname + ' HTTP/1.1\r\n';
-
-	var headers = Object.assign({}, proxy.headers);
-	if (proxy.auth) {
-		headers['Proxy-Authorization'] =
-			'Basic ' + Buffer.from(proxy.auth).toString('base64');
-	}
-
-	// the Host header should only include the port
-	// number when it is a non-standard port
-	var host = opts.host;
-	if (!isDefaultPort(opts.port, opts.secureEndpoint)) {
-		host += ':' + opts.port;
-	}
-	headers['Host'] = host;
-
-	headers['Connection'] = 'close';
-	Object.keys(headers).forEach(function(name) {
-		msg += name + ': ' + headers[name] + '\r\n';
-	});
-
-	socket.write(msg + '\r\n');
-};
-
-/**
- * Resumes a socket.
- *
- * @param {(net.Socket|tls.Socket)} socket The socket to resume
- * @api public
- */
-
-function resume(socket) {
-	socket.resume();
-}
-
-function isDefaultPort(port, secure) {
-	return Boolean((!secure && port === 80) || (secure && port === 443));
-}
 
 
 /***/ }),
@@ -35699,42 +35740,50 @@ forge.log.consoleLogger = sConsoleLogger;
  * limitations under the License.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-// Reference parses a string of the format output:secret, like:
-//
-//     output:project/secret/version
-//
+/**
+ * Reference parses a string of the format `outout:secret`. For example:
+ *
+ *     output:project/secret/version
+ *
+ * @param s String reference to parse
+ * @returns Reference
+ */
 class Reference {
     constructor(s) {
-        const sParts = s.split(":");
+        const sParts = s.split(':');
         if (sParts.length < 2) {
             throw new TypeError(`Invalid reference "${s}" - missing destination`);
         }
         this.output = sParts[0].trim();
-        const ref = sParts.slice(1).join(":");
-        const refParts = ref.split("/");
+        const ref = sParts.slice(1).join(':');
+        const refParts = ref.split('/');
         switch (refParts.length) {
+            // projects/<p>/secrets/<s>/versions/<v>
             case 6: {
                 this.project = refParts[1];
                 this.name = refParts[3];
                 this.version = refParts[5];
                 break;
             }
+            // projects/<p>/secrets/<s>
             case 4: {
                 this.project = refParts[1];
                 this.name = refParts[3];
-                this.version = "latest";
+                this.version = 'latest';
                 break;
             }
+            // <p>/<s>/<v>
             case 3: {
                 this.project = refParts[0];
                 this.name = refParts[1];
                 this.version = refParts[2];
                 break;
             }
+            // <p>/<s>
             case 2: {
                 this.project = refParts[0];
                 this.name = refParts[1];
-                this.version = "latest";
+                this.version = 'latest';
                 break;
             }
             default: {
@@ -35742,6 +35791,11 @@ class Reference {
             }
         }
     }
+    /**
+     * selfLink returns the full GCP self link.
+     *
+     * @returns String self link.
+     */
     selfLink() {
         return `projects/${this.project}/secrets/${this.name}/versions/${this.version}`;
     }
@@ -37152,7 +37206,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const extend_1 = __importDefault(__webpack_require__(374));
 const node_fetch_1 = __importDefault(__webpack_require__(454));
 const querystring_1 = __importDefault(__webpack_require__(191));
-const is_stream_1 = __importDefault(__webpack_require__(625));
+const is_stream_1 = __importDefault(__webpack_require__(323));
 const url_1 = __importDefault(__webpack_require__(835));
 const common_1 = __webpack_require__(259);
 const retry_1 = __webpack_require__(642);
@@ -37178,7 +37232,7 @@ function loadProxy() {
         process.env.HTTP_PROXY ||
         process.env.http_proxy;
     if (proxy) {
-        HttpsProxyAgent = __webpack_require__(717);
+        HttpsProxyAgent = __webpack_require__(338);
     }
     return proxy;
 }
@@ -39367,7 +39421,7 @@ function convertToPem(p12base64) {
 /***/ 947:
 /***/ (function(module) {
 
-module.exports = {"_args":[["google-auth-library@5.9.2","/Users/sethvargo/Development/github-actions/get-secretmanager-secrets"]],"_from":"google-auth-library@5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.9.2","saveSpec":null,"fetchSpec":"5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_spec":"5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
+module.exports = {"_from":"google-auth-library@^5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"google-auth-library@^5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"^5.9.2","saveSpec":null,"fetchSpec":"^5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_shasum":"e528f4f1cd10657073d7ae2b9a9ce17ac97c3538","_spec":"google-auth-library@^5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
 
 /***/ }),
 
@@ -41410,12 +41464,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const google_auth_library_1 = __webpack_require__(668);
+/**
+ * Client wraps interactions with the Google Secret Manager API, handling
+ * credential lookup and registration.
+ *
+ * @param opts list of ClientOptions
+ * @returns Client
+ */
 class Client {
     constructor(opts) {
         var _a, _b;
         this.defaultEndpoint = 'https://secretmanager.googleapis.com/v1beta1';
         this.defaultScope = 'https://www.googleapis.com/auth/cloud-platform';
-        this.userAgent = 'github-action-google-secretmanager/0.1.0';
+        this.userAgent = 'github-actions-get-secretmanager-secrets/0.1.0';
         this.endpoint = ((_a = opts) === null || _a === void 0 ? void 0 : _a.endpoint) || this.defaultEndpoint;
         if ((_b = opts) === null || _b === void 0 ? void 0 : _b.credentials) {
             // If the credentials are not JSON, they are probably base64-encoded. Even
@@ -41438,17 +41499,30 @@ class Client {
             });
         }
     }
+    /**
+     * accessSecret retrieves the secret by name.
+     *
+     * @param ref String of the full secret reference.
+     * @returns string secret contents.
+     */
     accessSecret(ref) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            if (!ref) {
+                throw new Error(`Secret ref ${ref} is empty!`);
+            }
             const client = yield this.auth.getClient();
             const headers = yield client.getRequestHeaders();
             headers['User-Agent'] = this.userAgent;
             const url = `${this.endpoint}/${ref}:access`;
-            const resp = yield client.request({
+            const resp = (yield client.request({
                 url: url,
                 headers: headers,
-            });
-            const b64data = resp.data.payload.data;
+            }));
+            const b64data = (_c = (_b = (_a = resp) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.payload) === null || _c === void 0 ? void 0 : _c.data;
+            if (!b64data) {
+                throw new Error(`Secret ${ref} returned no data!`);
+            }
             const data = Buffer.from(b64data, 'base64');
             return data.toString();
         });

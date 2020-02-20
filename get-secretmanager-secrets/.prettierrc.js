@@ -15,16 +15,16 @@
  */
 
 module.exports = {
-  arrowParens: "always",
+  arrowParens: 'always',
   bracketSpacing: true,
-  endOfLine: "lf",
+  endOfLine: 'auto',
   jsxBracketSameLine: true,
   jsxSingleQuote: true,
   printWidth: 80,
-  quoteProps: "consistent",
+  quoteProps: 'consistent',
   semi: true,
   singleQuote: true,
   tabWidth: 2,
-  trailingComma: "all",
-  useTabs: false
+  trailingComma: 'all',
+  useTabs: false,
 };

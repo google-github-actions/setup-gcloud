@@ -19,8 +19,10 @@ import 'mocha';
 
 import { Client } from '../src/client';
 
-const secretRef =
-  process.env.GITHUB_ACTIONS_GET_SECRETMANAGER_SECRETS_SECRET_REF;
+const credentials = process.env.TEST_GET_SECRETMANAGER_SECRETS_CREDENTIALS;
+
+const secretVersionRef =
+  process.env.TEST_GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF;
 
 describe('Client', () => {
   it('initializes with JSON creds', () => {
@@ -35,13 +37,13 @@ describe('Client', () => {
     expect(client.auth.jsonContent).eql(null);
   });
 
-  it('accesses secrets', async function() {
-    if (!secretRef) {
+  it('accesses secret versions', async function() {
+    if (!credentials || !secretVersionRef) {
       this.skip();
     }
 
-    const client = new Client();
-    const result = await client.accessSecret(secretRef);
+    const client = new Client({ credentials: credentials });
+    const result = await client.accessSecret(secretVersionRef);
     expect(result).to.not.eql(null);
   });
 });

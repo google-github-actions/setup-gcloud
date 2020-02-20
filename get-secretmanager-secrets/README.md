@@ -92,6 +92,26 @@ steps:
 Each secret is prefixed with an output name. The secret's resolved access value
 will be available at that output in future build steps.
 
+For example:
+
+```yaml
+steps:
+- id: secrets
+  uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+  with:
+    secrets: |-
+      token:my-project/docker-registry-token
+```
+
+will be available in future steps as the output "token":
+
+```yaml
+- id: publish
+  uses: foo/bar@master
+  env:
+    TOKEN: ${{steps.secrets.outputs.token}}
+```
+
 
 ## Authorization
 

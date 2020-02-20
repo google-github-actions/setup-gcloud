@@ -84,7 +84,12 @@ export class Client {
       url: url,
       headers: headers,
     })) as PayloadResponse;
-    const b64data = resp.data.payload.data;
+
+    const b64data = resp?.data?.payload?.data;
+    if (!b64data) {
+      throw new Error(`Secret ${ref} returned no data!`);
+    }
+
     const data = Buffer.from(b64data, 'base64');
     return data.toString();
   }

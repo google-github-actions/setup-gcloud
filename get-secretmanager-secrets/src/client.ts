@@ -37,7 +37,7 @@ type ClientOptions = {
 export class Client {
   readonly defaultEndpoint = 'https://secretmanager.googleapis.com/v1beta1';
   readonly defaultScope = 'https://www.googleapis.com/auth/cloud-platform';
-  readonly userAgent = 'github-action-google-secretmanager/0.1.0';
+  readonly userAgent = 'github-actions-get-secretmanager-secrets/0.1.0';
 
   readonly auth: GoogleAuth;
   readonly endpoint: string;

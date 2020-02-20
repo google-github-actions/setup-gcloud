@@ -74,6 +74,10 @@ export class Client {
    * @returns string secret contents.
    */
   async accessSecret(ref: string): Promise<string> {
+    if (!ref) {
+      throw new Error(`Secret ref ${ref} is empty!`);
+    }
+
     const client = await this.auth.getClient();
 
     const headers = await client.getRequestHeaders();

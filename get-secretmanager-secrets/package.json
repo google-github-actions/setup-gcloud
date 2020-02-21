@@ -8,6 +8,11 @@
     "lint": "eslint . --ext .ts,.tsx",
     "test": "mocha -r ts-node/register 'tests/*.test.ts'"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && git add dist/"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/GoogleCloudPlatform/github-actions"
@@ -32,9 +37,10 @@
     "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.20.x",
     "chai": "^4.2.x",
+    "eslint": "^6.8.x",
     "eslint-config-prettier": "^6.10.x",
     "eslint-plugin-prettier": "^3.1.x",
-    "eslint": "^6.8.x",
+    "husky": "^4.2.3",
     "mocha": "^7.0.x",
     "prettier": "^1.19.1",
     "ts-node": "^8.6.x",

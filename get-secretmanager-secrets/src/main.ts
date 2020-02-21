@@ -19,8 +19,7 @@ import { Client } from './client';
 import { Reference } from './reference';
 
 /**
- * parseSecretsRefs accepts the actions list of secrets and parses them as
- * References.
+ * Accepts the actions list of secrets and parses them as References.
  *
  * @param secretsInput List of secrets, from the actions input, can be
  * comma-delimited or newline, whitespace around secret entires is removed.
@@ -38,7 +37,7 @@ function parseSecretsRefs(secretsInput: string): Reference[] {
 }
 
 /**
- * run executes the main action. It includes the main business logic and is the
+ * Executes the main action. It includes the main business logic and is the
  * primary entry point. It is documented inline.
  */
 async function run(): Promise<void> {

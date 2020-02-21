@@ -17,7 +17,7 @@
 import { GoogleAuth } from 'google-auth-library';
 
 /**
- * ClientOptions are available options to create the client.
+ * Available options to create the client.
  *
  * @param credentials GCP JSON credentials (default uses ADC).
  * @param endpoint GCP endpoint (useful for testing).
@@ -28,8 +28,8 @@ type ClientOptions = {
 };
 
 /**
- * Client wraps interactions with the Google Secret Manager API, handling
- * credential lookup and registration.
+ * Wraps interactions with the Google Secret Manager API, handling credential
+ * lookup and registration.
  *
  * @param opts list of ClientOptions
  * @returns Client
@@ -68,7 +68,7 @@ export class Client {
   }
 
   /**
-   * accessSecret retrieves the secret by name.
+   * Retrieves the secret by name.
    *
    * @param ref String of the full secret reference.
    * @returns string secret contents.

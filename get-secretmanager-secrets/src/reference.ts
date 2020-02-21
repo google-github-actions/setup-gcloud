@@ -15,7 +15,7 @@
  */
 
 /**
- * Reference parses a string of the format `outout:secret`. For example:
+ * Parses a string of the format `outout:secret`. For example:
  *
  *     output:project/secret/version
  *
@@ -77,7 +77,7 @@ export class Reference {
   }
 
   /**
-   * selfLink returns the full GCP self link.
+   * Returns the full GCP self link.
    *
    * @returns String self link.
    */

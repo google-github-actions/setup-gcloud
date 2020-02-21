@@ -3768,14 +3768,13 @@ const core = __importStar(__webpack_require__(470));
 const client_1 = __webpack_require__(976);
 const reference_1 = __webpack_require__(803);
 /**
- * parseSecretsRefs accepts the actions list of secrets and parses them as
- * References.
+ * Accepts the actions list of secrets and parses them as References.
  *
  * @param secretsInput List of secrets, from the actions input, can be
  * comma-delimited or newline, whitespace around secret entires is removed.
  * @returns Array of References for each secret, in the same order they were
  * given.
-*/
+ */
 function parseSecretsRefs(secretsInput) {
     const secrets = new Array();
     for (const line of secretsInput.split(`\n`)) {
@@ -3786,7 +3785,7 @@ function parseSecretsRefs(secretsInput) {
     return secrets;
 }
 /**
- * run executes the main action. It includes the main business logic and is the
+ * Executes the main action. It includes the main business logic and is the
  * primary entry point. It is documented inline.
  */
 function run() {
@@ -35741,7 +35740,7 @@ forge.log.consoleLogger = sConsoleLogger;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Reference parses a string of the format `outout:secret`. For example:
+ * Parses a string of the format `outout:secret`. For example:
  *
  *     output:project/secret/version
  *
@@ -35792,7 +35791,7 @@ class Reference {
         }
     }
     /**
-     * selfLink returns the full GCP self link.
+     * Returns the full GCP self link.
      *
      * @returns String self link.
      */
@@ -39421,7 +39420,7 @@ function convertToPem(p12base64) {
 /***/ 947:
 /***/ (function(module) {
 
-module.exports = {"_from":"google-auth-library@^5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"google-auth-library@^5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"^5.9.2","saveSpec":null,"fetchSpec":"^5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_shasum":"e528f4f1cd10657073d7ae2b9a9ce17ac97c3538","_spec":"google-auth-library@^5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
+module.exports = {"_args":[["google-auth-library@5.9.2","/Users/sethvargo/Development/github-actions/get-secretmanager-secrets"]],"_from":"google-auth-library@5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.9.2","saveSpec":null,"fetchSpec":"5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_spec":"5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
 
 /***/ }),
 
@@ -41465,8 +41464,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const google_auth_library_1 = __webpack_require__(668);
 /**
- * Client wraps interactions with the Google Secret Manager API, handling
- * credential lookup and registration.
+ * Wraps interactions with the Google Secret Manager API, handling credential
+ * lookup and registration.
  *
  * @param opts list of ClientOptions
  * @returns Client
@@ -41500,7 +41499,7 @@ class Client {
         }
     }
     /**
-     * accessSecret retrieves the secret by name.
+     * Retrieves the secret by name.
      *
      * @param ref String of the full secret reference.
      * @returns string secret contents.

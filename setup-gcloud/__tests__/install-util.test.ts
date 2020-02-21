@@ -21,13 +21,11 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import * as io from '@actions/io';
-import * as core from '@actions/core';
-import * as toolCache from '@actions/tool-cache';
 import * as testUtil from '../src/test-util';
 const toolDir = testUtil.setupTempDir('tools', 'RUNNER_TOOL_CACHE');
 const tempDir = testUtil.setupTempDir('temp', 'RUNNER_TEMP');
 
-import {getReleaseURL} from '../src/format-url';
+import { getReleaseURL } from '../src/format-url';
 // Import modules being tested after test setup as run.
 import * as installUtil from '../src/install-util';
 import * as downloadUtil from '../src/download-util';

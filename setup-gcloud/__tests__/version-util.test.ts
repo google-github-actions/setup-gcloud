@@ -18,7 +18,7 @@
  * Tests version-util.
  */
 
-import {getLatestGcloudSDKVersion} from '../src/version-util';
+import { getLatestGcloudSDKVersion } from '../src/version-util';
 
 describe('getLatestGcloudSDKVersion test', () => {
   it('Successfully retrieves latest version', async () => {

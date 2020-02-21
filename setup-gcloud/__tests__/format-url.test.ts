@@ -17,12 +17,19 @@
 /*
  * Tests format-url.
  */
-import {TEST_SDK_VERSIONS} from '../src/test-util';
-import {getReleaseURL} from '../src/format-url';
+import { TEST_SDK_VERSIONS } from '../src/test-util';
+import { getReleaseURL } from '../src/format-url';
 const TEST_TIMEOUT_MILLIS = 10000;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveAsBoolean(p: Promise<any>): Promise<boolean> {
+  return p
+    .then(() => Promise.resolve(true))
+    .catch(() => Promise.resolve(false));
+}
+
 describe('getReleaseURL tests', () => {
-  TEST_SDK_VERSIONS.forEach(TEST_SDK_VERSION => {
+  TEST_SDK_VERSIONS.forEach((TEST_SDK_VERSION) => {
     const label = `[${TEST_SDK_VERSION}]`;
     it(
       `${label} Finds matching version linux`,
@@ -80,9 +87,3 @@ describe('getReleaseURL tests', () => {
     TEST_TIMEOUT_MILLIS,
   );
 });
-
-function resolveAsBoolean(p: Promise<any>): Promise<boolean> {
-  return p
-    .then(() => Promise.resolve(true))
-    .catch(() => Promise.resolve(false));
-}

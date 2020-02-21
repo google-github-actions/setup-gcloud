@@ -37,7 +37,7 @@ export function setupTempDir(leafName: string, envName?: string): string {
     leafName,
   );
   if (envName) {
-    process.env[envName!] = tempDirPath;
+    process.env[envName] = tempDirPath;
   }
   return tempDirPath;
 }

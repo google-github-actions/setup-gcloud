@@ -27,7 +27,7 @@ const tempDir = testUtil.setupTempDir('temp', 'RUNNER_TEMP');
 // Import modules being tested after test setup as run.
 import * as downloadUtil from '../src/download-util';
 
-import {getReleaseURL} from '../src/format-url';
+import { getReleaseURL } from '../src/format-url';
 // Downloads can require a bit longer of a timeout.
 const TEST_TIMEOUT_MILLIS = 20000;
 const CLEANUP_TIMEOUT_MILLIS = 10000;

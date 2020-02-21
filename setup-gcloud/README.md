@@ -29,8 +29,10 @@ It does the following:
     using the inputs: `service_account_email` and `service_account_key`. Please
     see the [Service Account documentation][sa-iam-docs] for more information.
 
-1.  If `export_default_credentials` is specified, exports the credentials to be
-    available in later steps.
+1.  If `export_default_credentials` is specified, exports the path to the
+    credentials in the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to
+    be available in later steps. Google Cloud technologies automatically use
+    this environment variable to find credentials.
 
 ## Prerequisites
 

@@ -17,7 +17,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
-import { Base64 } from 'js-base64';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,7 +70,7 @@ async function run(): Promise<void> {
     // Handle base64-encoded credentials
     let serviceAccountJSON = serviceAccountKey;
     if (!serviceAccountKey.trim().startsWith('{')) {
-      serviceAccountJSON = Base64.decode(serviceAccountKey);
+      serviceAccountJSON = Buffer.from(serviceAccountKey, 'base64').toString();
     }
 
     // write the service account key to a temporary file

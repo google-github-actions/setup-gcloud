@@ -1,5 +1,4 @@
 node_modules/
-__tests__/runner/*
 runner/
 
 # Rest of the file pulled from https://github.com/github/gitignore/blob/master/Node.gitignore

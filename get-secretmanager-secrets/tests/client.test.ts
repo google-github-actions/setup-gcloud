@@ -24,15 +24,15 @@ const credentials = process.env.TEST_GET_SECRETMANAGER_SECRETS_CREDENTIALS;
 const secretVersionRef =
   process.env.TEST_GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF;
 
-describe('Client', () => {
-  it('initializes with JSON creds', () => {
+describe('Client', function() {
+  it('initializes with JSON creds', function() {
     const client = new Client({
       credentials: `{"foo":"bar"}`,
     });
     expect(client.auth.jsonContent).eql({ foo: 'bar' });
   });
 
-  it('initializes with ADC', () => {
+  it('initializes with ADC', function() {
     const client = new Client();
     expect(client.auth.jsonContent).eql(null);
   });

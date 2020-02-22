@@ -39,17 +39,17 @@ import {
 import { downloadAndExtractTool } from '../src/download-util';
 
 describe('#installGcloudSDK', () => {
-  before(async () => {
+  before(async function() {
     await io.rmRF(toolDir);
     await io.rmRF(tempDir);
   });
 
-  after(async () => {
+  after(async function() {
     await io.rmRF(toolDir);
     await io.rmRF(tempDir);
   });
 
-  it('installs gcloud for current env', async () => {
+  it('installs gcloud for current env', async function() {
     const url = await getReleaseURL(os.platform(), os.arch(), TEST_SDK_VERSION);
     const extPath = await downloadAndExtractTool(url);
     await installGcloudSDK(TEST_SDK_VERSION, extPath);
@@ -59,7 +59,7 @@ describe('#installGcloudSDK', () => {
     expect(fs.existsSync(path.join(gcloudDir, 'bin', 'gcloud'))).to.be.true;
   });
 
-  it('installs metrics tracking env var', async () => {
+  it('installs metrics tracking env var', async function() {
     const url = await getReleaseURL(os.platform(), os.arch(), TEST_SDK_VERSION);
     const extPath = await downloadAndExtractTool(url);
     await installGcloudSDK(TEST_SDK_VERSION, extPath);

@@ -19,32 +19,32 @@ import 'mocha';
 
 import { Reference } from '../src/reference';
 
-describe('Reference', () => {
-  it('parses a full ref', () => {
+describe('Reference', function() {
+  it('parses a full ref', function() {
     const ref = new Reference('out:projects/fruits/secrets/apple/versions/123');
     const link = ref.selfLink();
     expect(link).equal('projects/fruits/secrets/apple/versions/123');
   });
 
-  it('parses a full ref sans version', () => {
+  it('parses a full ref sans version', function() {
     const ref = new Reference('out:projects/fruits/secrets/apple');
     const link = ref.selfLink();
     expect(link).equal('projects/fruits/secrets/apple/versions/latest');
   });
 
-  it('parses a short ref', () => {
+  it('parses a short ref', function() {
     const ref = new Reference('out:fruits/apple/123');
     const link = ref.selfLink();
     expect(link).equal('projects/fruits/secrets/apple/versions/123');
   });
 
-  it('parses a short ref sans version', () => {
+  it('parses a short ref sans version', function() {
     const ref = new Reference('out:fruits/apple');
     const link = ref.selfLink();
     expect(link).equal('projects/fruits/secrets/apple/versions/latest');
   });
 
-  it('errors on invalid format', () => {
+  it('errors on invalid format', function() {
     const fn = (): Reference => {
       return new Reference(
         'out:projects/fruits/secrets/apple/versions/123/subversions/5',
@@ -53,7 +53,7 @@ describe('Reference', () => {
     expect(fn).to.throw(TypeError);
   });
 
-  it('errors on missing output', () => {
+  it('errors on missing output', function() {
     const fn = (): Reference => {
       return new Reference('fruits/apple/123');
     };

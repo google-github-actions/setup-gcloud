@@ -1,60 +1,62 @@
 {
-    "name": "setup-gcloud",
-    "version": "0.0.1",
-    "private": true,
-    "description": "setup gcloud action",
-    "main": "dist/setup-gcloud.js",
-    "scripts": {
-        "build": "ncc build src/setup-gcloud.ts",
-        "lint": "eslint . --ext .ts,.tsx",
-        "format": "prettier --write **/*.ts",
-        "precommit": "npm run build && git add dist/",
-        "test": "jest"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/GoogleCloudPlatform/github-actions/setup-gcloud.git"
-    },
-    "keywords": [
-        "actions",
-        "gcloud",
-        "setup"
-    ],
-    "author": "GoogleCloudPlatform",
-    "license": "Apache 2.0",
-    "dependencies": {
-        "@actions/core": "^1.2.2",
-        "@actions/exec": "^1.0.3",
-        "@actions/github": "^1.0.0",
-        "@actions/io": "^1.0.2",
-        "@actions/tool-cache": "^1.3.1",
-        "@lifeomic/attempt": "^3.0.0",
-        "js-base64": "2.5.1",
-        "semver": "^6.1.1",
-        "tmp": "0.1.0",
-        "typed-rest-client": "1.5.0",
-        "uuid": "^3.4.0"
-    },
-    "devDependencies": {
-        "@types/jest": "^24.9.1",
-        "@types/js-base64": "^2.3.1",
-        "@types/node": "^12.12.28",
-        "@types/semver": "^6.2.1",
-        "@types/tmp": "^0.1.0",
-        "@types/uuid": "^3.4.7",
-        "@typescript-eslint/eslint-plugin": "^2.20.0",
-        "@typescript-eslint/parser": "^2.20.0",
-        "@zeit/ncc": "^0.20.5",
-        "acorn": "^7.1.0",
-        "acorn-jsx": "^5.1.0",
-        "eslint": "^6.8.x",
-        "eslint-config-prettier": "^6.10.x",
-        "eslint-plugin-prettier": "^3.1.2",
-        "husky": "^2.3.0",
-        "jest": "^24.9.0",
-        "jest-circus": "^24.7.1",
-        "prettier": "^1.19.x",
-        "ts-jest": "^24.3.0",
-        "typescript": "^3.8.2"
+  "name": "setup-gcloud",
+  "version": "0.1.0",
+  "description": "Setup gcloud GitHub action",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/setup-gcloud.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write **/*.ts",
+    "test": "mocha -r ts-node/register -t 30s 'tests/*.test.ts'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && git add dist/"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleCloudPlatform/github-actions"
+  },
+  "keywords": [
+    "actions",
+    "google cloud",
+    "gcloud",
+    "sdk",
+    "cloud sdk",
+    "setup"
+  ],
+  "author": "GoogleCloudPlatform",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@actions/core": "^1.2.2",
+    "@actions/exec": "^1.0.3",
+    "@actions/io": "^1.0.2",
+    "@actions/tool-cache": "^1.3.1",
+    "@lifeomic/attempt": "^3.0.0",
+    "semver": "^7.1.3",
+    "tmp": "^0.1.0",
+    "typed-rest-client": "^1.7.0",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.9",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.4",
+    "@types/semver": "^7.1.0",
+    "@types/tmp": "^0.1.0",
+    "@types/uuid": "^3.4.7",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "@zeit/ncc": "^0.21.0",
+    "chai": "^4.2.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint": "^6.8.0",
+    "husky": "^4.2.3",
+    "mocha": "^7.0.1",
+    "prettier": "^1.19.1",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
+  }
 }

@@ -39,12 +39,12 @@ export class TestToolCache {
       return this.paths;
     }
 
-    let rootPath = path.join(__dirname, 'runner', this.randomStr());
+    const rootPath = path.join(__dirname, 'runner', this.randomStr());
 
-    let toolsPath = path.join(rootPath, 'tools');
+    const toolsPath = path.join(rootPath, 'tools');
     process.env.RUNNER_TOOL_CACHE = toolsPath;
 
-    let tempPath = path.join(rootPath, 'temp');
+    const tempPath = path.join(rootPath, 'temp');
     process.env.RUNNER_TEMP = tempPath;
 
     this.paths = [toolsPath, tempPath];

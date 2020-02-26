@@ -1,27 +1,35 @@
-name: "build-test"
-on:
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
   pull_request:
   push:
     branches:
       - master
-      - "releases/*"
+      - 'releases/*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - run: |
-        npm install
-        npm run build
-        npm run pack
-        npm test
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-  test:
+      - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '281.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - run: |
+          npm install
+          npm run all
+  test-upload-folder:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '281.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - name: make temp folder and files
         run: |
           mkdir -p test
@@ -34,10 +42,19 @@ jobs:
           bucket-name: gh-test-tf-1
           object-key-prefix: myfolderprefix/
           clear-existing-files-first: true
-  test2:
+        id: test_op
+      - name: get output
+        run: echo '${{ steps.test_op.outputs.uploadedSuccessFiles }}'
+  test-upload-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '281.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - name: make temp folder and files
         run: |
           mkdir -p test
@@ -49,3 +66,6 @@ jobs:
           bucket-name: gh-test-tf-1
           object-key-prefix: myfileprefix/
           clear-existing-files-first: false
+        id: test_op
+      - name: get output
+        run: echo '${{ steps.test_op.outputs.uploadedSuccessFile }}'

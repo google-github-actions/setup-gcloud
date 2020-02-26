@@ -1,6 +1,13 @@
-import {Storage, UploadResponse} from '@google-cloud/storage'
+import {
+  Storage,
+  UploadResponse,
+  DeleteFileResponse,
+  File
+} from '@google-cloud/storage'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as core from '@actions/core'
+
 const storage = new Storage()
 
 /**
@@ -14,7 +21,7 @@ export async function uploadFile(
   bucketName: string,
   filename: string,
   destination?: string
-): Promise<UploadResponse> {
+): Promise<UploadResponse | Error> {
   interface UploadOptions {
     gzip: boolean
     destination?: string
@@ -25,11 +32,15 @@ export async function uploadFile(
       filename.lastIndexOf('/') + 1
     )}`
   }
-  const uploadedFile = await storage
-    .bucket(bucketName)
-    .upload(filename, options)
-  console.log(`${filename} uploaded to ${bucketName}.`)
-  return uploadedFile
+  try {
+    const uploadedFile = await storage
+      .bucket(bucketName)
+      .upload(filename, options)
+    console.log(`${filename} uploaded to ${bucketName}.`)
+    return uploadedFile
+  } catch (err) {
+    return err
+  }
 }
 
 /**
@@ -55,7 +66,8 @@ export async function listFilesByPrefix(
     options.delimiter = delimiter
   }
   // Lists files in the bucket, filtered by a prefix
-  return storage.bucket(bucketName).getFiles(options)
+  const [files] = await storage.bucket(bucketName).getFiles(options)
+  return files
 }
 
 /**
@@ -64,13 +76,20 @@ export async function listFilesByPrefix(
  * @param bucketName The name of the bucket
  * @param filename The name of the name of the file to be deleted
  */
-export async function deleteFile(bucketName: string, filename: string) {
-  const deletedFile = await storage
-    .bucket(bucketName)
-    .file(filename)
-    .delete()
-  console.log(`gs://${bucketName}/${filename} deleted.`)
-  return deletedFile
+export async function deleteFile(
+  bucketName: string,
+  filename: string
+): Promise<{status: DeleteFileResponse}> {
+  try {
+    const deletedFile = await storage
+      .bucket(bucketName)
+      .file(filename)
+      .delete()
+    console.log(`gs://${bucketName}/${filename} deleted.`)
+    return {status: deletedFile}
+  } catch (err) {
+    return {status: err}
+  }
 }
 
 /**
@@ -85,8 +104,8 @@ export async function uploadDirectory(
   bucketName: string,
   directoryPath: string,
   objectKeyPrefix: string = '',
-  clearExistingFilesFirst: Boolean = false
-): Promise<any> {
+  clearExistingFilesFirst: boolean = false
+): Promise<{fileName: string; status: UploadResponse | Error}[] | undefined> {
   // to store list of all files
 
   const fileList: string[] = []
@@ -95,49 +114,25 @@ export async function uploadDirectory(
   let itemCtr = 0
   const pathDirName = path.dirname(directoryPath)
 
-  const uploadedDirectory = await getAndUploadFiles(directoryPath)
-  return uploadedDirectory
   /**
-   * Directory walk helper
-   * @param directory The path of the directory to traverse
+   * Uploads a list of files to GCS
    */
-  async function getAndUploadFiles(directory: string): Promise<any> {
-    try {
-      const items = await fs.promises.readdir(directory)
-      dirCtr--
-      itemCtr += items.length
-      for (const item of items) {
-        const fullPath = path.join(directory, item)
-        const stat = await fs.promises.stat(fullPath)
-        itemCtr--
-        if (stat.isFile()) {
-          fileList.push(fullPath)
-        } else if (stat.isDirectory()) {
-          dirCtr++
-          getAndUploadFiles(fullPath)
-        }
-        if (dirCtr === 0 && itemCtr === 0) {
-          return onComplete()
-        }
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async function onComplete(): Promise<any> {
+  async function onComplete(): Promise<
+    {fileName: string; status: UploadResponse | Error}[]
+  > {
     // if clearExistingFilesFirst, clear all files inside objectKeyPrefix
     // if bucket contains /a/1.txt and /a/b/2.txt and prefix is /a
     // /a/1.txt and /a/b/2.txt will both be cleared
     if (clearExistingFilesFirst) {
       try {
         await listFilesByPrefix(bucketName, objectKeyPrefix).then(files => {
-          files.map(file => {
+          files.map((file: {name: string}) => {
             deleteFile(bucketName, file.name)
           })
         })
-      } catch (error) {
-        console.log(error)
+      } catch (err) {
+        core.setFailed(`Action failed with error ${err}`)
+        //console.log(err)
       }
     }
     const resp = await Promise.all(
@@ -176,4 +171,32 @@ export async function uploadDirectory(
     )
     return resp
   }
+
+  /**
+   * Directory walk helper
+   * @param directory The path of the directory to traverse
+   */
+  async function getAndUploadFiles(
+    directory: string
+  ): Promise<{fileName: string; status: UploadResponse | Error}[] | undefined> {
+    const items = await fs.promises.readdir(directory)
+    dirCtr--
+    itemCtr += items.length
+    for (const item of items) {
+      const fullPath = path.join(directory, item)
+      const stat = await fs.promises.stat(fullPath)
+      itemCtr--
+      if (stat.isFile()) {
+        fileList.push(fullPath)
+      } else if (stat.isDirectory()) {
+        dirCtr++
+        return getAndUploadFiles(fullPath)
+      }
+      if (dirCtr === 0 && itemCtr === 0) {
+        return await onComplete()
+      }
+    }
+  }
+
+  return await getAndUploadFiles(directoryPath)
 }

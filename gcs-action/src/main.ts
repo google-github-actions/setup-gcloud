@@ -1,16 +1,7 @@
 import * as core from '@actions/core'
 import * as gcs from './gcs'
-import * as tmp from 'tmp'
-import {Base64} from 'js-base64'
-import {promises as fs} from 'fs'
 async function run(): Promise<void> {
   try {
-    //setup GOOGLE_APPLICATION_CREDENTIALS
-    //tmp workaround until PR #30 lands
-
-    tmp.setGracefulCleanup()
-
-    const serviceAccountKey = core.getInput('service_account_key')
     const folderToUpload = core.getInput('folder-to-upload')
     const fileToUpload = core.getInput('file-to-upload')
     const bucketName = core.getInput('bucket-name')
@@ -18,26 +9,45 @@ async function run(): Promise<void> {
     const clearExistingFilesFirst: boolean =
       core.getInput('clear-existing-files-first').toLowerCase() !== 'false'
 
-    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-      tmp.file((err, path) => {
-        if (err) {
-          reject(err)
-        }
-        resolve(path)
-      })
-    })
-    await fs.writeFile(tmpKeyFilePath, Base64.decode(serviceAccountKey))
-    process.env['GOOGLE_APPLICATION_CREDENTIALS'] = tmpKeyFilePath
-
     if (folderToUpload && !fileToUpload) {
-      await gcs.uploadDirectory(
+      const uploadedFiles = await gcs.uploadDirectory(
         bucketName,
         folderToUpload,
         objectKeyPrefix,
         clearExistingFilesFirst
       )
+
+      if (uploadedFiles) {
+        core.setOutput(
+          'uploadedSuccessFiles',
+          uploadedFiles
+            .filter(file => !(file.status instanceof Error))
+            .map(file => file.fileName)
+            .toString()
+        )
+        if (
+          uploadedFiles.filter(file => file.status instanceof Error).length > 0
+        ) {
+          core.setOutput(
+            'uploadFailedFiles',
+            uploadedFiles
+              .filter(file => file.status instanceof Error)
+              .map(file => file.fileName)
+              .toString()
+          )
+        }
+      }
     } else if (fileToUpload && !folderToUpload) {
-      await gcs.uploadFile(bucketName, fileToUpload, objectKeyPrefix)
+      const uploadedFile = await gcs.uploadFile(
+        bucketName,
+        fileToUpload,
+        objectKeyPrefix
+      )
+      if (uploadedFile instanceof Error) {
+        core.setOutput('uploadFailedFiles', fileToUpload)
+      } else {
+        core.setOutput('uploadedSuccessFile', uploadedFile[0].name)
+      }
     } else {
       throw new Error(
         'Please configure either file-to-upload or folder-to-upload'

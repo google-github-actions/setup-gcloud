@@ -25,7 +25,7 @@ jobs:
 
     - name: Integration Tests
       shell: bash
-      run: ./setup-gcloud/__tests__/integration-tests.sh
+      run: ./setup-gcloud/tests/integration-tests.sh
 
   latest:
     name: setup-gcloud latest
@@ -46,7 +46,7 @@ jobs:
 
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/__tests__/integration-tests.sh
+        run: ./setup-gcloud/tests/integration-tests.sh
 
   exported:
     name: setup-gcloud exported credentials

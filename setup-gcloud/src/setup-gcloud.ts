@@ -17,18 +17,33 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
-import {Base64} from 'js-base64';
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import * as tmp from 'tmp';
 import * as os from 'os';
-import {getReleaseURL} from '../src/format-url';
-import {getLatestGcloudSDKVersion} from '../src/version-util';
+import { getReleaseURL } from '../src/format-url';
+import { getLatestGcloudSDKVersion } from '../src/version-util';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
 
-async function run() {
+async function installGcloudSDK(version: string): Promise<string> {
+  // retreive the release corresponding to the specified version and the current env
+  const osPlat = os.platform();
+  const osArch = os.arch();
+  const url = await getReleaseURL(osPlat, osArch, version);
+
+  // download and extract the release
+  const extPath = await downloadUtil.downloadAndExtractTool(url);
+  if (!extPath) {
+    throw new Error(`Failed to download release, url: ${url}`);
+  }
+
+  // install the downloaded release into the github action env
+  return await installUtil.installGcloudSDK(version, extPath);
+}
+
+async function run(): Promise<void> {
   try {
     tmp.setGracefulCleanup();
 
@@ -55,7 +70,7 @@ async function run() {
     // Handle base64-encoded credentials
     let serviceAccountJSON = serviceAccountKey;
     if (!serviceAccountKey.trim().startsWith('{')) {
-      serviceAccountJSON = Base64.decode(serviceAccountKey);
+      serviceAccountJSON = Buffer.from(serviceAccountKey, 'base64').toString();
     }
 
     // write the service account key to a temporary file
@@ -63,7 +78,7 @@ async function run() {
     // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
     // writing a file to disk.
     const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-      tmp.file((err, path, fd, cleanupCallback) => {
+      tmp.file((err, path) => {
         if (err) {
           reject(err);
         }
@@ -103,22 +118,6 @@ async function run() {
   } catch (error) {
     core.setFailed(error.message);
   }
-}
-
-async function installGcloudSDK(version: string): Promise<string> {
-  // retreive the release corresponding to the specified version and the current env
-  const osPlat = os.platform();
-  const osArch = os.arch();
-  const url = await getReleaseURL(osPlat, osArch, version);
-
-  // download and extract the release
-  const extPath = await downloadUtil.downloadAndExtractTool(url);
-  if (!extPath) {
-    throw new Error(`Failed to download release, url: ${url}`);
-  }
-
-  // install the downloaded release into the github action env
-  return await installUtil.installGcloudSDK(version, extPath);
 }
 
 run();

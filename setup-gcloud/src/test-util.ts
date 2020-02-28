@@ -20,26 +20,42 @@
 import path from 'path';
 
 /**
- * Sets up a temporary directory for testing within the `__tests_/runner`
- * directory.
- *
- * @param leafName The leaf directory name.
- * @param envName If specified, the name of the environment variable the
- * temporary directory path will be saved to.
+ * Creates an overridden runner cache and tool path. This is slightly
+ * complicated by the fact that the runner initializes its cache path exactly
+ * once at startup, so this must be imported and called BEFORE the toolcache is
+ * used.
  */
-export function setupTempDir(leafName: string, envName?: string): string {
-  const tempDirPath = path.join(
-    __dirname,
-    'runner',
-    Math.random()
-      .toString(36)
-      .substring(8),
-    leafName,
-  );
-  if (envName) {
-    process.env[envName!] = tempDirPath;
+export class TestToolCache {
+  private static paths: [string, string];
+
+  /**
+   * Creates temporary directories for the runner cache and temp, and configures
+   * the Action's runner to use said directories.
+   *
+   * @returns two strings - first is overridden toolsPath, second is tempPath.
+   */
+  public static override(): [string, string] {
+    if (this.paths?.length > 0) {
+      return this.paths;
+    }
+
+    const rootPath = path.join(__dirname, 'runner', this.randomStr());
+
+    const toolsPath = path.join(rootPath, 'tools');
+    process.env.RUNNER_TOOL_CACHE = toolsPath;
+
+    const tempPath = path.join(rootPath, 'temp');
+    process.env.RUNNER_TEMP = tempPath;
+
+    this.paths = [toolsPath, tempPath];
+    return this.paths;
   }
-  return tempDirPath;
+
+  private static randomStr(): string {
+    return Math.random()
+      .toString(36)
+      .substring(8);
+  }
 }
 
 /**

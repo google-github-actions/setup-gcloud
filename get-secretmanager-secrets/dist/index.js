@@ -24471,6 +24471,7 @@ module.exports = new Mime(__webpack_require__(460), __webpack_require__(983));
 Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = __webpack_require__(191);
 const stream = __webpack_require__(413);
+const formatEcdsa = __webpack_require__(815);
 const crypto_1 = __webpack_require__(984);
 const messages = __webpack_require__(352);
 const authclient_1 = __webpack_require__(616);
@@ -24944,6 +24945,27 @@ class OAuth2Client extends authclient_1.AuthClient {
         this.certificateCacheFormat = format;
         return { certs: certificates, format, res };
     }
+    getIapPublicKeys(callback) {
+        if (callback) {
+            this.getIapPublicKeysAsync().then(r => callback(null, r.pubkeys, r.res), callback);
+        }
+        else {
+            return this.getIapPublicKeysAsync();
+        }
+    }
+    async getIapPublicKeysAsync() {
+        const nowTime = new Date().getTime();
+        let res;
+        const url = OAuth2Client.GOOGLE_OAUTH2_IAP_PUBLIC_KEY_URL_;
+        try {
+            res = await this.transporter.request({ url });
+        }
+        catch (e) {
+            e.message = `Failed to retrieve verification certificates: ${e.message}`;
+            throw e;
+        }
+        return { pubkeys: res.data, res };
+    }
     verifySignedJwtWithCerts() {
         // To make the code compatible with browser SubtleCrypto we need to make
         // this method async.
@@ -24969,7 +24991,7 @@ class OAuth2Client extends authclient_1.AuthClient {
             throw new Error('Wrong number of segments in token: ' + jwt);
         }
         const signed = segments[0] + '.' + segments[1];
-        const signature = segments[2];
+        let signature = segments[2];
         let envelope;
         let payload;
         try {
@@ -24997,6 +25019,9 @@ class OAuth2Client extends authclient_1.AuthClient {
             throw new Error('No pem found for envelope: ' + JSON.stringify(envelope));
         }
         const cert = certs[envelope.kid];
+        if (envelope.alg === 'ES256') {
+            signature = formatEcdsa.joseToDer(signature, 'ES256').toString('base64');
+        }
         const verified = await crypto.verify(cert, signed, signature);
         if (!verified) {
             throw new Error('Invalid token signature: ' + jwt);
@@ -25093,6 +25118,10 @@ OAuth2Client.GOOGLE_OAUTH2_FEDERATED_SIGNON_PEM_CERTS_URL_ = 'https://www.google
  * Google Sign on certificates in JWK format.
  */
 OAuth2Client.GOOGLE_OAUTH2_FEDERATED_SIGNON_JWK_CERTS_URL_ = 'https://www.googleapis.com/oauth2/v3/certs';
+/**
+ * Google Sign on certificates in JWK format.
+ */
+OAuth2Client.GOOGLE_OAUTH2_IAP_PUBLIC_KEY_URL_ = 'https://www.gstatic.com/iap/verify/public_key';
 /**
  * Clock skew - five minutes in seconds
  */
@@ -39420,7 +39449,7 @@ function convertToPem(p12base64) {
 /***/ 947:
 /***/ (function(module) {
 
-module.exports = {"_args":[["google-auth-library@5.9.2","/Users/sethvargo/Development/github-actions/get-secretmanager-secrets"]],"_from":"google-auth-library@5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.9.2","saveSpec":null,"fetchSpec":"5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_spec":"5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
+module.exports = {"_from":"google-auth-library@^5.9.2","_id":"google-auth-library@5.10.0","_inBundle":false,"_integrity":"sha512-Kfa0GDYYzaRGtvegI64c+oF8Adv3ZW8hWfOegiu53/h4etBdsdXI3uox/TKlyIHKFu8/YhpKv3Z30sJH986YKA==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"google-auth-library@^5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"^5.9.2","saveSpec":null,"fetchSpec":"^5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.10.0.tgz","_shasum":"53176a64673a3445dc4a536a2d85f927c23b6227","_spec":"google-auth-library@^5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","ecdsa-sig-formatter":"^1.0.11","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^7.0.0","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^2.0.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^12.0.0","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^9.0.0","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prelint":"cd samples; npm link ../; npm i","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.10.0"};
 
 /***/ }),
 
@@ -41472,12 +41501,11 @@ const google_auth_library_1 = __webpack_require__(668);
  */
 class Client {
     constructor(opts) {
-        var _a, _b;
         this.defaultEndpoint = 'https://secretmanager.googleapis.com/v1beta1';
         this.defaultScope = 'https://www.googleapis.com/auth/cloud-platform';
         this.userAgent = 'github-actions-get-secretmanager-secrets/0.1.0';
-        this.endpoint = ((_a = opts) === null || _a === void 0 ? void 0 : _a.endpoint) || this.defaultEndpoint;
-        if ((_b = opts) === null || _b === void 0 ? void 0 : _b.credentials) {
+        this.endpoint = (opts === null || opts === void 0 ? void 0 : opts.endpoint) || this.defaultEndpoint;
+        if (opts === null || opts === void 0 ? void 0 : opts.credentials) {
             // If the credentials are not JSON, they are probably base64-encoded. Even
             // though we don't instruct users to provide base64-encoded credentials,
             // sometimes they still do.
@@ -41505,7 +41533,7 @@ class Client {
      * @returns string secret contents.
      */
     accessSecret(ref) {
-        var _a, _b, _c;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!ref) {
                 throw new Error(`Secret ref ${ref} is empty!`);
@@ -41518,7 +41546,7 @@ class Client {
                 url: url,
                 headers: headers,
             }));
-            const b64data = (_c = (_b = (_a = resp) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.payload) === null || _c === void 0 ? void 0 : _c.data;
+            const b64data = (_b = (_a = resp === null || resp === void 0 ? void 0 : resp.data) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.data;
             if (!b64data) {
                 throw new Error(`Secret ${ref} returned no data!`);
             }

@@ -15,8 +15,8 @@
  */
 
 import * as httpm from 'typed-rest-client/HttpClient';
-import {retry} from '@lifeomic/attempt';
-import {GCLOUD_METRICS_LABEL} from './install-util';
+import { retry } from '@lifeomic/attempt';
+import { GCLOUD_METRICS_LABEL } from './install-util';
 
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
@@ -70,7 +70,7 @@ export async function getReleaseURL(
     const url = formatReleaseURL(os, arch, version);
     const client = new httpm.HttpClient(GCLOUD_METRICS_LABEL);
     return retry(
-      async context => {
+      async () => {
         const res = await client.head(url);
         if (res.message.statusCode === 200) {
           return url;

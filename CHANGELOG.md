@@ -29,6 +29,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 				 
  ### Fixed
 
+## [0.1.2] - 2020-02-28
+
+ ### Security
+ 
+ ### Added
+ - Added support for setting up APPLICATION DEVELOPER CREDENTIALS
+  
+ ### Changed
+ - Changed testing framework for mocha
+ - Updated linter config
+				
+ ### Removed
+				 
+ ### Fixed
+
+
 ## [0.1.1] - 2020-01-30
 
  ### Security

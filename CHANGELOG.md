@@ -34,7 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Security
  
  ### Added
- - Added support for setting up APPLICATION DEVELOPER CREDENTIALS
+ - Added support for setting up GOOGLE APPLICATION CREDENTIALS
+ - Can specify creds as b64 or plain json
   
  ### Changed
  - Changed testing framework for mocha

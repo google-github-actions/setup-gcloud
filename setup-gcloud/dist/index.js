@@ -9972,12 +9972,31 @@ function run() {
             let toolPath = toolCache.find('gcloud', version);
             if (!toolPath) {
                 toolPath = yield installGcloudSDK(version);
+                core.info('Successfully installed gcloud Cloud SDK');
+            }
+            // A workaround for https://github.com/actions/toolkit/issues/229
+            // Currently exec on windows runs as cmd shell.
+            let toolCommand = 'gcloud';
+            if (process.platform == 'win32') {
+                toolCommand = 'gcloud.cmd';
+            }
+            // Set the project ID, if given.
+            const projectId = core.getInput('project_id');
+            if (projectId) {
+                yield exec.exec(toolCommand, [
+                    '--quiet',
+                    'config',
+                    'set',
+                    'core/project',
+                    projectId,
+                ]);
+                core.info('Successfully set default project');
             }
             const serviceAccountEmail = core.getInput('service_account_email') || '';
             const serviceAccountKey = core.getInput('service_account_key');
             // if a service account key isn't provided, log an un-authenticated notice
             if (!serviceAccountKey) {
-                core.info('gcloud SDK installed without authentication.');
+                core.info('No credentials provided, skipping authentication');
                 return;
             }
             // Handle base64-encoded credentials
@@ -9998,14 +10017,15 @@ function run() {
                 });
             });
             yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccountJSON);
-            // A workaround for https://github.com/actions/toolkit/issues/229
-            // Currently exec on windows runs as cmd shell.
-            let toolCommand = 'gcloud';
-            if (process.platform == 'win32') {
-                toolCommand = 'gcloud.cmd';
-            }
-            // authenticate as the specified service account
-            yield exec.exec(`${toolCommand} auth activate-service-account ${serviceAccountEmail} --key-file=${tmpKeyFilePath}`);
+            // Authenticate as the specified service account.
+            yield exec.exec(toolCommand, [
+                '--quiet',
+                'auth',
+                'activate-service-account',
+                serviceAccountEmail,
+                '--key-file',
+                tmpKeyFilePath,
+            ]);
             // Export credentials if requested - these credentials must be exported in
             // the shared workspace directory, since the filesystem must be shared among
             // all steps.

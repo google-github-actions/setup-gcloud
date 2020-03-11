@@ -25,7 +25,6 @@ jobs:
       uses: ./setup-gcloud/
       with:
         version: '286.0.0'
-        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
         service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
     - name: Integration Tests
@@ -46,7 +45,6 @@ jobs:
         uses: ./setup-gcloud/
         with:
           version: 'latest'
-          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
       - name: Integration Tests
@@ -67,7 +65,6 @@ jobs:
         uses: ./setup-gcloud/
         with:
           version: 'latest'
-          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
           export_default_credentials: true
 

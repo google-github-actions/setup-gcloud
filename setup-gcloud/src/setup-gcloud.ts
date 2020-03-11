@@ -13,112 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as core from '@actions/core';
-import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
+import * as setupGcloud from '../../setupGcloudSDK/dist/index';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import * as tmp from 'tmp';
-import * as os from 'os';
-import { getReleaseURL } from '../src/format-url';
-import { getLatestGcloudSDKVersion } from '../src/version-util';
-import * as downloadUtil from './download-util';
-import * as installUtil from './install-util';
-
-async function installGcloudSDK(version: string): Promise<string> {
-  // retreive the release corresponding to the specified version and the current env
-  const osPlat = os.platform();
-  const osArch = os.arch();
-  const url = await getReleaseURL(osPlat, osArch, version);
-
-  // download and extract the release
-  const extPath = await downloadUtil.downloadAndExtractTool(url);
-  if (!extPath) {
-    throw new Error(`Failed to download release, url: ${url}`);
-  }
-
-  // install the downloaded release into the github action env
-  return await installUtil.installGcloudSDK(version, extPath);
-}
 
 async function run(): Promise<void> {
   try {
-    tmp.setGracefulCleanup();
-
     let version = core.getInput('version');
     if (!version || version == 'latest') {
-      version = await getLatestGcloudSDKVersion();
+      version = await setupGcloud.getLatestGcloudSDKVersion();
     }
 
-    // install the gcloud if not already present
-    let toolPath = toolCache.find('gcloud', version);
-    if (!toolPath) {
-      toolPath = await installGcloudSDK(version);
-      core.info('Successfully installed gcloud Cloud SDK');
+    // Install the gcloud if not already present
+    if (!setupGcloud.isInstalled()) {
+      await setupGcloud.installGcloudSDK(version);
     } else {
+      const toolPath = toolCache.find('gcloud', version);
       core.addPath(path.join(toolPath, 'bin'));
     }
 
-    // A workaround for https://github.com/actions/toolkit/issues/229
-    // Currently exec on windows runs as cmd shell.
-    let toolCommand = 'gcloud';
-    if (process.platform == 'win32') {
-      toolCommand = 'gcloud.cmd';
-    }
-
-    // Set the project ID, if given.
-    const projectId = core.getInput('project_id');
-    if (projectId) {
-      await exec.exec(toolCommand, [
-        '--quiet',
-        'config',
-        'set',
-        'core/project',
-        projectId,
-      ]);
-      core.info('Successfully set default project');
-    }
-
-    const serviceAccountEmail = core.getInput('service_account_email') || '';
     const serviceAccountKey = core.getInput('service_account_key');
-
-    // if a service account key isn't provided, log an un-authenticated notice
+    // If a service account key isn't provided, log an un-authenticated notice
     if (!serviceAccountKey) {
       core.info('No credentials provided, skipping authentication');
       return;
+    } else {
+      await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
     }
-
-    // Handle base64-encoded credentials
-    let serviceAccountJSON = serviceAccountKey;
-    if (!serviceAccountKey.trim().startsWith('{')) {
-      serviceAccountJSON = Buffer.from(serviceAccountKey, 'base64').toString();
-    }
-
-    // write the service account key to a temporary file
-    //
-    // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
-    // writing a file to disk.
-    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-      tmp.file((err, path) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(path);
-      });
-    });
-    await fs.writeFile(tmpKeyFilePath, serviceAccountJSON);
-
-    // Authenticate as the specified service account.
-    await exec.exec(toolCommand, [
-      '--quiet',
-      'auth',
-      'activate-service-account',
-      serviceAccountEmail,
-      '--key-file',
-      tmpKeyFilePath,
-    ]);
 
     // Export credentials if requested - these credentials must be exported in
     // the shared workspace directory, since the filesystem must be shared among
@@ -131,7 +55,10 @@ async function run(): Promise<void> {
       }
 
       const credsPath = path.join(workspace, uuidv4());
-      await fs.writeFile(credsPath, serviceAccountJSON);
+      await fs.writeFile(
+        credsPath,
+        setupGcloud.parseServiceAccountKey(serviceAccountKey),
+      );
 
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
       core.info('Successfully exported Default Application Credentials');

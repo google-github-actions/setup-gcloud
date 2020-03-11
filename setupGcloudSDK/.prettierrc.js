@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-{
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": [
-      "es6"
-    ],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "noImplicitAny": true,
-    "esModuleInterop": true,
-  },
-  "references": [
-    {
-      "path": "../setupGcloudSDK"
-    }
-  ],
-  "exclude": ["node_modules", "**/*.test.ts"]
-}
+
+module.exports = {
+  arrowParens: 'always',
+  bracketSpacing: true,
+  endOfLine: 'auto',
+  jsxBracketSameLine: true,
+  jsxSingleQuote: true,
+  printWidth: 80,
+  quoteProps: 'consistent',
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'all',
+  useTabs: false,
+};

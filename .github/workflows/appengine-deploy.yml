@@ -21,10 +21,3 @@ jobs:
     - name: npm lint
       run: npm run lint
       working-directory: ./appengine-deploy
-
-    - name: npm test
-      run: npm run test
-      working-directory: ./appengine-deploy
-      env:
-        TEST_GET_SECRETMANAGER_SECRETS_CREDENTIALS: ${{ secrets.GET_SECRETMANAGER_SECRETS_SA_KEY_JSON }}
-        TEST_GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF: ${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF }}

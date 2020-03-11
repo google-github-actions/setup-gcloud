@@ -6,8 +6,7 @@
   "scripts": {
     "build": "ncc build src/setup-gcloud.ts",
     "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write **/*.ts",
-    "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"
+    "format": "prettier --write **/*.ts"
   },
   "husky": {
     "hooks": {

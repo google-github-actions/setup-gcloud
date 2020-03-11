@@ -15,37 +15,91 @@
  */
 
 import * as core from '@actions/core';
-import { execSync } from 'child_process';
-/**
- * Executes the main action. It includes the main business logic and is the
- * primary entry point. It is documented inline.
- */
+import * as exec from '@actions/exec';
+import * as setupGcloud from '../../setupGcloudSDK/dist/index';
+
 async function run(): Promise<void> {
   try {
     // Get action inputs.
-    const projectId = core.getInput('project_id', { required: true });
+    let projectId = core.getInput('project_id');
     const deliverables = core.getInput('deliverables');
     const imageUrl = core.getInput('image-url');
     const version = core.getInput('version');
     const promote = core.getInput('promote');
+    const serviceAccountKey = core.getInput('credentials');
 
-    // Get credentials, if any.
-    const credentials = core.getInput('credentials');
+    // Install gcloud if not already installed.
+    if (!setupGcloud.isInstalled()) {
+      const gcloudVersion = await setupGcloud.getLatestGcloudSDKVersion();
+      await setupGcloud.installGcloudSDK(gcloudVersion);
+    }
 
-    // gcloud Flag set up.
-    const addImageUrl = imageUrl ? `--image-url=${imageUrl}` : '';
-    const addVersion = version ? `--version=${version}` : '';
-    const addPromote = promote ? '--promote' : '--no-promote';
+    // Fail if no Project Id is provided.
+    if (projectId === '' && serviceAccountKey === '') {
+      core.setFailed('No project Id provided.');
+    }
 
-    // Run gcloud
-    execSync(`gcloud app deploy ${deliverables} --project=${projectId} \
-                ${addImageUrl} \
-                ${addVersion} \
-                ${addPromote}`);
+    // Authenticate gcloud SDK.
+    if (serviceAccountKey) {
+      await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
+      // Set and retrieve Project Id if not provided
+      if (projectId === '') {
+        projectId = await setupGcloud.setProject(serviceAccountKey);
+      }
+    }
+    if (!setupGcloud.isAuthenticated()) {
+      core.setFailed('Error authenticating the Cloud SDK.');
+    }
 
-    // Set output url.
-    // Note: Any implications of just setting this??
-    core.setOutput('url', `https://${projectId}.appspot.com/`);
+    const toolCommand = setupGcloud.getToolCommand();
+
+    // Create app engine gcloud cmd.
+    const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
+
+    // Add gcloud flags.
+    if (projectId !== '') {
+      appDeployCmd.push('--project', projectId);
+    }
+    if (imageUrl !== '') {
+      appDeployCmd.push('--image-url', imageUrl);
+    }
+    if (version !== '') {
+      appDeployCmd.push('--version', version);
+    }
+    if (promote === '' || String(promote).toLowerCase() === 'true') {
+      appDeployCmd.push('--promote');
+    } else {
+      appDeployCmd.push('--no-promote');
+    }
+
+    // Get output of gcloud cmd.
+    let output = '';
+    const stdout = (data: Buffer): void => {
+      output += data.toString();
+    };
+
+    const options = {
+      listeners: {
+        stderr: stdout,
+      },
+    };
+
+    // Run gcloud cmd.
+    await exec.exec(toolCommand, appDeployCmd, options);
+
+    // Set url as output.
+    const urlMatch = output.match(
+      /https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/,
+    );
+    if (urlMatch) {
+      const url = urlMatch[0];
+      core.setOutput('url', url);
+    } else {
+      core.info(
+        'Can not find URL, defaulting to https://PROJECT_ID.appspot.com',
+      );
+      core.setOutput('url', `https://${projectId}.appspot.com`);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

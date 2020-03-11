@@ -15,7 +15,13 @@
  */
 
 import * as core from '@actions/core';
-import { execSync } from 'child_process';
+import * as exec from '@actions/exec';
+import * as toolCache from '@actions/tool-cache';
+// import { execSync } from 'child_process';
+import * as tmp from 'tmp';
+import {Base64} from 'js-base64';
+import { installGcloudSDK } from '../../setup-gcloud/src/setup-gcloud';
+import {promises as fs} from 'fs';
 /**
  * Executes the main action. It includes the main business logic and is the
  * primary entry point. It is documented inline.
@@ -30,21 +36,78 @@ async function run(): Promise<void> {
     const promote = core.getInput('promote');
 
     // Get credentials, if any.
-    const credentials = core.getInput('credentials');
+    // const credentials = core.getInput('credentials');
+
+// COPY AND PAST ------------------------------------
+    tmp.setGracefulCleanup();
+    // Install gcloud.
+    let toolPath = toolCache.find('gcloud', `282.0.0`);
+    if (!toolPath) {
+      toolPath = await installGcloudSDK('282.0.0');
+    }
+
+    const serviceAccountKey = core.getInput('credentials');
+
+    // Handle base64-encoded credentials
+    let serviceAccountJSON = serviceAccountKey;
+    if (!serviceAccountKey.trim().startsWith('{')) {
+      serviceAccountJSON = Base64.decode(serviceAccountKey);
+    }
+
+    // write the service account key to a temporary file
+    //
+    // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
+    // writing a file to disk.
+    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
+      tmp.file((err, path, fd, cleanupCallback) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(path);
+      });
+    });
+    await fs.writeFile(tmpKeyFilePath, serviceAccountJSON);
+
+    // A workaround for https://github.com/actions/toolkit/issues/229
+    // Currently exec on windows runs as cmd shell.
+    let toolCommand = 'gcloud';
+    if (process.platform == 'win32') {
+      toolCommand = 'gcloud.cmd';
+    }
+
+    // authenticate as the specified service account
+    await exec.exec(
+      `${toolCommand} auth activate-service-account --key-file=${tmpKeyFilePath}`,
+    );
+
+
+// END -------------------
 
     // gcloud Flag set up.
     const addImageUrl = imageUrl ? `--image-url=${imageUrl}` : '';
     const addVersion = version ? `--version=${version}` : '';
     const addPromote = promote ? '--promote' : '--no-promote';
 
-    // Run gcloud
-    execSync(`gcloud app deploy ${deliverables} --project=${projectId} \
-                ${addImageUrl} \
-                ${addVersion} \
-                ${addPromote}`);
+    // Get output of gcloud cmd.
+    let myOutput = '';
+    let myError = '';
 
+    const options = {listeners: {}};
+    options.listeners = {
+      stdout: (data: Buffer) => {
+        myOutput += data.toString();
+      }
+    };
+    // Run gcloud.
+    await exec.exec(
+      'gcloud',
+      ['app', 'deploy', '--quiet', deliverables, `--project=${projectId}`, addImageUrl, addVersion, addPromote],
+      options);
+
+
+    core.info(myOutput);
     // Set output url.
-    // Note: Any implications of just setting this??
+    // TODO update this!!!!
     core.setOutput('url', `https://${projectId}.appspot.com/`);
   } catch (error) {
     core.setFailed(error.message);

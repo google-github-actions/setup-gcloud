@@ -11,7 +11,7 @@ inputs:
       The yaml files for the services or configurations you want to deploy.
       If not given, defaults to app.yaml in the current directory. If that is
       not found, attempts to automatically generate necessary configuration
-      files (such as app.yaml) in the current directory.'
+      files (such as app.yaml) in the current directory.
     required: false
   image_url:
     description: |-
@@ -22,7 +22,7 @@ inputs:
     description: |-
       The version of the app that will be created or replaced by this
       deployment. If you do not specify a version, one will be generated for
-      you.'
+      you.
     required: false
   promote:
     description: 'Promote the deployed version to receive all traffic.'

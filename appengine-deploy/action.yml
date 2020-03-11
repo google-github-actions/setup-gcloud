@@ -1,17 +1,30 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 name: 'Deploy to Google App Engine'
 description: 'Deploy to Google App Engine'
 author: 'GoogleCloudPlatform'
 
 inputs:
   project_id:
-    description: 'The GCP project ID'
+    description: 'The GCP project ID. Overrides project ID set by credentials.'
     require: true
   deliverables:
     description: |-
       The yaml files for the services or configurations you want to deploy.
       If not given, defaults to app.yaml in the current directory. If that is
       not found, attempts to automatically generate necessary configuration
-      files (such as app.yaml) in the current directory.'
+      files (such as app.yaml) in the current directory.
     required: false
   image_url:
     description: |-
@@ -22,7 +35,7 @@ inputs:
     description: |-
       The version of the app that will be created or replaced by this
       deployment. If you do not specify a version, one will be generated for
-      you.'
+      you.
     required: false
   promote:
     description: 'Promote the deployed version to receive all traffic.'

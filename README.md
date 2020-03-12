@@ -14,12 +14,13 @@
 
 # Google Cloud Platform: github-actions
 
-This repository contains a library of [Github Actions](https://github.com/actions) providing functionality
-for working with [Google Cloud Platform](http://cloud.google.com/).
+This repository contains a library of [Github Actions](https://github.com/actions) providing functionality for working with [Google Cloud Platform](http://cloud.google.com/).
 
-## Supported Actions
+## Available Actions
 
-* [setup-gcloud](./setup-gcloud/README.md): This action configures the [gcloud SDK](https://cloud.google.com/sdk/) in the environment for use in actions.
+* [setup-gcloud](./setup-gcloud/README.md): This action downloads, installs, and configures a [gcloud Cloud SDK](https://cloud.google.com/sdk/) environment for the worker, adding the `gcloud` CLI command to the worker's $PATH.
+
+* [get-secretmanager-secrets](./get-secretmanager-secrets/README.md): This action accesses secrets from [Google Secret Manager](https://cloud.google.com/secret-manager) and makes their results available as output variables.
 
 ## Example Workflows
 

@@ -69,3 +69,22 @@ jobs:
       - name: Verify Exported
         shell: bash
         run: test -f $GOOGLE_APPLICATION_CREDENTIALS
+
+  project_id:
+    name: setup-gcloud with configured project
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+
+      - name: Verify project
+        shell: bash
+        run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}

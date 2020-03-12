@@ -40,6 +40,14 @@ inputs:
       value can be raw or base64-encoded.
     required: true
 
+  project_id:
+    description: |-
+      ID of the Google Cloud project. If provided, this will configure gcloud to
+      use this project ID by default for commands. Individual commands can still
+      override the project using the --project flag which takes precedence.
+    default: null
+    required: false
+
   export_default_credentials:
     description: |-
       Export the provided credentials as Google Default Application Credentials.

@@ -7,7 +7,7 @@
     "build": "ncc build src/main.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts",
-    "test": "mocha -r ts-node/register -t 30s 'tests/*.test.ts'"
+    "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"
   },
   "husky": {
     "hooks": {

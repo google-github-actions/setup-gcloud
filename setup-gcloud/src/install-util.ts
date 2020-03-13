@@ -19,7 +19,6 @@
  */
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
-import * as os from 'os';
 import path from 'path';
 
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';

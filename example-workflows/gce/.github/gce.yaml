@@ -1,0 +1,62 @@
+# Copyright 2020 Google, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Build and Deploy to Google Compute Engine
+
+on:
+  push:
+    branches:
+    - master
+
+env:
+  GCE_PROJECT: ${{ secrets.GCE_PROJECT }}
+  GCE_INSTANCE: <YOUR_VM_NAME>
+  GCE_INSTANCE_ZONE: <YOUR_VM_ZONE> # e.g. us-central1-a
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_email: ${{ secrets.SA_EMAIL }}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        gcloud auth configure-docker
+    # Build the Docker image
+    - name: Build
+      run: |
+        docker build -t gcr.io/$GCE_PROJECT/$GCE_INSTANCE-image:$GITHUB_SHA \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" .
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        docker push gcr.io/$GCE_PROJECT/$GCE_INSTANCE-image:$GITHUB_SHA
+
+    - name: Deploy
+      run: |
+        gcloud compute instances update-container $GCE_INSTANCE \
+          --zone $GCE_INSTANCE_ZONE \
+          --container-image=gcr.io/$GCE_PROJECT/$GCE_INSTANCE-image:$GITHUB_SHA \
+          --project=$GCE_PROJECT

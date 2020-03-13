@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-/*
- * Tests version-util.
- */
-
-import {getLatestGcloudSDKVersion} from '../src/version-util';
-
-describe('getLatestGcloudSDKVersion test', () => {
-  it('Successfully retrieves latest version', async () => {
-    const semVerPattern = /^[0-9]+\.[0-9]+\.[0-9]+$/;
-    const result = await getLatestGcloudSDKVersion();
-    expect(result).toBeDefined();
-    expect(semVerPattern.test(result)).toBe(true);
-  });
-});
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'prettier/@typescript-eslint',
+  ],
+};

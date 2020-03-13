@@ -1,4 +1,4 @@
-name: Integration Tests
+name: setup-gcloud Integration
 # The integration tests have to be pulled out into a separate workflow,
 # as GH Actions currently doesn't project secrets onto PR initiated runs.
 # Therefore these will only be run on branch pushes, which requires a
@@ -15,7 +15,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
-      
+
     - name: setup-gcloud
       uses: ./setup-gcloud/
       with:
@@ -25,7 +25,8 @@ jobs:
 
     - name: Integration Tests
       shell: bash
-      run: ./setup-gcloud/__tests__/integration-tests.sh
+      run: ./setup-gcloud/tests/integration-tests.sh
+
   latest:
     name: setup-gcloud latest
     runs-on: ${{ matrix.operating-system }}
@@ -35,16 +36,55 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
-            
+
       - name: setup-gcloud
         uses: ./setup-gcloud/
         with:
           version: 'latest'
           service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-              
+
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/__tests__/integration-tests.sh
+        run: ./setup-gcloud/tests/integration-tests.sh
 
-                  
+  exported:
+    name: setup-gcloud exported credentials
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          version: 'latest'
+          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+          export_default_credentials: true
+
+      - name: Verify Exported
+        shell: bash
+        run: test -f $GOOGLE_APPLICATION_CREDENTIALS
+
+  project_id:
+    name: setup-gcloud with configured project
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+
+      - name: Verify project
+        shell: bash
+        run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}

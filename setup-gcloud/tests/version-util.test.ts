@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
-  ],
-};
+/*
+ * Tests version-util.
+ */
+import 'mocha';
+import { expect } from 'chai';
+
+import { getLatestGcloudSDKVersion } from '../src/version-util';
+
+describe('#getLatestGcloudSDKVersion', function() {
+  it('retrieves latest', async function() {
+    const semVerPattern = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+    const result = await getLatestGcloudSDKVersion();
+    expect(result).to.be;
+    expect(result).to.match(semVerPattern);
+  });
+});

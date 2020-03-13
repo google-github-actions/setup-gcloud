@@ -8,6 +8,7 @@ These example workflows use the [setup-gcloud][action] to build and deploy appli
 | ------------------------------- | ------------------------ |
 | [Google Kubernetes Engine](gke/)| Deploy a static site to an existing GKE cluster |
 | [Cloud Run](cloud-run/)         | Deploy a container to Cloud Run (Fully Managed)|
+| [Google Compute Enginer](gce/)  | Deploy a container to a GCE VM |
 
 ## Before you begin
 

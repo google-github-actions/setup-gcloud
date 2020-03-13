@@ -1,0 +1,29 @@
+name: cloud-storage-uploader Unit
+on: [push, pull_request]
+
+jobs:
+  run:
+    name: test
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@master
+        with:
+          node-version: 12.x
+
+      - name: npm install
+        run: npm install
+        #change all working dirs
+        working-directory: ./cloud-storage-uploader
+
+      - name: npm lint
+        run: npm run lint
+        working-directory: ./cloud-storage-uploader
+
+      - name: npm test
+        run: npm run test
+        working-directory: ./cloud-storage-uploader

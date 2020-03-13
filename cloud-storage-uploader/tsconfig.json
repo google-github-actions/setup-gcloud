@@ -8,5 +8,5 @@
     "noImplicitAny": true,                    /* Raise error on expressions and declarations with an implied 'any' type. */
     "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
   },
-  "exclude": ["node_modules", "**/*.test.ts", "__mocks__"]
+  "exclude": ["node_modules", "**/*.test.ts", "**/mocks/*.ts"]
 }

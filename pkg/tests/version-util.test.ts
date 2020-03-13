@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-{
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": [
-      "es6"
-    ],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "noImplicitAny": true,
-    "esModuleInterop": true,
-  },
-  "references": [
-    {
-      "path": "../pkg"
-    }
-  ],
-  "exclude": ["node_modules", "**/*.test.ts"]
-}
+
+/*
+ * Tests version-util.
+ */
+import 'mocha';
+import { expect } from 'chai';
+
+import { getLatestGcloudSDKVersion } from '../src/version-util';
+
+describe('#getLatestGcloudSDKVersion', function() {
+  it('retrieves latest', async function() {
+    const semVerPattern = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+    const result = await getLatestGcloudSDKVersion();
+    expect(result).to.be;
+    expect(result).to.match(semVerPattern);
+  });
+});

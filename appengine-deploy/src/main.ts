@@ -16,16 +16,8 @@
 
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as toolCache from '@actions/tool-cache';
-// import { execSync } from 'child_process';
-import * as tmp from 'tmp';
-import {Base64} from 'js-base64';
-import { installGcloudSDK } from '../../setup-gcloud/src/setup-gcloud';
-import {promises as fs} from 'fs';
-/**
- * Executes the main action. It includes the main business logic and is the
- * primary entry point. It is documented inline.
- */
+import * as setupGcloud from '../../pkg/dist/index';
+
 async function run(): Promise<void> {
   try {
     // Get action inputs.
@@ -35,38 +27,19 @@ async function run(): Promise<void> {
     const version = core.getInput('version');
     const promote = core.getInput('promote');
 
-    // Get credentials, if any.
-    // const credentials = core.getInput('credentials');
-
-// COPY AND PAST ------------------------------------
-    tmp.setGracefulCleanup();
-    // Install gcloud.
-    let toolPath = toolCache.find('gcloud', `282.0.0`);
-    if (!toolPath) {
-      toolPath = await installGcloudSDK('282.0.0');
+    if (!setupGcloud.isInstalled()) {
+      const gcloudVersion = await setupGcloud.getLatestGcloudSDKVersion();
+      await setupGcloud.installGcloudSDK(gcloudVersion);
     }
 
+    // Get credentials and authenticate Cloud SDK.
     const serviceAccountKey = core.getInput('credentials');
-
-    // Handle base64-encoded credentials
-    let serviceAccountJSON = serviceAccountKey;
-    if (!serviceAccountKey.trim().startsWith('{')) {
-      serviceAccountJSON = Base64.decode(serviceAccountKey);
+    if (serviceAccountKey) {
+      await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
     }
-
-    // write the service account key to a temporary file
-    //
-    // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
-    // writing a file to disk.
-    const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-      tmp.file((err, path, fd, cleanupCallback) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(path);
-      });
-    });
-    await fs.writeFile(tmpKeyFilePath, serviceAccountJSON);
+    if (!setupGcloud.isAuthenticated()) {
+      core.setFailed('Error authenticating the Cloud SDK.');
+    }
 
     // A workaround for https://github.com/actions/toolkit/issues/229
     // Currently exec on windows runs as cmd shell.
@@ -75,40 +48,51 @@ async function run(): Promise<void> {
       toolCommand = 'gcloud.cmd';
     }
 
-    // authenticate as the specified service account
-    await exec.exec(
-      `${toolCommand} auth activate-service-account --key-file=${tmpKeyFilePath}`,
-    );
+    // Create gcloud cmd.
+    const appDeployCmd = [
+      'app',
+      'deploy',
+      '--quiet',
+      deliverables,
+      '--project',
+      projectId,
+    ];
 
-
-// END -------------------
-
-    // gcloud Flag set up.
-    const addImageUrl = imageUrl ? `--image-url=${imageUrl}` : '';
-    const addVersion = version ? `--version=${version}` : '';
-    const addPromote = promote ? '--promote' : '--no-promote';
+    // Add gcloud flags.
+    if (imageUrl) {
+      appDeployCmd.push('--image-url', imageUrl);
+    }
+    if (version) {
+      appDeployCmd.push('--version', version);
+    }
+    if (promote) {
+      appDeployCmd.push('--promote');
+    } else {
+      appDeployCmd.push('--no-promote');
+    }
 
     // Get output of gcloud cmd.
     let myOutput = '';
     let myError = '';
 
-    const options = {listeners: {}};
-    options.listeners = {
-      stdout: (data: Buffer) => {
-        myOutput += data.toString();
-      }
+    const options = {
+      listeners: {
+        stdout: (data: Buffer) => {
+          myOutput += data.toString();
+        },
+        stderr: (data: Buffer) => {
+          myError += data.toString();
+        }
+      },
     };
-    // Run gcloud.
-    await exec.exec(
-      'gcloud',
-      ['app', 'deploy', '--quiet', deliverables, `--project=${projectId}`, addImageUrl, addVersion, addPromote],
-      options);
 
+    // Run gcloud cmd.
+    await exec.exec(toolCommand, appDeployCmd, options);
 
-    core.info(myOutput);
-    // Set output url.
-    // TODO update this!!!!
-    core.setOutput('url', `https://${projectId}.appspot.com/`);
+    // Set url as output.
+    const url = myError.match(
+      /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.com/)![0];
+    core.setOutput('url', url);
   } catch (error) {
     core.setFailed(error.message);
   }

@@ -25,11 +25,7 @@
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
+    "composite": true
   },
-  "references": [
-    {
-      "path": "../pkg"
-    }
-  ],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

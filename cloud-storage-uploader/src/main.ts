@@ -23,7 +23,6 @@ async function run(): Promise<void> {
     const serviceAccountKey = core.getInput('service_account_key');
     const client = new Client({ credentials: serviceAccountKey });
     const uploadResponses = await client.upload(destination, path);
-    //console.log(uploadResponses);
     core.setOutput(
       'uploaded',
       uploadResponses

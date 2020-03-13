@@ -67,7 +67,6 @@ export class Client {
     if (destination.indexOf('/') > -1) {
       bucketName = destination.split('/')[0];
       prefix = destination.substring(destination.indexOf('/') + 1);
-      console.log('prefix=' + prefix);
     }
     const stat = await fs.promises.stat(path);
     const uploader = new UploadHelper(this.storage);

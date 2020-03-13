@@ -7277,7 +7277,6 @@ function run() {
             const serviceAccountKey = core.getInput('service_account_key');
             const client = new client_1.Client({ credentials: serviceAccountKey });
             const uploadResponses = yield client.upload(destination, path);
-            //console.log(uploadResponses);
             core.setOutput('uploaded', uploadResponses
                 .map((uploadResponse) => uploadResponse[0].name)
                 .toString());
@@ -70795,7 +70794,6 @@ class Client {
             if (destination.indexOf('/') > -1) {
                 bucketName = destination.split('/')[0];
                 prefix = destination.substring(destination.indexOf('/') + 1);
-                console.log('prefix=' + prefix);
             }
             const stat = yield fs.promises.stat(path);
             const uploader = new upload_helper_1.UploadHelper(this.storage);

@@ -1,26 +1,20 @@
-name: 'GCS Action'
-description: 'Enable easy upload of files and directories to GCS'
-author: 'GoogleCloudPlatform'
+name: Cloud Storage Uploader
+description: Upload files or folders to GCS buckets
+author: GoogleCloudPlatform
 inputs:
   service_account_key:
-    description: 'GCP service account key'
-    required: true
-  folder-to-upload:
-    description: 'Folder to be uploaded'
+    description: |-
+      Optional GCS service account credentials as JSON or base64 encoded string
     required: false
-  file-to-upload:
-    description: 'File to be uploaded'
-    required: false
-  bucket-name:
-    description: 'GCS Bucket Name'
+  path:
+    description: |-
+      Absolute path to file/folder to be uploaded
     required: true
-  object-prefix:
-    description: 'GCS object prefix'
+  destination:
+    description: |-
+      GCS bucket name of form <bucketname> or with an optional prefix
+      of form <bucketname>/<prefix>
     required: true
-  clear-existing-files-first:
-    description: 'clear existing files'
-    default: "false"
-    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

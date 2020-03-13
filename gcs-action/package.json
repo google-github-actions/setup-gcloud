@@ -1,51 +1,53 @@
 {
-  "name": "gcs-action",
-  "version": "0.0.1",
-  "private": true,
+  "name": "cloud-storage-uploader",
+  "version": "0.1.0",
   "description": "GCS action",
-  "main": "lib/main.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "ncc build src/main.ts",
+    "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts",
-    "lint": "eslint src/**/*.ts",
-    "pack": "ncc build",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
+    "test": "mocha -r ts-node/register -t 30s 'tests/*.test.ts'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && git add dist/"
+    }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GoogleCloudPlatform/github-actions/setup-gcloud.git"
+    "url": "https://github.com/GoogleCloudPlatform/github-actions"
   },
   "keywords": [
     "actions",
     "gcs",
-    "setup"
+    "setup",
+    "google cloud",
+    "cloud storage"
   ],
   "author": "GoogleCloudPlatform",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.2.0",
-    "@actions/exec": "^1.0.3",
-    "@google-cloud/storage": "^4.3.1",
-    "@types/js-base64": "^2.3.1",
-    "@types/tmp": "^0.1.0",
-    "js-base64": "^2.5.2",
-    "tmp": "^0.1.0"
+    "@google-cloud/storage": "^4.3.1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.23",
-    "@types/node": "^12.12.27",
-    "@typescript-eslint/parser": "^2.8.0",
-    "@zeit/ncc": "^0.20.5",
-    "eslint": "^5.16.0",
-    "eslint-plugin-github": "^2.0.0",
-    "eslint-plugin-jest": "^22.21.0",
-    "jest": "^24.9.0",
-    "jest-circus": "^24.9.0",
-    "js-yaml": "^3.13.1",
+    "@types/chai": "^4.2.9",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.4",
+    "@types/sinon": "^7.5.2",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "@zeit/ncc": "^0.21.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.2.3",
+    "mocha": "^7.0.1",
     "prettier": "^1.19.1",
-    "ts-jest": "^24.2.0",
-    "typescript": "^3.6.4"
+    "sinon": "^9.0.1",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
   }
 }

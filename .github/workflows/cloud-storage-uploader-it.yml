@@ -39,7 +39,7 @@ jobs:
         uses: ./cloud-storage-uploader
         with:
           path: ./test
-          destination: bucket/testprefix
+          destination: ${{ secrets.TEST_BUCKET_NAME }}/testprefix
           service_account_key: ${{ secrets.GCP_SA_KEY }}
       - name: get output
         run: echo '${{ steps.upload.outputs.uploaded }}'
@@ -59,7 +59,7 @@ jobs:
         uses: ./cloud-storage-uploader
         with:
           path: ./test
-          destination: bucket/testprefix
+          destination: ${{ secrets.TEST_BUCKET_NAME }}/testprefix
           service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
       - name: get output
         run: echo '${{ steps.upload.outputs.uploaded }}'

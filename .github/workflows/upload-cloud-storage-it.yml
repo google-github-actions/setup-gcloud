@@ -1,4 +1,4 @@
-name: cloud-storage-uploader Integration
+name: upload-cloud-storage Integration
 on: [push]
 jobs:
   gcloud:
@@ -17,7 +17,7 @@ jobs:
           touch test/test1.txt
       - id: upload
         name: upload file
-        uses: ./cloud-storage-uploader
+        uses: ./upload-cloud-storage
         with:
           path: ./test/test2.txt
           destination: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}/testprefix
@@ -36,7 +36,7 @@ jobs:
           touch test/test2.txt
       - id: upload
         name: upload folder
-        uses: ./cloud-storage-uploader
+        uses: ./upload-cloud-storage
         with:
           path: ./test
           destination: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}/testprefix
@@ -56,7 +56,7 @@ jobs:
           touch test/test2.txt
       - id: upload
         name: upload folder
-        uses: ./cloud-storage-uploader
+        uses: ./upload-cloud-storage
         with:
           path: ./test
           destination: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}/testprefix
@@ -80,14 +80,14 @@ jobs:
 
       - name: npm install
         run: npm install
-        working-directory: ./cloud-storage-uploader
+        working-directory: ./upload-cloud-storage
 
       - name: npm lint
         run: npm run lint
-        working-directory: ./cloud-storage-uploader
+        working-directory: ./upload-cloud-storage
 
       - name: npm test
         run: npm run test
-        working-directory: ./cloud-storage-uploader
+        working-directory: ./upload-cloud-storage
         env:
           TEST_BUCKET: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}

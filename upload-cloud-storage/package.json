@@ -1,5 +1,5 @@
 {
-  "name": "cloud-storage-uploader",
+  "name": "upload-cloud-storage",
   "version": "0.1.0",
   "description": "GCS action",
   "main": "dist/index.js",

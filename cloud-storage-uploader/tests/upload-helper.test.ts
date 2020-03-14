@@ -26,6 +26,7 @@ describe('Upload Helper', function() {
   beforeEach(function() {
     sinon.stub(UploadHelper.prototype, 'uploadFile').callsFake(mockUploadFile);
   });
+
   afterEach(function() {
     sinon.restore();
   });
@@ -48,13 +49,14 @@ describe('Upload Helper', function() {
     );
     expect(uploadResponse[0].name).eql('testprefix/test1.txt');
   });
+
   it('uploads a dir', async function() {
     const uploader = new UploadHelper(new Storage());
     const uploadResponses = await uploader.uploadDirectory(
       'foo',
       './tests/testdata',
     );
-    expect(uploadResponses.length).eql(4);
+    expect(uploadResponses.length).eql(6);
     const names = uploadResponses.map(
       (uploadResponse) => uploadResponse[0].name,
     );
@@ -63,8 +65,11 @@ describe('Upload Helper', function() {
       'testdata/nested1/test1.txt',
       'testdata/test2.txt',
       'testdata/test1.txt',
+      'testdata/testfile',
+      'testdata/🚀',
     ]);
   });
+
   it('uploads a dir with prefix', async function() {
     const uploader = new UploadHelper(new Storage());
     const uploadResponses = await uploader.uploadDirectory(
@@ -72,7 +77,7 @@ describe('Upload Helper', function() {
       './tests/testdata',
       'testprefix',
     );
-    expect(uploadResponses.length).eql(4);
+    expect(uploadResponses.length).eql(6);
     const names = uploadResponses.map(
       (uploadResponse) => uploadResponse[0].name,
     );
@@ -81,6 +86,8 @@ describe('Upload Helper', function() {
       'testprefix/testdata/nested1/test1.txt',
       'testprefix/testdata/test2.txt',
       'testprefix/testdata/test1.txt',
+      'testprefix/testdata/testfile',
+      'testprefix/testdata/🚀',
     ]);
   });
 });

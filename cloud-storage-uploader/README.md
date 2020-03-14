@@ -1,5 +1,5 @@
 <!--
-Copyright 2019 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# cloud-storage-uploader
+# upload-cloud-storage
 
 This action uploads files/folders to a [GCS][gcs] bucket. This is useful when
 you want upload build artifacts from your workflow.
@@ -35,7 +35,7 @@ used in subsequent steps.
 ```yaml
 steps:
   - id: upload-file
-    uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/file
       destination: bucket-name/file
@@ -54,7 +54,7 @@ The file will be uploaded to `gs://bucket-name/file`
 ```yaml
 steps:
   - id: upload-files
-    uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/folder
       destination: bucket-name
@@ -80,8 +80,8 @@ The files will be uploaded to `gs://bucket-name/folder/file1`,`gs://bucket-name/
 
 ## Inputs
 
-- `path`: (Required) The path to a file or folder that should be uploaded
-  to the bucket.
+- `path`: (Required) The path to a file or folder inside the action's filesystem
+  that should be uploaded to the bucket.
 
   You can specify either the absolute path or the relative path from the action:
 
@@ -110,7 +110,7 @@ The files will be uploaded to `gs://bucket-name/folder/file1`,`gs://bucket-name/
 
 - `service_account_key`: (Optional) [Google Service Account JSON][sa] credentials as JSON or base64 encoded string,
   typically sourced from a [GitHub Secret][gh-secret]. If unspecified, other
-  authentication methods are attempted.
+  authentication methods are attempted. See [Authorization](#Authorization) below.
 
 ## Outputs
 
@@ -121,7 +121,7 @@ For example:
 ```yaml
 steps:
   - id: upload-file
-    uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/file
       destination: bucket-name/file
@@ -133,7 +133,7 @@ will be available in future steps as the output "uploaded":
 - id: publish
   uses: foo/bar@master
   env:
-    file: ${{steps.upload-file.outputs.token}}
+    file: ${{steps.upload-file.outputs.uploaded}}
 ```
 
 ## Authorization
@@ -149,7 +149,7 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
     export_default_credentials: true
-- uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+- uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 ```
 
 The advantage of this approach is that it authenticates all future actions. A
@@ -165,7 +165,7 @@ action:
 
 ```yaml
 - id: upload-file
-  uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+  uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
   with:
     service_account_key: ${{ secrets.gcp_credentials }}
     path: /path/to/folder
@@ -181,7 +181,7 @@ only works using a custom runner hosted on GCP.**
 
 ```yaml
 - id: upload-file
-  uses: GoogleCloudPlatform/github-actions/cloud-storage-uploader@master
+  uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 ```
 
 The action will automatically detect and use the Application Default

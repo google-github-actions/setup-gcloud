@@ -25,6 +25,7 @@ describe('Client', function() {
   afterEach(function() {
     sinon.restore();
   });
+
   it('initializes with JSON creds', function() {
     const client = new Client({
       credentials: `{"foo":"bar"}`,
@@ -51,6 +52,7 @@ describe('Client', function() {
     expect(uploadFileStub.firstCall.args[1]).to.equal(path);
     expect(uploadFileStub.firstCall.args[2]).to.equal(prefix);
   });
+
   it('calls uploadDirectory', async function() {
     sinon.stub(UploadHelper.prototype, 'uploadFile').callsFake(mockUploadFile);
     const uploadDirSpy = sinon.spy(UploadHelper.prototype, 'uploadDirectory');

@@ -23,6 +23,7 @@ export class UploadHelper {
   constructor(storage: Storage) {
     this.storage = storage;
   }
+
   /**
    * Uploads a file to a bucket
    * based on https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadFile.js
@@ -66,6 +67,7 @@ export class UploadHelper {
     const pathDirName = path.posix.dirname(directoryPath);
     // get list of files in the directory
     const filesList = await getFiles(directoryPath);
+
     const resp = await Promise.all(
       filesList.map(async (filePath) => {
         //get relative path from directoryPath
@@ -78,6 +80,7 @@ export class UploadHelper {
             path.posix.relative(pathDirName, filePath),
           )}`;
         }
+
         const uploadResp = await this.uploadFile(
           bucketName,
           filePath,

@@ -16,6 +16,7 @@
 
 import * as core from '@actions/core';
 import { Client } from './client';
+
 async function run(): Promise<void> {
   try {
     const path = core.getInput('path', { required: true });
@@ -23,6 +24,7 @@ async function run(): Promise<void> {
     const serviceAccountKey = core.getInput('service_account_key');
     const client = new Client({ credentials: serviceAccountKey });
     const uploadResponses = await client.upload(destination, path);
+
     core.setOutput(
       'uploaded',
       uploadResponses

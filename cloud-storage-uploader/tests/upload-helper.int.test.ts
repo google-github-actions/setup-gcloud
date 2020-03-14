@@ -19,13 +19,14 @@ import 'mocha';
 import { UploadHelper } from '../src/upload-helper';
 import { Storage } from '@google-cloud/storage';
 
-const testBucket = process.env.TEST_BUCKET;
+const testBucket = process.env.UPLOAD_CLOUD_STORAGE_TEST_BUCKET;
 
 describe('Integration Upload Helper', function() {
   it('uploads a single file', async function() {
     if (!testBucket) {
       this.skip();
     }
+
     const uploader = new UploadHelper(new Storage());
     const uploadResponse = await uploader.uploadFile(
       testBucket,
@@ -38,6 +39,7 @@ describe('Integration Upload Helper', function() {
     if (!testBucket) {
       this.skip();
     }
+
     const uploader = new UploadHelper(new Storage());
     const uploadResponse = await uploader.uploadFile(
       testBucket,
@@ -45,5 +47,33 @@ describe('Integration Upload Helper', function() {
       'testprefix',
     );
     expect(uploadResponse[0].name).eql('testprefix/test1.txt');
+  });
+
+  it('uploads a single file without extension', async function() {
+    if (!testBucket) {
+      this.skip();
+    }
+
+    const uploader = new UploadHelper(new Storage());
+    const uploadResponse = await uploader.uploadFile(
+      testBucket,
+      './tests/testdata/testfile',
+      'testprefix',
+    );
+    expect(uploadResponse[0].name).eql('testprefix/testfile');
+  });
+
+  it('uploads a single file with non ascii filename 🚀', async function() {
+    if (!testBucket) {
+      this.skip();
+    }
+
+    const uploader = new UploadHelper(new Storage());
+    const uploadResponse = await uploader.uploadFile(
+      testBucket,
+      './tests/testdata/🚀',
+      'testprefix',
+    );
+    expect(uploadResponse[0].name).eql('testprefix/🚀');
   });
 });

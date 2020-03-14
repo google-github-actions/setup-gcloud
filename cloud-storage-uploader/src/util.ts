@@ -16,6 +16,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+
 /**
  * Directory walk helper
  * @param directory The path of the directory to traverse

@@ -70791,9 +70791,10 @@ class Client {
             let prefix = '';
             //if destination of the form my-bucket/subfolder
             // get bucket and prefix
-            if (destination.indexOf('/') > -1) {
-                bucketName = destination.split('/')[0];
-                prefix = destination.substring(destination.indexOf('/') + 1);
+            const idx = destination.indexOf('/');
+            if (idx > -1) {
+                bucketName = destination.substring(0, idx);
+                prefix = destination.substring(idx + 1);
             }
             const stat = yield fs.promises.stat(path);
             const uploader = new upload_helper_1.UploadHelper(this.storage);

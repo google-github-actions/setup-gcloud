@@ -44,6 +44,7 @@ For pushes to the _default_ branch, `master`, the workflow will:
   * `Viewer - roles/viewer`: allows for viewing the project (needed for Storage access)
   * `Cloud Build Service Account - roles/cloudbuild.builds.builder`: allows for
     running and manipulating Cloud Build and Storage resources
+  * `Cloud Build Editor - roles/cloudbuild.builds.editor`: allows for deploying cloud builds
   * `Service Account User - roles/iam.serviceAccountUser`: actAs requirement
 
 1. Enable the [Cloud Run API and Cloud Build API.](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.248833607.-1346582427.1578963531).

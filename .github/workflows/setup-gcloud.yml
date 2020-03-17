@@ -1,5 +1,13 @@
 name: setup-gcloud Unit
-on: [push, pull_request]
+
+on:
+  push:
+    paths:
+    - 'setup-gcloud/**'
+  pull_request:
+    paths:
+    - 'setup-gcloud/**'
+
 jobs:
   run:
     name: setup-gcloud

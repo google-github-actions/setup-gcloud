@@ -34,6 +34,8 @@ It does the following:
     be available in later steps. Google Cloud technologies automatically use
     this environment variable to find credentials.
 
+1.  If `project_id` is specified, gcloud will use this project ID by default.
+
 ## Prerequisites
 
 * This action requires [Python](https://www.python.org/) 2.7.9 or later to be installed on the environment.
@@ -51,6 +53,7 @@ steps:
     service_account_email: ${{ secrets.GCP_SA_EMAIL }}
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
+    project_id: ${{ secrets.GCP_PROJECT_ID }}
 - run: gcloud info
 ```
 
@@ -63,6 +66,8 @@ steps:
 * `service_account_key`: (Optional) The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
 
 * `export_default_credentials`: (Optional) Export the provided credentials as [Google Default Application Credentials][dac]. This will make the credentials available to later steps. Future steps that consume Default Application Credentials will automatically detect and use these credentials. Every time the action is run, this will generate a temporary file in the root of the repository with a random name, to hold the exported credentials.
+
+* `project_id`: (Optional) ID of the Google Cloud project. If provided, this will configure gcloud to use this project ID by default for commands. Individual commands can still override the project using the --project flag which takes precedence.
 
 [dac]: https://cloud.google.com/docs/authentication/production
 [sdk]: https://cloud.google.com/sdk/

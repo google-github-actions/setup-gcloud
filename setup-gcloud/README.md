@@ -25,6 +25,10 @@ It does the following:
 
 1.  Installs and caches the downloaded version into the actions environment.
 
+1.  If `project_id` is specified, gcloud will use this project ID as the default
+    project ID for all future invocations. You can override this on a
+    per-invocation basis using the `--project` flag.
+
 1.  If `service_account_key` is specified, authenticates the gcloud CLI tool
     using the inputs: `service_account_email` and `service_account_key`. Please
     see the [Service Account documentation][sa-iam-docs] for more information.
@@ -33,8 +37,6 @@ It does the following:
     credentials in the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to
     be available in later steps. Google Cloud technologies automatically use
     this environment variable to find credentials.
-
-1.  If `project_id` is specified, gcloud will use this project ID by default.
 
 ## Prerequisites
 
@@ -49,17 +51,17 @@ steps:
 - uses: actions/checkout@v2
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
-    version: '281.0.0'
+    version: '285.0.0'
+    project_id: ${{ secrets.GCP_PROJECT_ID }}
     service_account_email: ${{ secrets.GCP_SA_EMAIL }}
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
-    project_id: ${{ secrets.GCP_PROJECT_ID }}
 - run: gcloud info
 ```
 
 ## Inputs
 
-* `version`: (Optional) The version of the gcloud to be installed.  Example: `275.0.0`, Default: `latest`
+* `version`: (Optional) The version of the gcloud to be installed.  Example: `285.0.0`, Default: `latest`
 
 * `service_account_email`: (Optional) The service account email which will be used for authentication.
 

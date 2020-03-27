@@ -1,0 +1,4 @@
+.github
+node_modules
+dist
+README.md

@@ -19,10 +19,6 @@ on:
     branches:
       - master
 
-# Environment variables available to all jobs and steps in this workflow
-env:
-  PROJECT_ID: ${{ secrets.PROJECT_ID }}
-
 jobs:
   setup-build-deploy:
     name: Deploy
@@ -32,17 +28,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      # Setup gcloud CLI
+      # Setup and configure gcloud CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
-          version: '275.0.0'
+          version: '286.0.0'
+          project_id: ${{ secrets.PROJECT_ID }}
           service_account_email: ${{ secrets.SA_EMAIL }}
           service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}
-
-      # Configure gcloud CLI
-      - name: gcloud Set up
-        run: |
-          gcloud config set project $PROJECT_ID
 
       # Deploy App to App Engine
       - name: Deploy

@@ -12,7 +12,7 @@ For pushes to the _default_ branch, `master`, the workflow will:
 
 ## Setup
 
-1. Create or reuse a Github repository for the example workflow:
+1. Create or reuse a GitHub repository for the example workflow:
 
   1. [Create a repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
 
@@ -46,7 +46,7 @@ For pushes to the _default_ branch, `master`, the workflow will:
 1. Add and commit your changes:
 ```
 git add .
-git commit -m "Set up Github workflow"
+git commit -m "Set up GitHub workflow"
 ```
 
 1. Push to the `master` branch:

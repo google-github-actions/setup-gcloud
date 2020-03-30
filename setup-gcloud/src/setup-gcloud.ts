@@ -57,6 +57,8 @@ async function run(): Promise<void> {
     if (!toolPath) {
       toolPath = await installGcloudSDK(version);
       core.info('Successfully installed gcloud Cloud SDK');
+    } else {
+      core.addPath(path.join(toolPath, 'bin'));
     }
 
     // A workaround for https://github.com/actions/toolkit/issues/229

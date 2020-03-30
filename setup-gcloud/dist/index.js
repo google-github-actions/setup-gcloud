@@ -6333,7 +6333,6 @@ function _evaluateVersions(versions, versionSpec) {
 }
 //# sourceMappingURL=tool-cache.js.map
 
-
 /***/ }),
 
 /***/ 539:
@@ -9973,6 +9972,9 @@ function run() {
             if (!toolPath) {
                 toolPath = yield installGcloudSDK(version);
                 core.info('Successfully installed gcloud Cloud SDK');
+            }
+            else {
+                core.addPath(path_1.default.join(toolPath, 'bin'));
             }
             // A workaround for https://github.com/actions/toolkit/issues/229
             // Currently exec on windows runs as cmd shell.

@@ -3,6 +3,9 @@
 An example workflow that uses [GitHub Actions][actions] to deploy [a static
 website](site/) to an existing [Google Kubernetes Engine][gke] cluster.
 
+This code is intended to be an _example_. You will likely need to change or
+update values to match your setup.
+
 ## Workflow description
 
 For pushes to the `master` branch, this workflow will:

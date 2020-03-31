@@ -21,31 +21,41 @@ For pushes to the _default_ branch, `master`, the workflow will:
 
 1. Create or reuse a Github repository for the example workflow:
 
-  1. [Create a repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
+    1. [Create a repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
 
-  1. Move into your repository directory.
+    1. Move into your repository directory.
 
-  1. Copy the example into the repository:
-  ```
-  cp -r <path_to>/github-actions/example-workflows/cloud-run/ ./
-  ```
+    1. Copy the example into the repository:
+    ```
+    cp -r <path_to>/github-actions/example-workflows/cloud-run/ ./
+    ```
 
-1. Add your Project Id to the [repository's secret][secrets], named `RUN_PROJECT`.
+1. Add your Project Id to the [repository's secrets][secrets], named `RUN_PROJECT`.
 
 1. Update `cloud-run.yml` with the following values:
 
-  * `RUN_REGION`: the region in which the resource will be deployed.
+    * `RUN_REGION`: the region in which the resource will be deployed.
 
-  * `SERVICE_NAME`: your preferred name of your service and image.
+    * `SERVICE_NAME`: your preferred name of your service and image.
+
+1. Create a service account if there isn't one.
 
 1. [Add the the following role to your service account][roles]:
 
-  * `Cloud Run Admin - roles/run.admin`: allows for the creation of new services
-  * `Viewer - roles/viewer`: allows for viewing the project (needed for Storage access)
-  * `Cloud Build Service Account - roles/cloudbuild.builds.builder`: allows for
-    running and manipulating Cloud Build and Storage resources
-  * `Cloud Build Editor - roles/cloudbuild.builds.editor`: allows for deploying cloud builds
-  * `Service Account User - roles/iam.serviceAccountUser`: actAs requirement
+    * `Cloud Run Admin - roles/run.admin`: allows for the creation of new services
+    * `Viewer - roles/viewer`: allows for viewing the project (needed for Storage access)
+    * `Cloud Build Service Account - roles/cloudbuild.builds.builder`: allows for
+      running and manipulating Cloud Build and Storage resources
+    * `Cloud Build Editor - roles/cloudbuild.builds.editor`: allows for deploying cloud builds
+    * `Service Account User - roles/iam.serviceAccountUser`: actAs requirement
+
+1. Create key for the service account (type JSON).
+
+1. Add the following secrets to your repository's secrets:
+
+    * `SA_EMAIL`: the email of the service account
+
+    * `GOOGLE_APPLICATION_CREDENTIALS`: the content of the service account JSON file
 
 1. Enable the [Cloud Run API and Cloud Build API.](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.248833607.-1346582427.1578963531).
 

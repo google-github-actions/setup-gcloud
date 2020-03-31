@@ -48,15 +48,15 @@ For pushes to the `master` branch, this workflow will:
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
-    x- `Cloud Run Admin` - allows for the creation of new services
+    - `Cloud Run Admin` - allows for the creation of new services
 
-    x- `Cloud Build Editor` - allows for deploying cloud builds
+    - `Cloud Build Editor` - allows for deploying cloud builds
 
-    x- `Cloud Build Service Account`: allows for deploying cloud builds
+    - `Cloud Build Service Account` - allows for deploying cloud builds
 
     - `Viewer` - allows for viewing the project
 
-    x- `Service Account User` -  required to deploy services to Cloud Run
+    - `Service Account User` -  required to deploy services to Cloud Run
 
     Note: These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privledge. To
@@ -70,9 +70,9 @@ For pushes to the `master` branch, this workflow will:
 
     - `RUN_PROJECT`: Google Cloud project ID
 
-    - `SA_EMAIL`: the email of the service account
+    - `RUN_SA_EMAIL`: the email of the service account
 
-    - `SA_KEY`: the content of the service account JSON file
+    - `RUN_SA_KEY`: the content of the service account JSON file
 
 ## Run the workflow
 
@@ -80,12 +80,12 @@ For pushes to the `master` branch, this workflow will:
 
     ```text
     $ git add .
-    $ git commit -m "Set up Github workflow"
+    $ git commit -m "Set up GitHub workflow"
     ```
 
 1.  Push to the `master` branch:
 
-    ```
+    ```text
     $ git push -u origin master
     ```
 

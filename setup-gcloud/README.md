@@ -38,11 +38,16 @@ It does the following:
     be available in later steps. Google Cloud technologies automatically use
     this environment variable to find credentials.
 
+    **IMPORTANT!** Exporting default credentials requires `actions/checkout@v2`.
+    The `v1` tag is not supported and will not work.
+
 ## Prerequisites
 
 * This action requires [Python](https://www.python.org/) 2.7.9 or later to be installed on the environment.
 
-* A pre-configured GCP service account. [More info](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
+* A pre-configured GCP service account. [More info](https://cloud.google.com/iam/docs/creating-managing-service-accounts).
+
+* `actions/checkout@v2` if using `export_default_credentials`.
 
 ## Usage
 

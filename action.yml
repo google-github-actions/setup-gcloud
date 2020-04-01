@@ -23,7 +23,7 @@ inputs:
     description: |-
       Version of the gcloud SDK to install. If unspecified or set to "latest",
       the latest available gcloud SDK version for the target platform will be
-      installed. Example: "278.0.0".
+      installed. Example: "286.0.0".
     default: latest
     required: false
 

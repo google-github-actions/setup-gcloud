@@ -21,7 +21,3 @@ jobs:
     - name: npm lint
       run: npm run lint
       working-directory: ./appengine-deploy
-
-    - name: npm test
-      run: npm run test
-      working-directory: ./appengine-deploy

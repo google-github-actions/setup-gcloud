@@ -1,5 +1,5 @@
 name: appengine-deploy Integration
-on: [push]
+on: [push, pull_request]
 jobs:
   gcloud:
     name: with setup-gcloud

@@ -46,7 +46,7 @@ export function isInstalled(version?: string) {
  */
 export async function isAuthenticated(): Promise<boolean> {
   let output = '';
-  const stdout = (data: Buffer): string => {
+  const stdout = (data: Buffer): void => {
     output += data.toString();
   };
   const options = {
@@ -84,7 +84,7 @@ export async function installGcloudSDK(version: string): Promise<string> {
  * @Method: Authenticates the gcloud tool using a service account key
  * @Param {string}
  */
-export async function authenticateGcloudSDK(serviceAccountKey: string): Promise<T> {
+export async function authenticateGcloudSDK(serviceAccountKey: string) {
   tmp.setGracefulCleanup();
   let serviceAccount = serviceAccountKey;
   // Handle base64-encoded credentials
@@ -100,19 +100,6 @@ export async function authenticateGcloudSDK(serviceAccountKey: string): Promise<
   if (process.platform == 'win32') {
     toolCommand = 'gcloud.cmd';
   }
-
-  //   options.stdin = Buffer.from(serviceAccount); // TODO: Does this need to be Json?
-  //
-  // // Authenticate gcloud as the specified service account
-  //   await exec.exec(toolCommand,
-  //     ['auth',
-  //     'activate-service-account',
-  //     serviceAccountEmail,
-  //     '--key-file',
-  //     '/dev/stdin',
-  //     [],
-  //     options
-  //   );
 
   // write the service account key to a temporary file
   // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid

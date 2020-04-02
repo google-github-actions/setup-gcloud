@@ -69,13 +69,13 @@ async function run(): Promise<void> {
 
     // Get output of gcloud cmd.
     let output = '';
-    const stderr = (data: Buffer): string => {
+    const stdout = (data: Buffer): void => {
       output += data.toString();
     };
 
     const options = {
       listeners: {
-        stderr,
+        stdout,
       },
     };
 
@@ -83,7 +83,7 @@ async function run(): Promise<void> {
     await exec.exec(toolCommand, appDeployCmd, options);
 
     // Set url as output.
-    const urlMatch = myError.match(
+    const urlMatch = output.match(
       /https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/,
     );
     if (urlMatch) {

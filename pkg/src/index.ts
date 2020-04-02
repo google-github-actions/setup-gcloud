@@ -1,20 +1,19 @@
 /*
-* Copyright 2019 Google LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
@@ -23,15 +22,15 @@ import { promises as fs } from 'fs';
 import { getReleaseURL } from './format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
-import { getLatestGcloudSDKVersion } from './version-util'
+import { getLatestGcloudSDKVersion } from './version-util';
 
 export { getLatestGcloudSDKVersion };
 
 /**
-* @Method: Check if gcloud is installed
-* @Param {string} version (Optional) Cloud SDK version
-* @Return {string} tool path for Cloud SDK
-*/
+ * @Method: Check if gcloud is installed
+ * @Param {string} version (Optional) Cloud SDK version
+ * @Return {string} tool path for Cloud SDK
+ */
 export function isInstalled(version?: string) {
   let toolPath;
   if (version) {
@@ -43,28 +42,28 @@ export function isInstalled(version?: string) {
 }
 
 /**
-* @Method: Check if gcloud is authenticated
-*/
-export async function isAuthenticated() {
-  let myOutput = '';
-
+ * @Method: Check if gcloud is authenticated
+ */
+export async function isAuthenticated(): Promise<boolean> {
+  let output = '';
+  const stdout = (data: Buffer): string => {
+    output += data.toString();
+  };
   const options = {
     listeners: {
-      stdout: (data: Buffer) => {
-        myOutput += data.toString();
-      },
-    }
+      stdout,
+    },
   };
 
   await exec.exec('gcloud', ['auth', 'list'], options);
-  return !myOutput.includes("No credentialed accounts.");
+  return !output.includes('No credentialed accounts.');
 }
 
 /**
-* @Method: Install the Cloud SDK
-* @Param {string} version gcloud version
-* @Return {Promise}
-*/
+ * @Method: Install the Cloud SDK
+ * @Param {string} version gcloud version
+ * @Return {Promise}
+ */
 export async function installGcloudSDK(version: string): Promise<string> {
   // Retreive the release corresponding to the specified version and OS
   const osPlat = os.platform();
@@ -82,10 +81,10 @@ export async function installGcloudSDK(version: string): Promise<string> {
 }
 
 /**
-* @Method: Authenticates the gcloud tool using a service account key
-* @Param {string}
-*/
-export async function authenticateGcloudSDK(serviceAccountKey: string) {
+ * @Method: Authenticates the gcloud tool using a service account key
+ * @Param {string}
+ */
+export async function authenticateGcloudSDK(serviceAccountKey: string): Promise<T> {
   tmp.setGracefulCleanup();
   let serviceAccount = serviceAccountKey;
   // Handle base64-encoded credentials

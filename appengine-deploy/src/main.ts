@@ -21,7 +21,7 @@ import * as setupGcloud from '../../pkg/dist/index';
 async function run(): Promise<void> {
   try {
     // Get action inputs.
-    const projectId = core.getInput('project_id', { required: true });
+    const projectId = core.getInput('project_id');
     const deliverables = core.getInput('deliverables');
     const imageUrl = core.getInput('image-url');
     const version = core.getInput('version');
@@ -49,16 +49,12 @@ async function run(): Promise<void> {
     }
 
     // Create gcloud cmd.
-    const appDeployCmd = [
-      'app',
-      'deploy',
-      '--quiet',
-      deliverables,
-      '--project',
-      projectId,
-    ];
+    const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
 
     // Add gcloud flags.
+    if (projectId) {
+      appDeployCmd.push('--project', projectId);
+    }
     if (imageUrl) {
       appDeployCmd.push('--image-url', imageUrl);
     }
@@ -72,17 +68,14 @@ async function run(): Promise<void> {
     }
 
     // Get output of gcloud cmd.
-    let myOutput = '';
-    let myError = '';
+    let output = '';
+    const stderr = (data: Buffer): string => {
+      output += data.toString();
+    };
 
     const options = {
       listeners: {
-        stdout: (data: Buffer) => {
-          myOutput += data.toString();
-        },
-        stderr: (data: Buffer) => {
-          myError += data.toString();
-        }
+        stderr,
       },
     };
 
@@ -90,9 +83,16 @@ async function run(): Promise<void> {
     await exec.exec(toolCommand, appDeployCmd, options);
 
     // Set url as output.
-    const url = myError.match(
-      /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.com/)![0];
-    core.setOutput('url', url);
+    const urlMatch = myError.match(
+      /https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/,
+    );
+    if (urlMatch) {
+      const url = urlMatch[0];
+      core.setOutput('url', url);
+    } else {
+      // gcloud config list --format='value(core.project)'
+      core.setOutput('url', `https://${projectId}.appspot.com/`);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

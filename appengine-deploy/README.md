@@ -19,6 +19,9 @@ This action deploys your source code to App Engine and makes the URL available t
 later build steps via outputs. This allows you to parameterize your App Engine
 deployments.
 
+**Note** This action will install gcloud in the background if not using in with
+the [`setup-gcloud` action]().
+
 ## Prerequisites
 
 This action requires Google Cloud credentials that are authorized to deploy an
@@ -40,26 +43,28 @@ steps:
 
 ## Inputs
 
-- `project_id`: (Required)
+- `project_id`: (Optional) ID of the Google Cloud project. If provided, this
+  will override the project configured by gcloud.
 
-- `deliverables`: The yaml files for the services or configurations you want to
-  deploy. If not given, defaults to app.yaml in the current directory. If that
-  is not found, attempts to automatically generate necessary configuration
-  files (such as app.yaml) in the current directory.
+- `deliverables`: (Optional) The [yaml files](https://cloud.google.com/appengine/docs/standard/nodejs/configuration-files#optional_configuration_files) for the services or configurations
+  you want to deploy. If not given, defaults to app.yaml in the current
+  directory. If that is not found, attempts to automatically generate necessary
+  configuration files (such as app.yaml) in the current directory.
 
-- `image-url`: Deploy with a specific container image. The image url must be
-  from one of the valid GCR hostnames (example, `gcr.io/`).
+- `image-url`: (Optional) Deploy with a specific container image. The image url
+  must be from one of the valid GCR hostnames (example, `gcr.io/`).
 
-- `version`: The version of the app that will be created or replaced by this
-  deployment. If you do not specify a version, one will be generated for
+- `version`: (Optional) The version of the app that will be created or replaced
+  by this deployment. If you do not specify a version, one will be generated for
   you.
 
-- `promote`: Promote the deployed version to receive all traffic.
+- `promote`: (Optional) Promote the deployed version to receive all traffic.
 
 ### app.yaml customizations
 
 Other application configurations can be customized through the app.yaml, ie the
-service name. See [app.yaml Configuration File](https://cloud.google.com/appengine/docs/standard/nodejs/config/appref) for more information.
+service name. See [app.yaml Configuration File](https://cloud.google.com/appengine/docs/standard/nodejs/config/appref)
+for more information.
 
 ## Outputs
 

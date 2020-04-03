@@ -16,7 +16,7 @@
 
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as setupGcloud from '../../pkg/dist/index';
+import * as setupGcloud from '../../setupGloudSDK/dist/index';
 
 async function run(): Promise<void> {
   try {

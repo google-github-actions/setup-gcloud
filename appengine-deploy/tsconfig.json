@@ -28,7 +28,7 @@
   },
   "references": [
     {
-      "path": "../pkg"
+      "path": "../setupGloudSDK"
     }
   ],
   "exclude": ["node_modules", "**/*.test.ts"]

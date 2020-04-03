@@ -1,5 +1,5 @@
 {
-  "name": "pkg",
+  "name": "setupGloudSDK",
   "version": "1.0.0",
   "description": "Common tools needed to install and use the Cloud SDK",
   "main": "dist/index.js",

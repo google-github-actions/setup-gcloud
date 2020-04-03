@@ -27,22 +27,25 @@ import { getLatestGcloudSDKVersion } from './version-util';
 export { getLatestGcloudSDKVersion };
 
 /**
- * @Method: Check if gcloud is installed
- * @Param {string} version (Optional) Cloud SDK version
- * @Return {string} tool path for Cloud SDK
+ * Checks if gcloud is installed
+ *
+ * @param version (Optional) Cloud SDK version
+ * @return true if gcloud is found in toolpath
  */
-export function isInstalled(version?: string) {
+export function isInstalled(version?: string): boolean {
   let toolPath;
   if (version) {
     toolPath = toolCache.find('gcloud', version);
   } else {
     toolPath = toolCache.findAllVersions('gcloud');
   }
-  return toolPath;
+  return toolPath != undefined;
 }
 
 /**
- * @Method: Check if gcloud is authenticated
+ * Checks if gcloud is authenticated
+ *
+ * @returns true is gcloud is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {
   let output = '';
@@ -59,11 +62,13 @@ export async function isAuthenticated(): Promise<boolean> {
   return !output.includes('No credentialed accounts.');
 }
 
-/**
- * @Method: Install the Cloud SDK
- * @Param {string} version gcloud version
- * @Return {Promise}
- */
+ /**
+  * Installs the gcloud SDK into the actions environment.
+  *
+  * @param version The version being installed.
+  * @param gcloudExtPath The extraction path for the gcloud SDK.
+  * @returns The path of the installed tool.
+  */
 export async function installGcloudSDK(version: string): Promise<string> {
   // Retreive the release corresponding to the specified version and OS
   const osPlat = os.platform();
@@ -81,10 +86,14 @@ export async function installGcloudSDK(version: string): Promise<string> {
 }
 
 /**
- * @Method: Authenticates the gcloud tool using a service account key
- * @Param {string}
+ * Authenticates the gcloud tool using a service account key
+ *
+ * @param serviceAccountKey The serive account key used for authentication.
+ * @returns exit code
  */
-export async function authenticateGcloudSDK(serviceAccountKey: string) {
+export async function authenticateGcloudSDK(
+  serviceAccountKey: string,
+): Promise<number> {
   tmp.setGracefulCleanup();
   let serviceAccount = serviceAccountKey;
   // Handle base64-encoded credentials
@@ -101,7 +110,7 @@ export async function authenticateGcloudSDK(serviceAccountKey: string) {
     toolCommand = 'gcloud.cmd';
   }
 
-  // write the service account key to a temporary file
+  // write the service account key  dto a temporary file
   // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
   // writing a file to disk.
   const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {

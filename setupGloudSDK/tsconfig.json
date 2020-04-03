@@ -25,7 +25,7 @@
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
-    "composite": true
+    "declaration": true
   },
   "exclude": ["node_modules", "**/*.test.ts"]
 }

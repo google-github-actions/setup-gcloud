@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Common tools needed to install and use the Cloud SDK",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "ncc build src/index.ts",
     "lint": "eslint ./src --ext .ts,.tsx",

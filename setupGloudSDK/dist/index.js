@@ -6020,9 +6020,10 @@ const installUtil = __importStar(__webpack_require__(962));
 const version_util_1 = __webpack_require__(71);
 exports.getLatestGcloudSDKVersion = version_util_1.getLatestGcloudSDKVersion;
 /**
- * @Method: Check if gcloud is installed
- * @Param {string} version (Optional) Cloud SDK version
- * @Return {string} tool path for Cloud SDK
+ * Checks if gcloud is installed
+ *
+ * @param version (Optional) Cloud SDK version
+ * @return true if gcloud is found in toolpath
  */
 function isInstalled(version) {
     let toolPath;
@@ -6032,11 +6033,13 @@ function isInstalled(version) {
     else {
         toolPath = toolCache.findAllVersions('gcloud');
     }
-    return toolPath;
+    return toolPath != undefined;
 }
 exports.isInstalled = isInstalled;
 /**
- * @Method: Check if gcloud is authenticated
+ * Checks if gcloud is authenticated
+ *
+ * @returns true is gcloud is authenticated
  */
 function isAuthenticated() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6055,9 +6058,11 @@ function isAuthenticated() {
 }
 exports.isAuthenticated = isAuthenticated;
 /**
- * @Method: Install the Cloud SDK
- * @Param {string} version gcloud version
- * @Return {Promise}
+ * Installs the gcloud SDK into the actions environment.
+ *
+ * @param version The version being installed.
+ * @param gcloudExtPath The extraction path for the gcloud SDK.
+ * @returns The path of the installed tool.
  */
 function installGcloudSDK(version) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6076,8 +6081,10 @@ function installGcloudSDK(version) {
 }
 exports.installGcloudSDK = installGcloudSDK;
 /**
- * @Method: Authenticates the gcloud tool using a service account key
- * @Param {string}
+ * Authenticates the gcloud tool using a service account key
+ *
+ * @param serviceAccountKey The serive account key used for authentication.
+ * @returns exit code
  */
 function authenticateGcloudSDK(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6095,7 +6102,7 @@ function authenticateGcloudSDK(serviceAccountKey) {
         if (process.platform == 'win32') {
             toolCommand = 'gcloud.cmd';
         }
-        // write the service account key to a temporary file
+        // write the service account key  dto a temporary file
         // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
         // writing a file to disk.
         const tmpKeyFilePath = yield new Promise((resolve, reject) => {
@@ -9687,9 +9694,10 @@ function obtainContentCharset(response) {
     // |__ matches would be ['charset=utf-8', 'utf-8', index: 18, input: 'application/json; charset=utf-8']
     // |_____ matches[1] would have the charset :tada: , in our example it's utf-8
     // However, if the matches Array was empty or no charset found, 'utf-8' would be returned by default.
+    const nodeSupportedEncodings = ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'binary', 'hex'];
     const contentType = response.message.headers['content-type'] || '';
     const matches = contentType.match(/charset=([^;,\r\n]+)/i);
-    return (matches && matches[1]) ? matches[1] : 'utf-8';
+    return (matches && matches[1] && nodeSupportedEncodings.indexOf(matches[1]) != -1) ? matches[1] : 'utf-8';
 }
 exports.obtainContentCharset = obtainContentCharset;
 
@@ -9736,6 +9744,25 @@ var interpretNumericEntities = function (str) {
     return str.replace(/&#(\d+);/g, function ($0, numberStr) {
         return String.fromCharCode(parseInt(numberStr, 10));
     });
+};
+
+var parseArrayValue = function (val, options) {
+    if (val && typeof val === 'string' && options.comma && val.indexOf(',') > -1) {
+        return val.split(',');
+    }
+
+    return val;
+};
+
+var maybeMap = function maybeMap(val, fn) {
+    if (isArray(val)) {
+        var mapped = [];
+        for (var i = 0; i < val.length; i += 1) {
+            mapped.push(fn(val[i]));
+        }
+        return mapped;
+    }
+    return fn(val);
 };
 
 // This is what browsers will submit when the ✓ character occurs in an
@@ -9786,15 +9813,16 @@ var parseValues = function parseQueryStringValues(str, options) {
             val = options.strictNullHandling ? null : '';
         } else {
             key = options.decoder(part.slice(0, pos), defaults.decoder, charset, 'key');
-            val = options.decoder(part.slice(pos + 1), defaults.decoder, charset, 'value');
+            val = maybeMap(
+                parseArrayValue(part.slice(pos + 1), options),
+                function (encodedVal) {
+                    return options.decoder(encodedVal, defaults.decoder, charset, 'value');
+                }
+            );
         }
 
         if (val && options.interpretNumericEntities && charset === 'iso-8859-1') {
             val = interpretNumericEntities(val);
-        }
-
-        if (val && typeof val === 'string' && options.comma && val.indexOf(',') > -1) {
-            val = val.split(',');
         }
 
         if (part.indexOf('[]=') > -1) {
@@ -9811,8 +9839,8 @@ var parseValues = function parseQueryStringValues(str, options) {
     return obj;
 };
 
-var parseObject = function (chain, val, options) {
-    var leaf = val;
+var parseObject = function (chain, val, options, valuesParsed) {
+    var leaf = valuesParsed ? val : parseArrayValue(val, options);
 
     for (var i = chain.length - 1; i >= 0; --i) {
         var obj;
@@ -9840,13 +9868,13 @@ var parseObject = function (chain, val, options) {
             }
         }
 
-        leaf = obj;
+        leaf = obj; // eslint-disable-line no-param-reassign
     }
 
     return leaf;
 };
 
-var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
+var parseKeys = function parseQueryStringKeys(givenKey, val, options, valuesParsed) {
     if (!givenKey) {
         return;
     }
@@ -9897,7 +9925,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
         keys.push('[' + key.slice(segment.index) + ']');
     }
 
-    return parseObject(keys, val, options);
+    return parseObject(keys, val, options, valuesParsed);
 };
 
 var normalizeParseOptions = function normalizeParseOptions(opts) {
@@ -9910,7 +9938,7 @@ var normalizeParseOptions = function normalizeParseOptions(opts) {
     }
 
     if (typeof opts.charset !== 'undefined' && opts.charset !== 'utf-8' && opts.charset !== 'iso-8859-1') {
-        throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
+        throw new TypeError('The charset option must be either utf-8, iso-8859-1, or undefined');
     }
     var charset = typeof opts.charset === 'undefined' ? defaults.charset : opts.charset;
 
@@ -9949,7 +9977,7 @@ module.exports = function (str, opts) {
     var keys = Object.keys(tempObj);
     for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
-        var newObj = parseKeys(key, tempObj[key], options);
+        var newObj = parseKeys(key, tempObj[key], options, typeof str === 'string');
         obj = utils.merge(obj, newObj, options);
     }
 

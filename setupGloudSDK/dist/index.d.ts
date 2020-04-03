@@ -1,23 +1,30 @@
 import { getLatestGcloudSDKVersion } from './version-util';
 export { getLatestGcloudSDKVersion };
 /**
- * @Method: Check if gcloud is installed
- * @Param {string} version (Optional) Cloud SDK version
- * @Return {string} tool path for Cloud SDK
+ * Checks if gcloud is installed
+ *
+ * @param version (Optional) Cloud SDK version
+ * @return true if gcloud is found in toolpath
  */
-export declare function isInstalled(version?: string): string | string[];
+export declare function isInstalled(version?: string): boolean;
 /**
- * @Method: Check if gcloud is authenticated
+ * Checks if gcloud is authenticated
+ *
+ * @returns true is gcloud is authenticated
  */
 export declare function isAuthenticated(): Promise<boolean>;
 /**
- * @Method: Install the Cloud SDK
- * @Param {string} version gcloud version
- * @Return {Promise}
+ * Installs the gcloud SDK into the actions environment.
+ *
+ * @param version The version being installed.
+ * @param gcloudExtPath The extraction path for the gcloud SDK.
+ * @returns The path of the installed tool.
  */
 export declare function installGcloudSDK(version: string): Promise<string>;
 /**
- * @Method: Authenticates the gcloud tool using a service account key
- * @Param {string}
+ * Authenticates the gcloud tool using a service account key
+ *
+ * @param serviceAccountKey The serive account key used for authentication.
+ * @returns exit code
  */
 export declare function authenticateGcloudSDK(serviceAccountKey: string): Promise<number>;

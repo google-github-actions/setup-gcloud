@@ -1,5 +1,10 @@
 name: upload-cloud-storage Integration
-on: [push]
+
+on:
+  push:
+    paths:
+      - "upload-cloud-storage/**"
+
 jobs:
   gcloud:
     name: with setup-gcloud
@@ -40,7 +45,7 @@ jobs:
         with:
           path: ./test
           destination: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}/testprefix
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          credentials: ${{ secrets.GCP_SA_KEY }}
       - name: get output
         run: echo '${{ steps.upload.outputs.uploaded }}'
 
@@ -60,7 +65,7 @@ jobs:
         with:
           path: ./test
           destination: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}/testprefix
-          service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
+          credentials: ${{ secrets.GCP_SA_KEY_JSON }}
       - name: get output
         run: echo '${{ steps.upload.outputs.uploaded }}'
 

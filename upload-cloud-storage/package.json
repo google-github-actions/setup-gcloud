@@ -1,7 +1,7 @@
 {
   "name": "upload-cloud-storage",
   "version": "0.1.0",
-  "description": "GCS action",
+  "description": "Upload to Google Cloud Storage (GCS)",
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/main.ts",

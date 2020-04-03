@@ -1,5 +1,12 @@
 name: upload-cloud-storage Unit
-on: [push, pull_request]
+
+on:
+  push:
+    paths:
+    - 'upload-cloud-storage/**'
+  pull_request:
+    paths:
+    - 'upload-cloud-storage/**'
 
 jobs:
   run:

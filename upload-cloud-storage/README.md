@@ -16,7 +16,7 @@ limitations under the License.
 
 # upload-cloud-storage
 
-This action uploads files/folders to a [GCS][gcs] bucket. This is useful when
+This action uploads files/folders to a [Google Cloud Storage (GCS)][gcs] bucket. This is useful when
 you want upload build artifacts from your workflow.
 
 Paths to files that are successfully uploaded are set as output variables and can be
@@ -108,7 +108,7 @@ The files will be uploaded to `gs://bucket-name/folder/file1`,`gs://bucket-name/
 
   In the above example, the file will be uploaded to gs://bucket-name/prefix/file
 
-- `service_account_key`: (Optional) [Google Service Account JSON][sa] credentials as JSON or base64 encoded string,
+- `credentials`: (Optional) [Google Service Account JSON][sa] credentials as JSON or base64 encoded string,
   typically sourced from a [GitHub Secret][gh-secret]. If unspecified, other
   authentication methods are attempted. See [Authorization](#Authorization) below.
 
@@ -159,7 +159,7 @@ heavy for some use cases.
 ### Via credentials
 
 You can provide [Google Cloud Service Account JSON][sa] directly to the action
-by specifying the `service_account_key` input. First, create a [GitHub
+by specifying the `credentials` input. First, create a [GitHub
 Secret][gh-secret] that contains the JSON content, then import it into the
 action:
 
@@ -167,7 +167,7 @@ action:
 - id: upload-file
   uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
   with:
-    service_account_key: ${{ secrets.gcp_credentials }}
+    credentials: ${{ secrets.gcp_credentials }}
     path: /path/to/folder
     destination: bucket-name/file
 ```

@@ -1,8 +1,9 @@
 name: Cloud Storage Uploader
 description: Upload files or folders to GCS buckets
 author: GoogleCloudPlatform
+
 inputs:
-  service_account_key:
+  credentials:
     description: |-
       Optional service account key to use for authentication to GCS. This should be the JSON
       formatted private key which can be exported from the Cloud Console. The
@@ -19,6 +20,7 @@ inputs:
       GCS bucket name of form <bucketname> or with an optional prefix
       of form <bucketname>/<prefix>
     required: true
+
 runs:
   using: "node12"
   main: "dist/index.js"

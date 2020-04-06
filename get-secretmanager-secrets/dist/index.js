@@ -28048,6 +28048,13 @@ exports.setFailed = setFailed;
 // Logging Commands
 //-----------------------------------------------------------------------
 /**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
+/**
  * Writes debug message to user log
  * @param message debug message
  */
@@ -28205,7 +28212,7 @@ async function metadataAccessor(type, options, noResponseRetries = 3, fastFail =
             retryConfig: { noResponseRetries },
             params: options.params,
             responseType: 'text',
-            timeout: 3000,
+            timeout: requestTimeout(),
         });
         // NOTE: node.js converts all incoming headers to lower case.
         if (res.headers[exports.HEADER_NAME.toLowerCase()] !== exports.HEADER_VALUE) {
@@ -28329,6 +28336,7 @@ async function isAvailable() {
                 'ENETUNREACH',
                 'ENOENT',
                 'ENOTFOUND',
+                'ECONNREFUSED',
             ].includes(err.code)) {
             // Failure to resolve the metadata service means that it is not available.
             return false;
@@ -28348,6 +28356,20 @@ function resetIsAvailableCache() {
     cachedIsAvailableResponse = undefined;
 }
 exports.resetIsAvailableCache = resetIsAvailableCache;
+function requestTimeout() {
+    // In testing, we were able to reproduce behavior similar to
+    // https://github.com/googleapis/google-auth-library-nodejs/issues/798
+    // by making many concurrent network requests. Requests do not actually fail,
+    // rather they take significantly longer to complete (and we hit our
+    // default 3000ms timeout).
+    //
+    // This logic detects a GCF environment, using the documented environment
+    // variables K_SERVICE and FUNCTION_NAME:
+    // https://cloud.google.com/functions/docs/env-var and, in a GCF environment
+    // eliminates timeouts (by setting the value to 0 to disable).
+    return process.env.K_SERVICE || process.env.FUNCTION_NAME ? 0 : 3000;
+}
+exports.requestTimeout = requestTimeout;
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -32322,11 +32344,11 @@ module.exports = require("util");
 /***/ 671:
 /***/ (function() {
 
-(function(l){function m(b){b=void 0===b?"utf-8":b;if("utf-8"!==b)throw new RangeError("Failed to construct 'TextEncoder': The encoding label provided ('"+b+"') is invalid.");}function k(b,a){b=void 0===b?"utf-8":b;a=void 0===a?{fatal:!1}:a;if("utf-8"!==b)throw new RangeError("Failed to construct 'TextDecoder': The encoding label provided ('"+b+"') is invalid.");if(a.fatal)throw Error("Failed to construct 'TextDecoder': the 'fatal' option is unsupported.");}if(l.TextEncoder&&l.TextDecoder)return!1;
-Object.defineProperty(m.prototype,"encoding",{value:"utf-8"});m.prototype.encode=function(b,a){a=void 0===a?{stream:!1}:a;if(a.stream)throw Error("Failed to encode: the 'stream' option is unsupported.");a=0;for(var h=b.length,f=0,c=Math.max(32,h+(h>>1)+7),e=new Uint8Array(c>>3<<3);a<h;){var d=b.charCodeAt(a++);if(55296<=d&&56319>=d){if(a<h){var g=b.charCodeAt(a);56320===(g&64512)&&(++a,d=((d&1023)<<10)+(g&1023)+65536)}if(55296<=d&&56319>=d)continue}f+4>e.length&&(c+=8,c*=1+a/b.length*2,c=c>>3<<3,
-g=new Uint8Array(c),g.set(e),e=g);if(0===(d&4294967168))e[f++]=d;else{if(0===(d&4294965248))e[f++]=d>>6&31|192;else if(0===(d&4294901760))e[f++]=d>>12&15|224,e[f++]=d>>6&63|128;else if(0===(d&4292870144))e[f++]=d>>18&7|240,e[f++]=d>>12&63|128,e[f++]=d>>6&63|128;else continue;e[f++]=d&63|128}}return e.slice(0,f)};Object.defineProperty(k.prototype,"encoding",{value:"utf-8"});Object.defineProperty(k.prototype,"fatal",{value:!1});Object.defineProperty(k.prototype,"ignoreBOM",{value:!1});k.prototype.decode=
-function(b,a){a=void 0===a?{stream:!1}:a;if(a.stream)throw Error("Failed to decode: the 'stream' option is unsupported.");b=new Uint8Array(b);a=0;for(var h=b.length,f=[];a<h;){var c=b[a++];if(0===c)break;if(0===(c&128))f.push(c);else if(192===(c&224)){var e=b[a++]&63;f.push((c&31)<<6|e)}else if(224===(c&240)){e=b[a++]&63;var d=b[a++]&63;f.push((c&31)<<12|e<<6|d)}else if(240===(c&248)){e=b[a++]&63;d=b[a++]&63;var g=b[a++]&63;c=(c&7)<<18|e<<12|d<<6|g;65535<c&&(c-=65536,f.push(c>>>10&1023|55296),c=56320|
-c&1023);f.push(c)}}return String.fromCharCode.apply(null,f)};l.TextEncoder=m;l.TextDecoder=k})("undefined"!==typeof window?window:"undefined"!==typeof global?global:this);
+(function(l){function m(){}function k(b,a){b=void 0===b?"utf-8":b;a=void 0===a?{fatal:!1}:a;if(-1==n.indexOf(b.toLowerCase()))throw new RangeError("Failed to construct 'TextDecoder': The encoding label provided ('"+b+"') is invalid.");if(a.fatal)throw Error("Failed to construct 'TextDecoder': the 'fatal' option is unsupported.");}if(l.TextEncoder&&l.TextDecoder)return!1;var n=["utf-8","utf8","unicode-1-1-utf-8"];Object.defineProperty(m.prototype,"encoding",{value:"utf-8"});m.prototype.encode=function(b,
+a){a=void 0===a?{stream:!1}:a;if(a.stream)throw Error("Failed to encode: the 'stream' option is unsupported.");a=0;for(var g=b.length,f=0,c=Math.max(32,g+(g>>1)+7),e=new Uint8Array(c>>3<<3);a<g;){var d=b.charCodeAt(a++);if(55296<=d&&56319>=d){if(a<g){var h=b.charCodeAt(a);56320===(h&64512)&&(++a,d=((d&1023)<<10)+(h&1023)+65536)}if(55296<=d&&56319>=d)continue}f+4>e.length&&(c+=8,c*=1+a/b.length*2,c=c>>3<<3,h=new Uint8Array(c),h.set(e),e=h);if(0===(d&4294967168))e[f++]=d;else{if(0===(d&4294965248))e[f++]=
+d>>6&31|192;else if(0===(d&4294901760))e[f++]=d>>12&15|224,e[f++]=d>>6&63|128;else if(0===(d&4292870144))e[f++]=d>>18&7|240,e[f++]=d>>12&63|128,e[f++]=d>>6&63|128;else continue;e[f++]=d&63|128}}return e.slice?e.slice(0,f):e.subarray(0,f)};Object.defineProperty(k.prototype,"encoding",{value:"utf-8"});Object.defineProperty(k.prototype,"fatal",{value:!1});Object.defineProperty(k.prototype,"ignoreBOM",{value:!1});k.prototype.decode=function(b,a){a=void 0===a?{stream:!1}:a;if(a.stream)throw Error("Failed to decode: the 'stream' option is unsupported.");
+b.buffer instanceof ArrayBuffer&&(b=b.buffer);b=new Uint8Array(b);a=0;for(var g=[],f=[];;){var c=a<b.length;if(!c||a&65536){f.push(String.fromCharCode.apply(null,g));if(!c)return f.join("");g=[];b=b.subarray(a);a=0}c=b[a++];if(0===c)g.push(0);else if(0===(c&128))g.push(c);else if(192===(c&224)){var e=b[a++]&63;g.push((c&31)<<6|e)}else if(224===(c&240)){e=b[a++]&63;var d=b[a++]&63;g.push((c&31)<<12|e<<6|d)}else if(240===(c&248)){e=b[a++]&63;d=b[a++]&63;var h=b[a++]&63;c=(c&7)<<18|e<<12|d<<6|h;65535<
+c&&(c-=65536,g.push(c>>>10&1023|55296),c=56320|c&1023);g.push(c)}}};l.TextEncoder=m;l.TextDecoder=k})("undefined"!==typeof window?window:"undefined"!==typeof global?global:this);
 
 
 /***/ }),
@@ -37368,7 +37390,18 @@ class Gaxios {
             }
             else if (typeof opts.data === 'object') {
                 opts.body = JSON.stringify(opts.data);
-                opts.headers['Content-Type'] = 'application/json';
+                // Allow the user to specifiy their own content type,
+                // such as application/json-patch+json; for historical reasons this
+                // content type must currently be a json type, as we are relying on
+                // application/x-www-form-urlencoded (which is incompatible with
+                // upstream GCP APIs) being rewritten to application/json.
+                //
+                // TODO: refactor upstream dependencies to stop relying on this
+                // side-effect.
+                if (!opts.headers['Content-Type'] ||
+                    !opts.headers['Content-Type'].includes('json')) {
+                    opts.headers['Content-Type'] = 'application/json';
+                }
             }
             else {
                 opts.body = opts.data;
@@ -39449,7 +39482,7 @@ function convertToPem(p12base64) {
 /***/ 947:
 /***/ (function(module) {
 
-module.exports = {"_from":"google-auth-library@^5.9.2","_id":"google-auth-library@5.10.0","_inBundle":false,"_integrity":"sha512-Kfa0GDYYzaRGtvegI64c+oF8Adv3ZW8hWfOegiu53/h4etBdsdXI3uox/TKlyIHKFu8/YhpKv3Z30sJH986YKA==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"google-auth-library@^5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"^5.9.2","saveSpec":null,"fetchSpec":"^5.9.2"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.10.0.tgz","_shasum":"53176a64673a3445dc4a536a2d85f927c23b6227","_spec":"google-auth-library@^5.9.2","_where":"/Users/sethvargo/Development/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","ecdsa-sig-formatter":"^1.0.11","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^7.0.0","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^2.0.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^12.0.0","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^9.0.0","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prelint":"cd samples; npm link ../; npm i","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.10.0"};
+module.exports = {"_from":"google-auth-library@5.10.1","_id":"google-auth-library@5.10.1","_inBundle":false,"_integrity":"sha512-rOlaok5vlpV9rSiUu5EpR0vVpc+PhN62oF4RyX/6++DG1VsaulAFEMlDYBLjJDDPI6OcNOCGAKy9UVB/3NIDXg==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.10.1","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.10.1","saveSpec":null,"fetchSpec":"5.10.1"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.10.1.tgz","_shasum":"504ec75487ad140e68dd577c21affa363c87ddff","_spec":"google-auth-library@5.10.1","_where":"/home/craigbarber/Coding/github/craigdbarber/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","ecdsa-sig-formatter":"^1.0.11","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.4.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^7.0.0","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^2.0.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^12.0.0","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^9.0.0","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prelint":"cd samples; npm link ../; npm i","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.10.1"};
 
 /***/ }),
 

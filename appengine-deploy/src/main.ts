@@ -90,7 +90,6 @@ async function run(): Promise<void> {
       const url = urlMatch[0];
       core.setOutput('url', url);
     } else {
-      // gcloud config list --format='value(core.project)'
       core.setOutput('url', `https://${projectId}.appspot.com/`);
     }
   } catch (error) {

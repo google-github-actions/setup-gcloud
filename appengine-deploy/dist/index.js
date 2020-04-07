@@ -941,461 +941,7 @@ module.exports = require("tls");
 
 /***/ }),
 
-/***/ 87:
-/***/ (function(module) {
-
-module.exports = require("os");
-
-/***/ }),
-
-/***/ 129:
-/***/ (function(module) {
-
-module.exports = require("child_process");
-
-/***/ }),
-
-/***/ 131:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const exec = __importStar(__webpack_require__(986));
-const setupGcloud = __importStar(__webpack_require__(479));
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            // Get action inputs.
-            const projectId = core.getInput('project_id');
-            const deliverables = core.getInput('deliverables');
-            const imageUrl = core.getInput('image-url');
-            const version = core.getInput('version');
-            const promote = core.getInput('promote');
-            if (!setupGcloud.isInstalled()) {
-                const gcloudVersion = yield setupGcloud.getLatestGcloudSDKVersion();
-                yield setupGcloud.installGcloudSDK(gcloudVersion);
-            }
-            // Get credentials and authenticate Cloud SDK.
-            const serviceAccountKey = core.getInput('credentials');
-            if (serviceAccountKey) {
-                yield setupGcloud.authenticateGcloudSDK(serviceAccountKey);
-            }
-            if (!setupGcloud.isAuthenticated()) {
-                core.setFailed('Error authenticating the Cloud SDK.');
-            }
-            // A workaround for https://github.com/actions/toolkit/issues/229
-            // Currently exec on windows runs as cmd shell.
-            let toolCommand = 'gcloud';
-            if (process.platform == 'win32') {
-                toolCommand = 'gcloud.cmd';
-            }
-            // Create gcloud cmd.
-            const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
-            // Add gcloud flags.
-            if (projectId) {
-                appDeployCmd.push('--project', projectId);
-            }
-            if (imageUrl) {
-                appDeployCmd.push('--image-url', imageUrl);
-            }
-            if (version) {
-                appDeployCmd.push('--version', version);
-            }
-            if (promote) {
-                appDeployCmd.push('--promote');
-            }
-            else {
-                appDeployCmd.push('--no-promote');
-            }
-            // Get output of gcloud cmd.
-            let output = '';
-            const stdout = (data) => {
-                output += data.toString();
-            };
-            const options = {
-                listeners: {
-                    stdout,
-                },
-            };
-            // Run gcloud cmd.
-            yield exec.exec(toolCommand, appDeployCmd, options);
-            // Set url as output.
-            const urlMatch = output.match(/https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/);
-            if (urlMatch) {
-                const url = urlMatch[0];
-                core.setOutput('url', url);
-            }
-            else {
-                // gcloud config list --format='value(core.project)'
-                core.setOutput('url', `https://${projectId}.appspot.com/`);
-            }
-        }
-        catch (error) {
-            core.setFailed(error.message);
-        }
-    });
-}
-run();
-
-
-/***/ }),
-
-/***/ 211:
-/***/ (function(module) {
-
-module.exports = require("https");
-
-/***/ }),
-
-/***/ 357:
-/***/ (function(module) {
-
-module.exports = require("assert");
-
-/***/ }),
-
-/***/ 413:
-/***/ (function(module) {
-
-module.exports = require("stream");
-
-/***/ }),
-
-/***/ 417:
-/***/ (function(module) {
-
-module.exports = require("crypto");
-
-/***/ }),
-
-/***/ 431:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__webpack_require__(87));
-/**
- * Commands
- *
- * Command Format:
- *   ::name key=value,key=value::message
- *
- * Examples:
- *   ::warning::This is the message
- *   ::set-env name=MY_VAR::some value
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
-    }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            let first = true;
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        if (first) {
-                            first = false;
-                        }
-                        else {
-                            cmdStr += ',';
-                        }
-                        cmdStr += `${key}=${escapeProperty(val)}`;
-                    }
-                }
-            }
-        }
-        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
-        return cmdStr;
-    }
-}
-function escapeData(s) {
-    return (s || '')
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A');
-}
-function escapeProperty(s) {
-    return (s || '')
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/:/g, '%3A')
-        .replace(/,/g, '%2C');
-}
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 470:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __webpack_require__(431);
-const os = __importStar(__webpack_require__(87));
-const path = __importStar(__webpack_require__(622));
-/**
- * The code to exit an action
- */
-var ExitCode;
-(function (ExitCode) {
-    /**
-     * A code indicating that the action was successful
-     */
-    ExitCode[ExitCode["Success"] = 0] = "Success";
-    /**
-     * A code indicating that the action was a failure
-     */
-    ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
-//-----------------------------------------------------------------------
-// Variables
-//-----------------------------------------------------------------------
-/**
- * Sets env variable for this action and future actions in the job
- * @param name the name of the variable to set
- * @param val the value of the variable
- */
-function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
-}
-exports.exportVariable = exportVariable;
-/**
- * Registers a secret which will get masked from logs
- * @param secret value of the secret
- */
-function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
-}
-exports.setSecret = setSecret;
-/**
- * Prepends inputPath to the PATH (for this action and future actions)
- * @param inputPath
- */
-function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
-    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
-}
-exports.addPath = addPath;
-/**
- * Gets the value of an input.  The value is also trimmed.
- *
- * @param     name     name of the input to get
- * @param     options  optional. See InputOptions.
- * @returns   string
- */
-function getInput(name, options) {
-    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
-    if (options && options.required && !val) {
-        throw new Error(`Input required and not supplied: ${name}`);
-    }
-    return val.trim();
-}
-exports.getInput = getInput;
-/**
- * Sets the value of an output.
- *
- * @param     name     name of the output to set
- * @param     value    value to store
- */
-function setOutput(name, value) {
-    command_1.issueCommand('set-output', { name }, value);
-}
-exports.setOutput = setOutput;
-//-----------------------------------------------------------------------
-// Results
-//-----------------------------------------------------------------------
-/**
- * Sets the action status to failed.
- * When the action exits it will be with an exit code of 1
- * @param message add error issue message
- */
-function setFailed(message) {
-    process.exitCode = ExitCode.Failure;
-    error(message);
-}
-exports.setFailed = setFailed;
-//-----------------------------------------------------------------------
-// Logging Commands
-//-----------------------------------------------------------------------
-/**
- * Writes debug message to user log
- * @param message debug message
- */
-function debug(message) {
-    command_1.issueCommand('debug', {}, message);
-}
-exports.debug = debug;
-/**
- * Adds an error issue
- * @param message error issue message
- */
-function error(message) {
-    command_1.issue('error', message);
-}
-exports.error = error;
-/**
- * Adds an warning issue
- * @param message warning issue message
- */
-function warning(message) {
-    command_1.issue('warning', message);
-}
-exports.warning = warning;
-/**
- * Writes info to log with console.log.
- * @param message info message
- */
-function info(message) {
-    process.stdout.write(message + os.EOL);
-}
-exports.info = info;
-/**
- * Begin an output group.
- *
- * Output until the next `groupEnd` will be foldable in this group
- *
- * @param name The name of the output group
- */
-function startGroup(name) {
-    command_1.issue('group', name);
-}
-exports.startGroup = startGroup;
-/**
- * End an output group.
- */
-function endGroup() {
-    command_1.issue('endgroup');
-}
-exports.endGroup = endGroup;
-/**
- * Wrap an asynchronous function call in a group.
- *
- * Returns the same type as the function itself.
- *
- * @param name The name of the group
- * @param fn The function to wrap in the group
- */
-function group(name, fn) {
-    return __awaiter(this, void 0, void 0, function* () {
-        startGroup(name);
-        let result;
-        try {
-            result = yield fn();
-        }
-        finally {
-            endGroup();
-        }
-        return result;
-    });
-}
-exports.group = group;
-//-----------------------------------------------------------------------
-// Wrapper action state
-//-----------------------------------------------------------------------
-/**
- * Saves state for current action, the state can only be retrieved by this action's post job execution.
- *
- * @param     name     name of the state to store
- * @param     value    value to store
- */
-function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
-}
-exports.saveState = saveState;
-/**
- * Gets the value of an state set by this action's main execution.
- *
- * @param     name     name of the state to get
- * @returns   string
- */
-function getState(name) {
-    return process.env[`STATE_${name}`] || '';
-}
-exports.getState = getState;
-//# sourceMappingURL=core.js.map
-
-/***/ }),
-
-/***/ 479:
+/***/ 51:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 module.exports =
@@ -7420,9 +6966,10 @@ const installUtil = __importStar(__nested_webpack_require_170478__(962));
 const version_util_1 = __nested_webpack_require_170478__(71);
 exports.getLatestGcloudSDKVersion = version_util_1.getLatestGcloudSDKVersion;
 /**
- * @Method: Check if gcloud is installed
- * @Param {string} version (Optional) Cloud SDK version
- * @Return {string} tool path for Cloud SDK
+ * Checks if gcloud is installed
+ *
+ * @param version (Optional) Cloud SDK version
+ * @return true if gcloud is found in toolpath
  */
 function isInstalled(version) {
     let toolPath;
@@ -7432,11 +6979,13 @@ function isInstalled(version) {
     else {
         toolPath = toolCache.findAllVersions('gcloud');
     }
-    return toolPath;
+    return toolPath != undefined;
 }
 exports.isInstalled = isInstalled;
 /**
- * @Method: Check if gcloud is authenticated
+ * Checks if gcloud is authenticated
+ *
+ * @returns true is gcloud is authenticated
  */
 function isAuthenticated() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -7455,9 +7004,11 @@ function isAuthenticated() {
 }
 exports.isAuthenticated = isAuthenticated;
 /**
- * @Method: Install the Cloud SDK
- * @Param {string} version gcloud version
- * @Return {Promise}
+ * Installs the gcloud SDK into the actions environment.
+ *
+ * @param version The version being installed.
+ * @param gcloudExtPath The extraction path for the gcloud SDK.
+ * @returns The path of the installed tool.
  */
 function installGcloudSDK(version) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -7476,8 +7027,10 @@ function installGcloudSDK(version) {
 }
 exports.installGcloudSDK = installGcloudSDK;
 /**
- * @Method: Authenticates the gcloud tool using a service account key
- * @Param {string}
+ * Authenticates the gcloud tool using a service account key
+ *
+ * @param serviceAccountKey The serive account key used for authentication.
+ * @returns exit code
  */
 function authenticateGcloudSDK(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -7495,7 +7048,7 @@ function authenticateGcloudSDK(serviceAccountKey) {
         if (process.platform == 'win32') {
             toolCommand = 'gcloud.cmd';
         }
-        // write the service account key to a temporary file
+        // write the service account key  dto a temporary file
         // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
         // writing a file to disk.
         const tmpKeyFilePath = yield new Promise((resolve, reject) => {
@@ -7524,7 +7077,7 @@ exports.authenticateGcloudSDK = authenticateGcloudSDK;
 /***/ }),
 
 /***/ 339:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_176257__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_176491__) {
 
 "use strict";
 
@@ -7563,8 +7116,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains download utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_176257__(533));
-const attempt_1 = __nested_webpack_require_176257__(503);
+const toolCache = __importStar(__nested_webpack_require_176491__(533));
+const attempt_1 = __nested_webpack_require_176491__(503);
 /**
  * Downloads and extracts the tool at the specified URL.
  *
@@ -7607,14 +7160,14 @@ module.exports = __webpack_require__(357);
 /***/ }),
 
 /***/ 386:
-/***/ (function(module, __unusedexports, __nested_webpack_require_179332__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_179566__) {
 
 "use strict";
 
 
-var stringify = __nested_webpack_require_179332__(897);
-var parse = __nested_webpack_require_179332__(755);
-var formats = __nested_webpack_require_179332__(13);
+var stringify = __nested_webpack_require_179566__(897);
+var parse = __nested_webpack_require_179566__(755);
+var formats = __nested_webpack_require_179566__(13);
 
 module.exports = {
     formats: formats,
@@ -7626,7 +7179,7 @@ module.exports = {
 /***/ }),
 
 /***/ 402:
-/***/ (function(module, __unusedexports, __nested_webpack_require_179644__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_179878__) {
 
 // Approach:
 //
@@ -7670,27 +7223,27 @@ module.exports = {
 
 module.exports = glob
 
-var fs = __nested_webpack_require_179644__(747)
-var rp = __nested_webpack_require_179644__(302)
-var minimatch = __nested_webpack_require_179644__(93)
+var fs = __nested_webpack_require_179878__(747)
+var rp = __nested_webpack_require_179878__(302)
+var minimatch = __nested_webpack_require_179878__(93)
 var Minimatch = minimatch.Minimatch
-var inherits = __nested_webpack_require_179644__(689)
-var EE = __nested_webpack_require_179644__(614).EventEmitter
-var path = __nested_webpack_require_179644__(622)
-var assert = __nested_webpack_require_179644__(357)
-var isAbsolute = __nested_webpack_require_179644__(681)
-var globSync = __nested_webpack_require_179644__(245)
-var common = __nested_webpack_require_179644__(856)
+var inherits = __nested_webpack_require_179878__(689)
+var EE = __nested_webpack_require_179878__(614).EventEmitter
+var path = __nested_webpack_require_179878__(622)
+var assert = __nested_webpack_require_179878__(357)
+var isAbsolute = __nested_webpack_require_179878__(681)
+var globSync = __nested_webpack_require_179878__(245)
+var common = __nested_webpack_require_179878__(856)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
 var ownProp = common.ownProp
-var inflight = __nested_webpack_require_179644__(674)
-var util = __nested_webpack_require_179644__(669)
+var inflight = __nested_webpack_require_179878__(674)
+var util = __nested_webpack_require_179878__(669)
 var childrenIgnored = common.childrenIgnored
 var isIgnored = common.isIgnored
 
-var once = __nested_webpack_require_179644__(49)
+var once = __nested_webpack_require_179878__(49)
 
 function glob (pattern, options, cb) {
   if (typeof options === 'function') cb = options, options = {}
@@ -8423,9 +7976,9 @@ Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
 /***/ }),
 
 /***/ 413:
-/***/ (function(module, __unusedexports, __nested_webpack_require_199235__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_199469__) {
 
-module.exports = __nested_webpack_require_199235__(141);
+module.exports = __nested_webpack_require_199469__(141);
 
 
 /***/ }),
@@ -8438,7 +7991,7 @@ module.exports = __webpack_require__(417);
 /***/ }),
 
 /***/ 431:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_199453__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_199687__) {
 
 "use strict";
 
@@ -8450,7 +8003,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__nested_webpack_require_199453__(87));
+const os = __importStar(__nested_webpack_require_199687__(87));
 /**
  * Commands
  *
@@ -8523,7 +8076,7 @@ function escapeProperty(s) {
 /***/ }),
 
 /***/ 470:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_201900__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_202134__) {
 
 "use strict";
 
@@ -8544,9 +8097,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __nested_webpack_require_201900__(431);
-const os = __importStar(__nested_webpack_require_201900__(87));
-const path = __importStar(__nested_webpack_require_201900__(622));
+const command_1 = __nested_webpack_require_202134__(431);
+const os = __importStar(__nested_webpack_require_202134__(87));
+const path = __importStar(__nested_webpack_require_202134__(622));
 /**
  * The code to exit an action
  */
@@ -8891,7 +8444,7 @@ exports.retry = retry;
 /***/ }),
 
 /***/ 533:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_213970__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_214204__) {
 
 "use strict";
 
@@ -8915,19 +8468,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_213970__(470));
-const io = __importStar(__nested_webpack_require_213970__(1));
-const fs = __importStar(__nested_webpack_require_213970__(747));
-const os = __importStar(__nested_webpack_require_213970__(87));
-const path = __importStar(__nested_webpack_require_213970__(622));
-const httpm = __importStar(__nested_webpack_require_213970__(539));
-const semver = __importStar(__nested_webpack_require_213970__(280));
-const stream = __importStar(__nested_webpack_require_213970__(794));
-const util = __importStar(__nested_webpack_require_213970__(669));
-const v4_1 = __importDefault(__nested_webpack_require_213970__(826));
-const exec_1 = __nested_webpack_require_213970__(986);
-const assert_1 = __nested_webpack_require_213970__(357);
-const retry_helper_1 = __nested_webpack_require_213970__(979);
+const core = __importStar(__nested_webpack_require_214204__(470));
+const io = __importStar(__nested_webpack_require_214204__(1));
+const fs = __importStar(__nested_webpack_require_214204__(747));
+const os = __importStar(__nested_webpack_require_214204__(87));
+const path = __importStar(__nested_webpack_require_214204__(622));
+const httpm = __importStar(__nested_webpack_require_214204__(539));
+const semver = __importStar(__nested_webpack_require_214204__(280));
+const stream = __importStar(__nested_webpack_require_214204__(794));
+const util = __importStar(__nested_webpack_require_214204__(669));
+const v4_1 = __importDefault(__nested_webpack_require_214204__(826));
+const exec_1 = __nested_webpack_require_214204__(986);
+const assert_1 = __nested_webpack_require_214204__(357);
+const retry_helper_1 = __nested_webpack_require_214204__(979);
 class HTTPError extends Error {
     constructor(httpStatusCode) {
         super(`Unexpected HTTP response: ${httpStatusCode}`);
@@ -9398,15 +8951,15 @@ function _getGlobal(key, defaultValue) {
 /***/ }),
 
 /***/ 539:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_233685__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_233919__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_233685__(835);
-const http = __nested_webpack_require_233685__(605);
-const https = __nested_webpack_require_233685__(211);
-const pm = __nested_webpack_require_233685__(950);
+const url = __nested_webpack_require_233919__(835);
+const http = __nested_webpack_require_233919__(605);
+const https = __nested_webpack_require_233919__(211);
+const pm = __nested_webpack_require_233919__(950);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -9787,7 +9340,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_233685__(413);
+                tunnel = __nested_webpack_require_233919__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -9906,17 +9459,17 @@ exports.HttpClient = HttpClient;
 /***/ }),
 
 /***/ 569:
-/***/ (function(module, __unusedexports, __nested_webpack_require_255659__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_255893__) {
 
 module.exports = rimraf
 rimraf.sync = rimrafSync
 
-var assert = __nested_webpack_require_255659__(357)
-var path = __nested_webpack_require_255659__(622)
-var fs = __nested_webpack_require_255659__(747)
+var assert = __nested_webpack_require_255893__(357)
+var path = __nested_webpack_require_255893__(622)
+var fs = __nested_webpack_require_255893__(747)
 var glob = undefined
 try {
-  glob = __nested_webpack_require_255659__(402)
+  glob = __nested_webpack_require_255893__(402)
 } catch (_err) {
   // treat glob as optional.
 }
@@ -10631,7 +10184,7 @@ module.exports = __webpack_require__(669);
 /***/ }),
 
 /***/ 672:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_273077__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_273311__) {
 
 "use strict";
 
@@ -10646,9 +10199,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const assert_1 = __nested_webpack_require_273077__(357);
-const fs = __nested_webpack_require_273077__(747);
-const path = __nested_webpack_require_273077__(622);
+const assert_1 = __nested_webpack_require_273311__(357);
+const fs = __nested_webpack_require_273311__(747);
+const path = __nested_webpack_require_273311__(622);
 _a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
 exports.IS_WINDOWS = process.platform === 'win32';
 function exists(fsPath) {
@@ -10833,11 +10386,11 @@ function isUnixExecutable(stats) {
 /***/ }),
 
 /***/ 674:
-/***/ (function(module, __unusedexports, __nested_webpack_require_280754__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_280988__) {
 
-var wrappy = __nested_webpack_require_280754__(11)
+var wrappy = __nested_webpack_require_280988__(11)
 var reqs = Object.create(null)
-var once = __nested_webpack_require_280754__(49)
+var once = __nested_webpack_require_280988__(49)
 
 module.exports = wrappy(inflight)
 
@@ -10922,16 +10475,16 @@ module.exports.win32 = win32;
 /***/ }),
 
 /***/ 689:
-/***/ (function(module, __unusedexports, __nested_webpack_require_282885__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_283119__) {
 
 try {
-  var util = __nested_webpack_require_282885__(669);
+  var util = __nested_webpack_require_283119__(669);
   /* istanbul ignore next */
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __nested_webpack_require_282885__(315);
+  module.exports = __nested_webpack_require_283119__(315);
 }
 
 
@@ -10971,7 +10524,7 @@ module.exports = bytesToUuid;
 /***/ }),
 
 /***/ 729:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_284051__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_284285__) {
 
 "use strict";
 
@@ -10986,10 +10539,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const qs = __nested_webpack_require_284051__(386);
-const url = __nested_webpack_require_284051__(835);
-const path = __nested_webpack_require_284051__(622);
-const zlib = __nested_webpack_require_284051__(761);
+const qs = __nested_webpack_require_284285__(386);
+const url = __nested_webpack_require_284285__(835);
+const path = __nested_webpack_require_284285__(622);
+const zlib = __nested_webpack_require_284285__(761);
 /**
  * creates an url from a request url and optional base url (http://server:8080)
  * @param {string} resource - a fully qualified url or relative path
@@ -11087,9 +10640,10 @@ function obtainContentCharset(response) {
     // |__ matches would be ['charset=utf-8', 'utf-8', index: 18, input: 'application/json; charset=utf-8']
     // |_____ matches[1] would have the charset :tada: , in our example it's utf-8
     // However, if the matches Array was empty or no charset found, 'utf-8' would be returned by default.
+    const nodeSupportedEncodings = ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'binary', 'hex'];
     const contentType = response.message.headers['content-type'] || '';
     const matches = contentType.match(/charset=([^;,\r\n]+)/i);
-    return (matches && matches[1]) ? matches[1] : 'utf-8';
+    return (matches && matches[1] && nodeSupportedEncodings.indexOf(matches[1]) != -1) ? matches[1] : 'utf-8';
 }
 exports.obtainContentCharset = obtainContentCharset;
 
@@ -11104,12 +10658,12 @@ module.exports = __webpack_require__(747);
 /***/ }),
 
 /***/ 755:
-/***/ (function(module, __unusedexports, __nested_webpack_require_289439__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_289826__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_289439__(581);
+var utils = __nested_webpack_require_289826__(581);
 
 var has = Object.prototype.hasOwnProperty;
 var isArray = Array.isArray;
@@ -11136,6 +10690,25 @@ var interpretNumericEntities = function (str) {
     return str.replace(/&#(\d+);/g, function ($0, numberStr) {
         return String.fromCharCode(parseInt(numberStr, 10));
     });
+};
+
+var parseArrayValue = function (val, options) {
+    if (val && typeof val === 'string' && options.comma && val.indexOf(',') > -1) {
+        return val.split(',');
+    }
+
+    return val;
+};
+
+var maybeMap = function maybeMap(val, fn) {
+    if (isArray(val)) {
+        var mapped = [];
+        for (var i = 0; i < val.length; i += 1) {
+            mapped.push(fn(val[i]));
+        }
+        return mapped;
+    }
+    return fn(val);
 };
 
 // This is what browsers will submit when the ✓ character occurs in an
@@ -11186,15 +10759,16 @@ var parseValues = function parseQueryStringValues(str, options) {
             val = options.strictNullHandling ? null : '';
         } else {
             key = options.decoder(part.slice(0, pos), defaults.decoder, charset, 'key');
-            val = options.decoder(part.slice(pos + 1), defaults.decoder, charset, 'value');
+            val = maybeMap(
+                parseArrayValue(part.slice(pos + 1), options),
+                function (encodedVal) {
+                    return options.decoder(encodedVal, defaults.decoder, charset, 'value');
+                }
+            );
         }
 
         if (val && options.interpretNumericEntities && charset === 'iso-8859-1') {
             val = interpretNumericEntities(val);
-        }
-
-        if (val && typeof val === 'string' && options.comma && val.indexOf(',') > -1) {
-            val = val.split(',');
         }
 
         if (part.indexOf('[]=') > -1) {
@@ -11211,8 +10785,8 @@ var parseValues = function parseQueryStringValues(str, options) {
     return obj;
 };
 
-var parseObject = function (chain, val, options) {
-    var leaf = val;
+var parseObject = function (chain, val, options, valuesParsed) {
+    var leaf = valuesParsed ? val : parseArrayValue(val, options);
 
     for (var i = chain.length - 1; i >= 0; --i) {
         var obj;
@@ -11240,13 +10814,13 @@ var parseObject = function (chain, val, options) {
             }
         }
 
-        leaf = obj;
+        leaf = obj; // eslint-disable-line no-param-reassign
     }
 
     return leaf;
 };
 
-var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
+var parseKeys = function parseQueryStringKeys(givenKey, val, options, valuesParsed) {
     if (!givenKey) {
         return;
     }
@@ -11297,7 +10871,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
         keys.push('[' + key.slice(segment.index) + ']');
     }
 
-    return parseObject(keys, val, options);
+    return parseObject(keys, val, options, valuesParsed);
 };
 
 var normalizeParseOptions = function normalizeParseOptions(opts) {
@@ -11310,7 +10884,7 @@ var normalizeParseOptions = function normalizeParseOptions(opts) {
     }
 
     if (typeof opts.charset !== 'undefined' && opts.charset !== 'utf-8' && opts.charset !== 'iso-8859-1') {
-        throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
+        throw new TypeError('The charset option must be either utf-8, iso-8859-1, or undefined');
     }
     var charset = typeof opts.charset === 'undefined' ? defaults.charset : opts.charset;
 
@@ -11349,7 +10923,7 @@ module.exports = function (str, opts) {
     var keys = Object.keys(tempObj);
     for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
-        var newObj = parseKeys(key, tempObj[key], options);
+        var newObj = parseKeys(key, tempObj[key], options, typeof str === 'string');
         obj = utils.merge(obj, newObj, options);
     }
 
@@ -11374,10 +10948,10 @@ module.exports = __webpack_require__(413);
 /***/ }),
 
 /***/ 826:
-/***/ (function(module, __unusedexports, __nested_webpack_require_298510__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_299520__) {
 
-var rng = __nested_webpack_require_298510__(139);
-var bytesToUuid = __nested_webpack_require_298510__(722);
+var rng = __nested_webpack_require_299520__(139);
+var bytesToUuid = __nested_webpack_require_299520__(722);
 
 function v4(options, buf, offset) {
   var i = buf && offset || 0;
@@ -11417,7 +10991,7 @@ module.exports = __webpack_require__(835);
 /***/ }),
 
 /***/ 856:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_299362__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_300372__) {
 
 exports.alphasort = alphasort
 exports.alphasorti = alphasorti
@@ -11433,9 +11007,9 @@ function ownProp (obj, field) {
   return Object.prototype.hasOwnProperty.call(obj, field)
 }
 
-var path = __nested_webpack_require_299362__(622)
-var minimatch = __nested_webpack_require_299362__(93)
-var isAbsolute = __nested_webpack_require_299362__(681)
+var path = __nested_webpack_require_300372__(622)
+var minimatch = __nested_webpack_require_300372__(93)
+var isAbsolute = __nested_webpack_require_300372__(681)
 var Minimatch = minimatch.Minimatch
 
 function alphasorti (a, b) {
@@ -11664,7 +11238,7 @@ function childrenIgnored (self, path) {
 /***/ }),
 
 /***/ 874:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_305627__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_306637__) {
 
 "use strict";
 
@@ -11679,10 +11253,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_305627__(835);
-const http = __nested_webpack_require_305627__(605);
-const https = __nested_webpack_require_305627__(211);
-const util = __nested_webpack_require_305627__(729);
+const url = __nested_webpack_require_306637__(835);
+const http = __nested_webpack_require_306637__(605);
+const https = __nested_webpack_require_306637__(211);
+const util = __nested_webpack_require_306637__(729);
 let fs;
 let tunnel;
 var HttpCodes;
@@ -11798,7 +11372,7 @@ class HttpClient {
             this._certConfig = requestOptions.cert;
             if (this._certConfig) {
                 // If using cert, need fs
-                fs = __nested_webpack_require_305627__(747);
+                fs = __nested_webpack_require_306637__(747);
                 // cache the cert content into memory, so we don't have to read it from disk every time
                 if (this._certConfig.caFile && fs.existsSync(this._certConfig.caFile)) {
                     this._ca = fs.readFileSync(this._certConfig.caFile, 'utf8');
@@ -12063,7 +11637,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_305627__(413);
+                tunnel = __nested_webpack_require_306637__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -12180,13 +11754,13 @@ var isArray = Array.isArray || function (xs) {
 /***/ }),
 
 /***/ 897:
-/***/ (function(module, __unusedexports, __nested_webpack_require_328470__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_329480__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_328470__(581);
-var formats = __nested_webpack_require_328470__(13);
+var utils = __nested_webpack_require_329480__(581);
+var formats = __nested_webpack_require_329480__(13);
 var has = Object.prototype.hasOwnProperty;
 
 var arrayPrefixGenerators = {
@@ -12467,12 +12041,12 @@ module.exports = function (object, opts) {
 /***/ }),
 
 /***/ 950:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_336855__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_337865__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_336855__(835);
+const url = __nested_webpack_require_337865__(835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
     let proxyUrl;
@@ -12532,7 +12106,7 @@ exports.checkBypass = checkBypass;
 /***/ }),
 
 /***/ 962:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_338585__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_339595__) {
 
 "use strict";
 
@@ -12574,9 +12148,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains installation utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_338585__(533));
-const core = __importStar(__nested_webpack_require_338585__(470));
-const path_1 = __importDefault(__nested_webpack_require_338585__(622));
+const toolCache = __importStar(__nested_webpack_require_339595__(533));
+const core = __importStar(__nested_webpack_require_339595__(470));
+const path_1 = __importDefault(__nested_webpack_require_339595__(622));
 exports.GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 exports.GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 /**
@@ -12602,7 +12176,7 @@ exports.installGcloudSDK = installGcloudSDK;
 /***/ }),
 
 /***/ 979:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_341548__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_342558__) {
 
 "use strict";
 
@@ -12623,7 +12197,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_341548__(470));
+const core = __importStar(__nested_webpack_require_342558__(470));
 /**
  * Internal class for retries
  */
@@ -12679,7 +12253,7 @@ exports.RetryHelper = RetryHelper;
 /***/ }),
 
 /***/ 986:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_344475__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_345485__) {
 
 "use strict";
 
@@ -12693,7 +12267,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tr = __nested_webpack_require_344475__(9);
+const tr = __nested_webpack_require_345485__(9);
 /**
  * Exec a command.
  * Output will be streamed to the live console.
@@ -12723,6 +12297,459 @@ exports.exec = exec;
 /***/ })
 
 /******/ });
+
+/***/ }),
+
+/***/ 87:
+/***/ (function(module) {
+
+module.exports = require("os");
+
+/***/ }),
+
+/***/ 129:
+/***/ (function(module) {
+
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 131:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+const exec = __importStar(__webpack_require__(986));
+const setupGcloud = __importStar(__webpack_require__(51));
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Get action inputs.
+            const projectId = core.getInput('project_id');
+            const deliverables = core.getInput('deliverables');
+            const imageUrl = core.getInput('image-url');
+            const version = core.getInput('version');
+            const promote = core.getInput('promote');
+            if (!setupGcloud.isInstalled()) {
+                const gcloudVersion = yield setupGcloud.getLatestGcloudSDKVersion();
+                yield setupGcloud.installGcloudSDK(gcloudVersion);
+            }
+            // Get credentials and authenticate Cloud SDK.
+            const serviceAccountKey = core.getInput('credentials');
+            if (serviceAccountKey) {
+                yield setupGcloud.authenticateGcloudSDK(serviceAccountKey);
+            }
+            if (!setupGcloud.isAuthenticated()) {
+                core.setFailed('Error authenticating the Cloud SDK.');
+            }
+            // A workaround for https://github.com/actions/toolkit/issues/229
+            // Currently exec on windows runs as cmd shell.
+            let toolCommand = 'gcloud';
+            if (process.platform == 'win32') {
+                toolCommand = 'gcloud.cmd';
+            }
+            // Create gcloud cmd.
+            const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
+            // Add gcloud flags.
+            if (projectId) {
+                appDeployCmd.push('--project', projectId);
+            }
+            if (imageUrl) {
+                appDeployCmd.push('--image-url', imageUrl);
+            }
+            if (version) {
+                appDeployCmd.push('--version', version);
+            }
+            if (promote) {
+                appDeployCmd.push('--promote');
+            }
+            else {
+                appDeployCmd.push('--no-promote');
+            }
+            // Get output of gcloud cmd.
+            let output = '';
+            const stdout = (data) => {
+                output += data.toString();
+            };
+            const options = {
+                listeners: {
+                    stdout,
+                },
+            };
+            // Run gcloud cmd.
+            yield exec.exec(toolCommand, appDeployCmd, options);
+            // Set url as output.
+            const urlMatch = output.match(/https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/);
+            if (urlMatch) {
+                const url = urlMatch[0];
+                core.setOutput('url', url);
+            }
+            else {
+                core.setOutput('url', `https://${projectId}.appspot.com/`);
+            }
+        }
+        catch (error) {
+            core.setFailed(error.message);
+        }
+    });
+}
+run();
+
+
+/***/ }),
+
+/***/ 211:
+/***/ (function(module) {
+
+module.exports = require("https");
+
+/***/ }),
+
+/***/ 357:
+/***/ (function(module) {
+
+module.exports = require("assert");
+
+/***/ }),
+
+/***/ 413:
+/***/ (function(module) {
+
+module.exports = require("stream");
+
+/***/ }),
+
+/***/ 417:
+/***/ (function(module) {
+
+module.exports = require("crypto");
+
+/***/ }),
+
+/***/ 431:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const os = __importStar(__webpack_require__(87));
+/**
+ * Commands
+ *
+ * Command Format:
+ *   ::name key=value,key=value::message
+ *
+ * Examples:
+ *   ::warning::This is the message
+ *   ::set-env name=MY_VAR::some value
+ */
+function issueCommand(command, properties, message) {
+    const cmd = new Command(command, properties, message);
+    process.stdout.write(cmd.toString() + os.EOL);
+}
+exports.issueCommand = issueCommand;
+function issue(name, message = '') {
+    issueCommand(name, {}, message);
+}
+exports.issue = issue;
+const CMD_STRING = '::';
+class Command {
+    constructor(command, properties, message) {
+        if (!command) {
+            command = 'missing.command';
+        }
+        this.command = command;
+        this.properties = properties;
+        this.message = message;
+    }
+    toString() {
+        let cmdStr = CMD_STRING + this.command;
+        if (this.properties && Object.keys(this.properties).length > 0) {
+            cmdStr += ' ';
+            let first = true;
+            for (const key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    const val = this.properties[key];
+                    if (val) {
+                        if (first) {
+                            first = false;
+                        }
+                        else {
+                            cmdStr += ',';
+                        }
+                        cmdStr += `${key}=${escapeProperty(val)}`;
+                    }
+                }
+            }
+        }
+        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
+        return cmdStr;
+    }
+}
+function escapeData(s) {
+    return (s || '')
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A');
+}
+function escapeProperty(s) {
+    return (s || '')
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A')
+        .replace(/:/g, '%3A')
+        .replace(/,/g, '%2C');
+}
+//# sourceMappingURL=command.js.map
+
+/***/ }),
+
+/***/ 470:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const command_1 = __webpack_require__(431);
+const os = __importStar(__webpack_require__(87));
+const path = __importStar(__webpack_require__(622));
+/**
+ * The code to exit an action
+ */
+var ExitCode;
+(function (ExitCode) {
+    /**
+     * A code indicating that the action was successful
+     */
+    ExitCode[ExitCode["Success"] = 0] = "Success";
+    /**
+     * A code indicating that the action was a failure
+     */
+    ExitCode[ExitCode["Failure"] = 1] = "Failure";
+})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
+//-----------------------------------------------------------------------
+// Variables
+//-----------------------------------------------------------------------
+/**
+ * Sets env variable for this action and future actions in the job
+ * @param name the name of the variable to set
+ * @param val the value of the variable
+ */
+function exportVariable(name, val) {
+    process.env[name] = val;
+    command_1.issueCommand('set-env', { name }, val);
+}
+exports.exportVariable = exportVariable;
+/**
+ * Registers a secret which will get masked from logs
+ * @param secret value of the secret
+ */
+function setSecret(secret) {
+    command_1.issueCommand('add-mask', {}, secret);
+}
+exports.setSecret = setSecret;
+/**
+ * Prepends inputPath to the PATH (for this action and future actions)
+ * @param inputPath
+ */
+function addPath(inputPath) {
+    command_1.issueCommand('add-path', {}, inputPath);
+    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
+}
+exports.addPath = addPath;
+/**
+ * Gets the value of an input.  The value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string
+ */
+function getInput(name, options) {
+    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
+    if (options && options.required && !val) {
+        throw new Error(`Input required and not supplied: ${name}`);
+    }
+    return val.trim();
+}
+exports.getInput = getInput;
+/**
+ * Sets the value of an output.
+ *
+ * @param     name     name of the output to set
+ * @param     value    value to store
+ */
+function setOutput(name, value) {
+    command_1.issueCommand('set-output', { name }, value);
+}
+exports.setOutput = setOutput;
+//-----------------------------------------------------------------------
+// Results
+//-----------------------------------------------------------------------
+/**
+ * Sets the action status to failed.
+ * When the action exits it will be with an exit code of 1
+ * @param message add error issue message
+ */
+function setFailed(message) {
+    process.exitCode = ExitCode.Failure;
+    error(message);
+}
+exports.setFailed = setFailed;
+//-----------------------------------------------------------------------
+// Logging Commands
+//-----------------------------------------------------------------------
+/**
+ * Writes debug message to user log
+ * @param message debug message
+ */
+function debug(message) {
+    command_1.issueCommand('debug', {}, message);
+}
+exports.debug = debug;
+/**
+ * Adds an error issue
+ * @param message error issue message
+ */
+function error(message) {
+    command_1.issue('error', message);
+}
+exports.error = error;
+/**
+ * Adds an warning issue
+ * @param message warning issue message
+ */
+function warning(message) {
+    command_1.issue('warning', message);
+}
+exports.warning = warning;
+/**
+ * Writes info to log with console.log.
+ * @param message info message
+ */
+function info(message) {
+    process.stdout.write(message + os.EOL);
+}
+exports.info = info;
+/**
+ * Begin an output group.
+ *
+ * Output until the next `groupEnd` will be foldable in this group
+ *
+ * @param name The name of the output group
+ */
+function startGroup(name) {
+    command_1.issue('group', name);
+}
+exports.startGroup = startGroup;
+/**
+ * End an output group.
+ */
+function endGroup() {
+    command_1.issue('endgroup');
+}
+exports.endGroup = endGroup;
+/**
+ * Wrap an asynchronous function call in a group.
+ *
+ * Returns the same type as the function itself.
+ *
+ * @param name The name of the group
+ * @param fn The function to wrap in the group
+ */
+function group(name, fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        startGroup(name);
+        let result;
+        try {
+            result = yield fn();
+        }
+        finally {
+            endGroup();
+        }
+        return result;
+    });
+}
+exports.group = group;
+//-----------------------------------------------------------------------
+// Wrapper action state
+//-----------------------------------------------------------------------
+/**
+ * Saves state for current action, the state can only be retrieved by this action's post job execution.
+ *
+ * @param     name     name of the state to store
+ * @param     value    value to store
+ */
+function saveState(name, value) {
+    command_1.issueCommand('save-state', { name }, value);
+}
+exports.saveState = saveState;
+/**
+ * Gets the value of an state set by this action's main execution.
+ *
+ * @param     name     name of the state to get
+ * @returns   string
+ */
+function getState(name) {
+    return process.env[`STATE_${name}`] || '';
+}
+exports.getState = getState;
+//# sourceMappingURL=core.js.map
 
 /***/ }),
 

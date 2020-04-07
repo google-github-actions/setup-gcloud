@@ -20,7 +20,7 @@ later build steps via outputs. This allows you to parameterize your App Engine
 deployments.
 
 **Note** This action will install gcloud in the background if not using in with
-the [`setup-gcloud` action]().
+the [`setup-gcloud` action](../setup-gclou/README.md).
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ steps:
 - id: deploy
   uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
-    project_id: ${{ secrets.PROJECT_ID }}
+    credentials: ${{ secrets.gcp_credentials }}
 
 # Example of using the output
 - id: test
@@ -46,10 +46,11 @@ steps:
 - `project_id`: (Optional) ID of the Google Cloud project. If provided, this
   will override the project configured by gcloud.
 
-- `deliverables`: (Optional) The [yaml files](https://cloud.google.com/appengine/docs/standard/nodejs/configuration-files#optional_configuration_files) for the services or configurations
-  you want to deploy. If not given, defaults to app.yaml in the current
-  directory. If that is not found, attempts to automatically generate necessary
-  configuration files (such as app.yaml) in the current directory.
+- `deliverables`: (Optional) The [yaml files](https://cloud.google.com/appengine/docs/standard/nodejs/configuration-files#optional_configuration_files)
+  for the services or configurations you want to deploy. If not given, defaults
+  to app.yaml in the current directory. If that is not found, attempts to
+  automatically generate necessary configuration files (such as app.yaml) in 
+  the current directory.
 
 - `image-url`: (Optional) Deploy with a specific container image. The image url
   must be from one of the valid GCR hostnames (example, `gcr.io/`).
@@ -93,7 +94,7 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
     export_default_credentials: true
-- uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+- uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
 ```
 
 ### Via Credentials
@@ -108,7 +109,7 @@ action:
   uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
     credentials: ${{ secrets.gcp_credentials }}
-    project_id: ${{ secrets.PROJECT_ID }}
+
 ```
 
 ### Via Application Default Credentials

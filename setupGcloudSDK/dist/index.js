@@ -6132,7 +6132,7 @@ function authenticateGcloudSDK(serviceAccountKey) {
                 resolve(path);
             });
         });
-        yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccountJson.toString());
+        yield fs_1.promises.writeFile(tmpKeyFilePath, JSON.stringify(serviceAccountJson));
         const toolCommand = getToolCommand();
         // Authenticate as the specified service account.
         return yield exec.exec(toolCommand, [

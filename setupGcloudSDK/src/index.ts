@@ -140,7 +140,7 @@ export async function authenticateGcloudSDK(
       resolve(path);
     });
   });
-  await fs.writeFile(tmpKeyFilePath, serviceAccountJson.toString());
+  await fs.writeFile(tmpKeyFilePath, JSON.stringify(serviceAccountJson));
 
   const toolCommand = getToolCommand();
 

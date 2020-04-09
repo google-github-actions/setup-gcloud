@@ -41,27 +41,25 @@ async function run(): Promise<void> {
       core.setFailed('Error authenticating the Cloud SDK.');
     }
 
-    // A workaround for https://github.com/actions/toolkit/issues/229
-    // Currently exec on windows runs as cmd shell.
-    let toolCommand = 'gcloud';
-    if (process.platform == 'win32') {
-      toolCommand = 'gcloud.cmd';
-    }
+    // Set Project Id
+    setupGcloud.setProject(serviceAccountKey);
+
+    const toolCommand = setupGcloud.getToolCommand();
 
     // Create gcloud cmd.
     const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
 
     // Add gcloud flags.
-    if (projectId) {
+    if (projectId != '') {
       appDeployCmd.push('--project', projectId);
     }
-    if (imageUrl) {
+    if (imageUrl != '') {
       appDeployCmd.push('--image-url', imageUrl);
     }
-    if (version) {
+    if (version != '') {
       appDeployCmd.push('--version', version);
     }
-    if (promote) {
+    if (promote != '') {
       appDeployCmd.push('--promote');
     } else {
       appDeployCmd.push('--no-promote');
@@ -90,6 +88,7 @@ async function run(): Promise<void> {
       const url = urlMatch[0];
       core.setOutput('url', url);
     } else {
+      core.debug('Defaulting to https://projectId.appspot.com/ URL.')
       core.setOutput('url', `https://${projectId}.appspot.com/`);
     }
   } catch (error) {

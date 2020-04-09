@@ -20,7 +20,7 @@ jobs:
       run: curl '${{ steps.deploy.outputs.url }}'
     - id: cleanup
       run: |
-        gcloud app versions delete gcloud --quiet
+        gcloud app versions delete gcloud --project ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}  --quiet
 
   b64_json:
     needs: gcloud

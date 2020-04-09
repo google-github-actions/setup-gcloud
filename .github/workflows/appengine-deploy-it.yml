@@ -9,7 +9,7 @@ jobs:
     - uses: ./setup-gcloud
       with:
         service_account_email: ${{ secrets.APPENGINE_DEPLOY_SA_EMAIL }}
-        service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+        service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
     - id: deploy
       uses: ./appengine-deploy
     - name: get output

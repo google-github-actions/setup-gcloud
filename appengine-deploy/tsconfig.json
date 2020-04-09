@@ -28,7 +28,7 @@
   },
   "references": [
     {
-      "path": "../setupGloudSDK"
+      "path": "../setupGcloudSDK"
     }
   ],
   "exclude": ["node_modules", "**/*.test.ts"]

@@ -10,9 +10,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions/setup-node@master
+    - name: Set Node.js 10.x
+      uses: actions/setup-node@master
       with:
-        node-version: 12.x
+        node-version: 10.x
 
     - name: npm install
       working-directory: ./setupGcloudSDK

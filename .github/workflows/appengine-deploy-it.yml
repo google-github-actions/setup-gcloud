@@ -23,6 +23,7 @@ jobs:
         gcloud app versions delete gcloud --quiet
 
   b64_json:
+    needs: gcloud
     name: with base64 json creds
     runs-on: ubuntu-latest
     steps:
@@ -32,14 +33,15 @@ jobs:
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
         deliverables: ./appengine-deploy/test/app.yaml
-        version: b64_json
+        version: b64-json
     - name: output
       run: curl '${{ steps.deploy.outputs.url }}'
     - id: cleanup
       run: |
-        gcloud app versions delete b64_json --quiet
+        gcloud app versions delete b64-json --quiet
 
   json:
+    needs: [gcloud, b64_json]
     name: with json creds
     runs-on: ubuntu-latest
     steps:

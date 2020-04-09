@@ -1051,7 +1051,7 @@ function run() {
             };
             const options = {
                 listeners: {
-                    stdout,
+                    stderr: stdout,
                 },
             };
             // Run gcloud cmd.
@@ -1063,7 +1063,7 @@ function run() {
                 core.setOutput('url', url);
             }
             else {
-                core.error('Can not find URL, defaulting to https://PROJECT_ID.appspot.com');
+                core.info('Can not find URL, defaulting to https://PROJECT_ID.appspot.com');
                 core.setOutput('url', `https://${projectId}.appspot.com`);
             }
         }

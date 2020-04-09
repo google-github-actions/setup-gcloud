@@ -80,7 +80,7 @@ async function run(): Promise<void> {
 
     const options = {
       listeners: {
-        stdout,
+        stderr: stdout,
       },
     };
 
@@ -95,7 +95,7 @@ async function run(): Promise<void> {
       const url = urlMatch[0];
       core.setOutput('url', url);
     } else {
-      core.error(
+      core.info(
         'Can not find URL, defaulting to https://PROJECT_ID.appspot.com',
       );
       core.setOutput('url', `https://${projectId}.appspot.com`);

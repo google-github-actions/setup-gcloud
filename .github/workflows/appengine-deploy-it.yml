@@ -14,8 +14,13 @@ jobs:
       uses: ./appengine-deploy
       with:
         project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
-    - name: get output
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: gcloud
+    - name: output
       run: curl '${{ steps.deploy.outputs.url }}'
+    - id: cleanup
+      run: |
+        gcloud app versions delete gcloud --quiet
 
   b64_json:
     name: with base64 json creds
@@ -26,8 +31,13 @@ jobs:
       uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
-    - name: get output
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: b64_json
+    - name: output
       run: curl '${{ steps.deploy.outputs.url }}'
+    - id: cleanup
+      run: |
+        gcloud app versions delete b64_json --quiet
 
   json:
     name: with json creds
@@ -38,5 +48,10 @@ jobs:
       uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
-    - name: get output
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: json
+    - name: output
       run: curl '${{ steps.deploy.outputs.url }}'
+    - id: cleanup
+      run: |
+        gcloud app versions delete json --quiet

@@ -6120,8 +6120,8 @@ function authenticateGcloudSDK(serviceAccountKey) {
         tmp.setGracefulCleanup();
         const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
         const serviceAccountEmail = serviceAccountJson.client_email;
-        const toolCommand = getToolCommand();
-        // write the service account key  dto a temporary file
+        // write the service account key to a temporary file
+        //
         // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
         // writing a file to disk.
         const tmpKeyFilePath = yield new Promise((resolve, reject) => {
@@ -6132,7 +6132,8 @@ function authenticateGcloudSDK(serviceAccountKey) {
                 resolve(path);
             });
         });
-        yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccountJson);
+        yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccountJson.toString());
+        const toolCommand = getToolCommand();
         // Authenticate as the specified service account.
         return yield exec.exec(toolCommand, [
             '--quiet',

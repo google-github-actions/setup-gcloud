@@ -33,6 +33,7 @@ jobs:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
         deliverables: ./appengine-deploy/test/app.yaml
         version: b64-json
+        promote: false # Allows for deletion
     - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
     - name: Clean Up
@@ -52,6 +53,7 @@ jobs:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
         deliverables: ./appengine-deploy/test/app.yaml
         version: json
+        promote: false # Allows for deletion
     - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
     - name: Clean Up

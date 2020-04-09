@@ -27,14 +27,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: deploy
+      name: Deploy to App Engine
       uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
         deliverables: ./appengine-deploy/test/app.yaml
         version: b64-json
-    - name: output
+    - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
-    - id: cleanup
+    - name: Clean Up
       run: |
         gcloud app versions delete b64-json --quiet
 
@@ -45,13 +46,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: deploy
+      name: Deploy to App Engine
       uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
         deliverables: ./appengine-deploy/test/app.yaml
         version: json
-    - name: output
+    - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
-    - id: cleanup
+    - name: Clean Up
       run: |
         gcloud app versions delete json --quiet

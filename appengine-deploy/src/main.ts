@@ -21,34 +21,39 @@ import * as setupGcloud from '../../setupGcloudSDK/dist/index';
 async function run(): Promise<void> {
   try {
     // Get action inputs.
-    const projectId = core.getInput('project_id');
+    let projectId = core.getInput('project_id');
     const deliverables = core.getInput('deliverables');
     const imageUrl = core.getInput('image-url');
     const version = core.getInput('version');
     const promote = core.getInput('promote');
+    const serviceAccountKey = core.getInput('credentials');
 
+    // Install gcloud if not already installed.
     if (!setupGcloud.isInstalled()) {
       const gcloudVersion = await setupGcloud.getLatestGcloudSDKVersion();
       await setupGcloud.installGcloudSDK(gcloudVersion);
     }
 
-    // Get credentials and authenticate Cloud SDK.
-    const serviceAccountKey = core.getInput('credentials');
+    // Fail if no Project Id is provided.
+    if (projectId === '' && serviceAccountKey === '') {
+      core.setFailed('No project Id provided.');
+    }
+
+    // Authenticate gcloud SDK.
     if (serviceAccountKey) {
       await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
-      // Set Project Id
-      await setupGcloud.setProject(serviceAccountKey);
+      // Set and retrieve Project Id if not provided
+      if (projectId === '') {
+        projectId = await setupGcloud.setProject(serviceAccountKey);
+      }
     }
     if (!setupGcloud.isAuthenticated()) {
       core.setFailed('Error authenticating the Cloud SDK.');
     }
-    if (projectId == '' && serviceAccountKey == '') {
-      core.setFailed('No project Id provided.');
-    }
 
     const toolCommand = setupGcloud.getToolCommand();
 
-    // Create gcloud cmd.
+    // Create app engine gcloud cmd.
     const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
 
     // Add gcloud flags.
@@ -90,8 +95,10 @@ async function run(): Promise<void> {
       const url = urlMatch[0];
       core.setOutput('url', url);
     } else {
-      core.debug('Defaulting to https://projectId.appspot.com/ URL.');
-      core.setOutput('url', `https://${projectId}.appspot.com/`);
+      core.error(
+        'Can not find URL, defaulting to https://PROJECT_ID.appspot.com',
+      );
+      core.setOutput('url', `https://${projectId}.appspot.com`);
     }
   } catch (error) {
     core.setFailed(error.message);

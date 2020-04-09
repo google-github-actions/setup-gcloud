@@ -6150,20 +6150,21 @@ exports.authenticateGcloudSDK = authenticateGcloudSDK;
  * Sets the GCP Project Id in the gcloud config
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns exit code
+ * @returns project ID
  */
 function setProject(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {
         tmp.setGracefulCleanup();
         const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
         const toolCommand = getToolCommand();
-        return yield exec.exec(toolCommand, [
+        yield exec.exec(toolCommand, [
             '--quiet',
             'config',
             'set',
             'project',
             serviceAccountJson.project_id,
         ]);
+        return serviceAccountJson.project_id;
     });
 }
 exports.setProject = setProject;

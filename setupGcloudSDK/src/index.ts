@@ -159,21 +159,23 @@ export async function authenticateGcloudSDK(
  * Sets the GCP Project Id in the gcloud config
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns exit code
+ * @returns project ID
  */
-export async function setProject(serviceAccountKey: string): Promise<number> {
+export async function setProject(serviceAccountKey: string): Promise<string> {
   tmp.setGracefulCleanup();
   const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
 
   const toolCommand = getToolCommand();
 
-  return await exec.exec(toolCommand, [
+  await exec.exec(toolCommand, [
     '--quiet',
     'config',
     'set',
     'project',
     serviceAccountJson.project_id,
   ]);
+
+  return serviceAccountJson.project_id;
 }
 
 interface ServiceAccountKey {

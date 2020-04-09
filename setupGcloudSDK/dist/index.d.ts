@@ -38,6 +38,6 @@ export declare function authenticateGcloudSDK(serviceAccountKey: string): Promis
  * Sets the GCP Project Id in the gcloud config
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns exit code
+ * @returns project ID
  */
-export declare function setProject(serviceAccountKey: string): Promise<number>;
+export declare function setProject(serviceAccountKey: string): Promise<string>;

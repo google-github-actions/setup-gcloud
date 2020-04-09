@@ -6075,7 +6075,7 @@ function installGcloudSDK(version) {
         if (!extPath) {
             throw new Error(`Failed to download release, url: ${url}`);
         }
-        // install the downloaded release into the github action env
+        // Install the downloaded release into the github action env
         return yield installUtil.installGcloudSDK(version, extPath);
     });
 }
@@ -6083,25 +6083,15 @@ exports.installGcloudSDK = installGcloudSDK;
 /**
  * Authenticates the gcloud tool using a service account key
  *
- * @param serviceAccountKey The serive account key used for authentication.
+ * @param serviceAccountKey The service account key used for authentication.
  * @returns exit code
  */
 function authenticateGcloudSDK(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {
         tmp.setGracefulCleanup();
-        let serviceAccount = serviceAccountKey;
-        // Handle base64-encoded credentials
-        if (!serviceAccountKey.trim().startsWith('{')) {
-            serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
-        }
-        const serviceAccountJson = JSON.parse(serviceAccount);
+        const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
         const serviceAccountEmail = serviceAccountJson.client_email;
-        // A workaround for https://github.com/actions/toolkit/issues/229
-        // Currently exec on windows runs as cmd shell.
-        let toolCommand = 'gcloud';
-        if (process.platform == 'win32') {
-            toolCommand = 'gcloud.cmd';
-        }
+        const toolCommand = getToolCommand();
         // write the service account key  dto a temporary file
         // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
         // writing a file to disk.
@@ -6113,7 +6103,7 @@ function authenticateGcloudSDK(serviceAccountKey) {
                 resolve(path);
             });
         });
-        yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccount);
+        yield fs_1.promises.writeFile(tmpKeyFilePath, serviceAccountJson);
         // Authenticate as the specified service account.
         return yield exec.exec(toolCommand, [
             '--quiet',
@@ -6126,6 +6116,56 @@ function authenticateGcloudSDK(serviceAccountKey) {
     });
 }
 exports.authenticateGcloudSDK = authenticateGcloudSDK;
+/**
+ * Sets the GCP Project Id in the gcloud config
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns exit code
+ */
+function setProject(serviceAccountKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        tmp.setGracefulCleanup();
+        const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
+        const toolCommand = getToolCommand();
+        return yield exec.exec(toolCommand, [
+            '--quiet',
+            'config',
+            'set',
+            'project',
+            serviceAccountJson.project_id,
+        ]);
+    });
+}
+exports.setProject = setProject;
+/**
+ * Parses the service account string into JSON
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns ServiceAccountKey object
+ */
+function parseServiceAccountKey(serviceAccountKey) {
+    let serviceAccount = serviceAccountKey;
+    // Handle base64-encoded credentials
+    if (!serviceAccountKey.trim().startsWith('{')) {
+        serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
+    }
+    return JSON.parse(serviceAccount);
+}
+/**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+function getToolCommand() {
+    // A workaround for https://github.com/actions/toolkit/issues/229
+    // Currently exec on windows runs as cmd shell.
+    let toolCommand = 'gcloud';
+    if (process.platform == 'win32') {
+        toolCommand = 'gcloud.cmd';
+    }
+    return toolCommand;
+}
+exports.getToolCommand = getToolCommand;
 
 
 /***/ }),

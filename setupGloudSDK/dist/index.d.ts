@@ -24,7 +24,20 @@ export declare function installGcloudSDK(version: string): Promise<string>;
 /**
  * Authenticates the gcloud tool using a service account key
  *
- * @param serviceAccountKey The serive account key used for authentication.
+ * @param serviceAccountKey The service account key used for authentication.
  * @returns exit code
  */
 export declare function authenticateGcloudSDK(serviceAccountKey: string): Promise<number>;
+/**
+ * Sets the GCP Project Id in the gcloud config
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns exit code
+ */
+export declare function setProject(serviceAccountKey: string): Promise<number>;
+/**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+export declare function getToolCommand(): string;

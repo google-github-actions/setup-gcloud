@@ -88,7 +88,7 @@ async function run(): Promise<void> {
       const url = urlMatch[0];
       core.setOutput('url', url);
     } else {
-      core.debug('Defaulting to https://projectId.appspot.com/ URL.')
+      core.debug('Defaulting to https://projectId.appspot.com/ URL.');
       core.setOutput('url', `https://${projectId}.appspot.com/`);
     }
   } catch (error) {

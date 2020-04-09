@@ -22,6 +22,12 @@ export declare function isAuthenticated(): Promise<boolean>;
  */
 export declare function installGcloudSDK(version: string): Promise<string>;
 /**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+export declare function getToolCommand(): string;
+/**
  * Authenticates the gcloud tool using a service account key
  *
  * @param serviceAccountKey The service account key used for authentication.
@@ -35,9 +41,3 @@ export declare function authenticateGcloudSDK(serviceAccountKey: string): Promis
  * @returns exit code
  */
 export declare function setProject(serviceAccountKey: string): Promise<number>;
-/**
- * Returns the correct gcloud command for OS
- *
- * @returns gcloud command
- */
-export declare function getToolCommand(): string;

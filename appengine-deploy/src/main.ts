@@ -36,13 +36,15 @@ async function run(): Promise<void> {
     const serviceAccountKey = core.getInput('credentials');
     if (serviceAccountKey) {
       await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
+      // Set Project Id
+      await setupGcloud.setProject(serviceAccountKey);
     }
     if (!setupGcloud.isAuthenticated()) {
       core.setFailed('Error authenticating the Cloud SDK.');
     }
-
-    // Set Project Id
-    setupGcloud.setProject(serviceAccountKey);
+    if (projectId == '' && serviceAccountKey == '') {
+      core.setFailed('No project Id provided.');
+    }
 
     const toolCommand = setupGcloud.getToolCommand();
 

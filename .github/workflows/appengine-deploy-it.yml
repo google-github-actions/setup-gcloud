@@ -12,6 +12,8 @@ jobs:
         service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
     - id: deploy
       uses: ./appengine-deploy
+      with:
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
     - name: get output
       run: curl '${{ steps.deploy.outputs.url }}'
 

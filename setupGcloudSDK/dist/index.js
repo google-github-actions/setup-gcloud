@@ -6081,6 +6081,35 @@ function installGcloudSDK(version) {
 }
 exports.installGcloudSDK = installGcloudSDK;
 /**
+ * Parses the service account string into JSON
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns ServiceAccountKey object
+ */
+function parseServiceAccountKey(serviceAccountKey) {
+    let serviceAccount = serviceAccountKey;
+    // Handle base64-encoded credentials
+    if (!serviceAccountKey.trim().startsWith('{')) {
+        serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
+    }
+    return JSON.parse(serviceAccount);
+}
+/**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+function getToolCommand() {
+    // A workaround for https://github.com/actions/toolkit/issues/229
+    // Currently exec on windows runs as cmd shell.
+    let toolCommand = 'gcloud';
+    if (process.platform == 'win32') {
+        toolCommand = 'gcloud.cmd';
+    }
+    return toolCommand;
+}
+exports.getToolCommand = getToolCommand;
+/**
  * Authenticates the gcloud tool using a service account key
  *
  * @param serviceAccountKey The service account key used for authentication.
@@ -6137,35 +6166,6 @@ function setProject(serviceAccountKey) {
     });
 }
 exports.setProject = setProject;
-/**
- * Parses the service account string into JSON
- *
- * @param serviceAccountKey The service account key used for authentication.
- * @returns ServiceAccountKey object
- */
-function parseServiceAccountKey(serviceAccountKey) {
-    let serviceAccount = serviceAccountKey;
-    // Handle base64-encoded credentials
-    if (!serviceAccountKey.trim().startsWith('{')) {
-        serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
-    }
-    return JSON.parse(serviceAccount);
-}
-/**
- * Returns the correct gcloud command for OS
- *
- * @returns gcloud command
- */
-function getToolCommand() {
-    // A workaround for https://github.com/actions/toolkit/issues/229
-    // Currently exec on windows runs as cmd shell.
-    let toolCommand = 'gcloud';
-    if (process.platform == 'win32') {
-        toolCommand = 'gcloud.cmd';
-    }
-    return toolCommand;
-}
-exports.getToolCommand = getToolCommand;
 
 
 /***/ }),

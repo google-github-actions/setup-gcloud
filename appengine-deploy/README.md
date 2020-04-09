@@ -88,13 +88,16 @@ Roles needed:
 
 ### Used with setup-gcloud
 
-You can provide credentials using the [setup-gcloud][setup-gcloud] action:
+You can provide credentials using the [setup-gcloud][setup-gcloud] action,
+however you must provide your Project ID to the `appeninge-deploy` action:
 
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
     export_default_credentials: true
 - uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
+  with:
+    project_id: ${{ secrets.project_id }}
 ```
 
 ### Via Credentials
@@ -109,7 +112,6 @@ action:
   uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
     credentials: ${{ secrets.gcp_credentials }}
-
 ```
 
 ### Via Application Default Credentials

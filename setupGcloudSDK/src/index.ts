@@ -62,13 +62,13 @@ export async function isAuthenticated(): Promise<boolean> {
   return !output.includes('No credentialed accounts.');
 }
 
- /**
-  * Installs the gcloud SDK into the actions environment.
-  *
-  * @param version The version being installed.
-  * @param gcloudExtPath The extraction path for the gcloud SDK.
-  * @returns The path of the installed tool.
-  */
+/**
+ * Installs the gcloud SDK into the actions environment.
+ *
+ * @param version The version being installed.
+ * @param gcloudExtPath The extraction path for the gcloud SDK.
+ * @returns The path of the installed tool.
+ */
 export async function installGcloudSDK(version: string): Promise<string> {
   // Retreive the release corresponding to the specified version and OS
   const osPlat = os.platform();
@@ -83,6 +83,36 @@ export async function installGcloudSDK(version: string): Promise<string> {
 
   // Install the downloaded release into the github action env
   return await installUtil.installGcloudSDK(version, extPath);
+}
+
+/**
+ * Parses the service account string into JSON
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns ServiceAccountKey object
+ */
+function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey {
+  let serviceAccount = serviceAccountKey;
+  // Handle base64-encoded credentials
+  if (!serviceAccountKey.trim().startsWith('{')) {
+    serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
+  }
+  return JSON.parse(serviceAccount);
+}
+
+/**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+export function getToolCommand(): string {
+  // A workaround for https://github.com/actions/toolkit/issues/229
+  // Currently exec on windows runs as cmd shell.
+  let toolCommand = 'gcloud';
+  if (process.platform == 'win32') {
+    toolCommand = 'gcloud.cmd';
+  }
+  return toolCommand;
 }
 
 /**
@@ -145,45 +175,15 @@ export async function setProject(serviceAccountKey: string): Promise<number> {
   ]);
 }
 
-/**
- * Parses the service account string into JSON
- *
- * @param serviceAccountKey The service account key used for authentication.
- * @returns ServiceAccountKey object
- */
-function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey {
-  let serviceAccount = serviceAccountKey;
-  // Handle base64-encoded credentials
-  if (!serviceAccountKey.trim().startsWith('{')) {
-    serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
-  }
-  return JSON.parse(serviceAccount);
-}
-
-/**
- * Returns the correct gcloud command for OS
- *
- * @returns gcloud command
- */
-export function getToolCommand(): string {
-  // A workaround for https://github.com/actions/toolkit/issues/229
-  // Currently exec on windows runs as cmd shell.
-  let toolCommand = 'gcloud';
-  if (process.platform == 'win32') {
-    toolCommand = 'gcloud.cmd';
-  }
-  return toolCommand;
-}
-
 interface ServiceAccountKey {
-  type: string
-  project_id: string
-  project_key_id: string
-  private_key: string
-  client_email: string
-  client_id: string
-  auth_uri: string
-  token_uri: string
-  auth_provider_x509_cert_url: string
-  client_x509_cert_url: string
+  type: string;
+  project_id: string;
+  project_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
 }

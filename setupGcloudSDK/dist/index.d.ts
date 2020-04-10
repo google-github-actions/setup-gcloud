@@ -22,6 +22,13 @@ export declare function isAuthenticated(): Promise<boolean>;
  */
 export declare function installGcloudSDK(version: string): Promise<string>;
 /**
+ * Parses the service account string into JSON
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns ServiceAccountKey object
+ */
+export declare function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey;
+/**
  * Returns the correct gcloud command for OS
  *
  * @returns gcloud command
@@ -41,3 +48,15 @@ export declare function authenticateGcloudSDK(serviceAccountKey: string): Promis
  * @returns project ID
  */
 export declare function setProject(serviceAccountKey: string): Promise<string>;
+interface ServiceAccountKey {
+    type: string;
+    project_id: string;
+    project_key_id: string;
+    private_key: string;
+    client_email: string;
+    client_id: string;
+    auth_uri: string;
+    token_uri: string;
+    auth_provider_x509_cert_url: string;
+    client_x509_cert_url: string;
+}

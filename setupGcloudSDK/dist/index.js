@@ -6094,6 +6094,7 @@ function parseServiceAccountKey(serviceAccountKey) {
     }
     return JSON.parse(serviceAccount);
 }
+exports.parseServiceAccountKey = parseServiceAccountKey;
 /**
  * Returns the correct gcloud command for OS
  *

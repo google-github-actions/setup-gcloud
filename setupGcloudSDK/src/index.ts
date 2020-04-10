@@ -91,7 +91,7 @@ export async function installGcloudSDK(version: string): Promise<string> {
  * @param serviceAccountKey The service account key used for authentication.
  * @returns ServiceAccountKey object
  */
-function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey {
+export function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey {
   let serviceAccount = serviceAccountKey;
   // Handle base64-encoded credentials
   if (!serviceAccountKey.trim().startsWith('{')) {

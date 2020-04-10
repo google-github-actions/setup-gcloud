@@ -8,6 +8,12 @@ export { getLatestGcloudSDKVersion };
  */
 export declare function isInstalled(version?: string): boolean;
 /**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+export declare function getToolCommand(): string;
+/**
  * Checks if gcloud is authenticated
  *
  * @returns true is gcloud is authenticated
@@ -28,12 +34,6 @@ export declare function installGcloudSDK(version: string): Promise<string>;
  * @returns ServiceAccountKey object
  */
 export declare function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey;
-/**
- * Returns the correct gcloud command for OS
- *
- * @returns gcloud command
- */
-export declare function getToolCommand(): string;
 /**
  * Authenticates the gcloud tool using a service account key
  *

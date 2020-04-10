@@ -43,6 +43,21 @@ export function isInstalled(version?: string): boolean {
 }
 
 /**
+ * Returns the correct gcloud command for OS
+ *
+ * @returns gcloud command
+ */
+export function getToolCommand(): string {
+  // A workaround for https://github.com/actions/toolkit/issues/229
+  // Currently exec on windows runs as cmd shell.
+  let toolCommand = 'gcloud';
+  if (process.platform == 'win32') {
+    toolCommand = 'gcloud.cmd';
+  }
+  return toolCommand;
+}
+
+/**
  * Checks if gcloud is authenticated
  *
  * @returns true is gcloud is authenticated
@@ -58,7 +73,10 @@ export async function isAuthenticated(): Promise<boolean> {
     },
   };
 
-  await exec.exec('gcloud', ['auth', 'list'], options);
+  const toolCommand = getToolCommand();
+
+  await exec.exec(toolCommand, ['auth', 'list'], options);
+  console.log('auth output: ', output);
   return !output.includes('No credentialed accounts.');
 }
 
@@ -100,21 +118,6 @@ export function parseServiceAccountKey(
     serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
   }
   return JSON.parse(serviceAccount);
-}
-
-/**
- * Returns the correct gcloud command for OS
- *
- * @returns gcloud command
- */
-export function getToolCommand(): string {
-  // A workaround for https://github.com/actions/toolkit/issues/229
-  // Currently exec on windows runs as cmd shell.
-  let toolCommand = 'gcloud';
-  if (process.platform == 'win32') {
-    toolCommand = 'gcloud.cmd';
-  }
-  return toolCommand;
 }
 
 /**

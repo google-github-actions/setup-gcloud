@@ -6009,6 +6009,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const toolCache = __importStar(__webpack_require__(533));
 const os = __importStar(__webpack_require__(87));
@@ -6069,7 +6070,7 @@ function isAuthenticated() {
         };
         const toolCommand = getToolCommand();
         yield exec.exec(toolCommand, ['auth', 'list'], options);
-        console.log('auth output: ', output);
+        core.info('auth output: ' + output);
         return !output.includes('No credentialed accounts.');
     });
 }

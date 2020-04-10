@@ -28,7 +28,10 @@ async function run(): Promise<void> {
 
     // Install the gcloud if not already present
     if (!setupGcloud.isInstalled()) {
+      core.info('Installing gcloud.');
       await setupGcloud.installGcloudSDK(version);
+    } else {
+      core.info('SKIP install');
     }
 
     const serviceAccountKey = core.getInput('service_account_key');

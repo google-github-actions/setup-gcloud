@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
@@ -76,7 +77,7 @@ export async function isAuthenticated(): Promise<boolean> {
   const toolCommand = getToolCommand();
 
   await exec.exec(toolCommand, ['auth', 'list'], options);
-  console.log('auth output: ', output);
+  core.info('auth output: ' + output);
   return !output.includes('No credentialed accounts.');
 }
 

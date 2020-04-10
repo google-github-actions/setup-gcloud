@@ -23,7 +23,3 @@ jobs:
     - name: Lint
       working-directory: ./setup-gcloud
       run: npm run lint
-
-    - name: Unit tests
-      working-directory: ./setup-gcloud
-      run: npm test

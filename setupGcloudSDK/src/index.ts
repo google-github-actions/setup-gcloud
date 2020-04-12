@@ -59,6 +59,28 @@ export function getToolCommand(): string {
 }
 
 /**
+ * Checks if the project Id is set in the gcloud config
+ *
+ * @returns true is project Id is set
+ */
+export async function isProjectIdSet(): Promise<boolean> {
+  let output = '';
+  const stdout = (data: Buffer): void => {
+    output += data.toString();
+  };
+  const options = {
+    listeners: {
+      stdout,
+    },
+  };
+
+  const toolCommand = getToolCommand();
+
+  await exec.exec(toolCommand, ['config', 'get-value', 'project'], options);
+  return !output.includes('unset');
+}
+
+/**
  * Checks if gcloud is authenticated
  *
  * @returns true is gcloud is authenticated
@@ -166,20 +188,29 @@ export async function authenticateGcloudSDK(
  * @param serviceAccountKey The service account key used for authentication.
  * @returns project ID
  */
-export async function setProject(serviceAccountKey: string): Promise<string> {
-  tmp.setGracefulCleanup();
-  const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
-
+export async function setProject(projectId: string): Promise<number> {
   const toolCommand = getToolCommand();
 
-  await exec.exec(toolCommand, [
+  return await exec.exec(toolCommand, [
     '--quiet',
     'config',
     'set',
     'project',
-    serviceAccountJson.project_id,
+    projectId,
   ]);
+}
 
+/**
+ * Sets the GCP Project Id in the gcloud config
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns project ID
+ */
+export async function setProjectWithKey(
+  serviceAccountKey: string,
+): Promise<string> {
+  const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
+  await setProject(serviceAccountJson.project_id);
   return serviceAccountJson.project_id;
 }
 

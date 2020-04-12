@@ -14,6 +14,12 @@ export declare function isInstalled(version?: string): boolean;
  */
 export declare function getToolCommand(): string;
 /**
+ * Checks if the project Id is set in the gcloud config
+ *
+ * @returns true is project Id is set
+ */
+export declare function isProjectIdSet(): Promise<boolean>;
+/**
  * Checks if gcloud is authenticated
  *
  * @returns true is gcloud is authenticated
@@ -47,7 +53,14 @@ export declare function authenticateGcloudSDK(serviceAccountKey: string): Promis
  * @param serviceAccountKey The service account key used for authentication.
  * @returns project ID
  */
-export declare function setProject(serviceAccountKey: string): Promise<string>;
+export declare function setProject(projectId: string): Promise<number>;
+/**
+ * Sets the GCP Project Id in the gcloud config
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns project ID
+ */
+export declare function setProjectWithKey(serviceAccountKey: string): Promise<string>;
 interface ServiceAccountKey {
     type: string;
     project_id: string;

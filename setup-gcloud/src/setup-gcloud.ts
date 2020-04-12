@@ -44,6 +44,13 @@ async function run(): Promise<void> {
       await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
     }
 
+    // Set the project ID, if given.
+    const projectId = core.getInput('project_id');
+    if (projectId) {
+      await setupGcloud.setProject(projectId);
+      core.info('Successfully set default project');
+    }
+
     // Export credentials if requested - these credentials must be exported in
     // the shared workspace directory, since the filesystem must be shared among
     // all steps.

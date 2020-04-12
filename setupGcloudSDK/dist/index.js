@@ -6053,6 +6053,28 @@ function getToolCommand() {
 }
 exports.getToolCommand = getToolCommand;
 /**
+ * Checks if the project Id is set in the gcloud config
+ *
+ * @returns true is project Id is set
+ */
+function isProjectIdSet() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let output = '';
+        const stdout = (data) => {
+            output += data.toString();
+        };
+        const options = {
+            listeners: {
+                stdout,
+            },
+        };
+        const toolCommand = getToolCommand();
+        yield exec.exec(toolCommand, ['config', 'get-value', 'project'], options);
+        return !output.includes('unset');
+    });
+}
+exports.isProjectIdSet = isProjectIdSet;
+/**
  * Checks if gcloud is authenticated
  *
  * @returns true is gcloud is authenticated
@@ -6155,22 +6177,33 @@ exports.authenticateGcloudSDK = authenticateGcloudSDK;
  * @param serviceAccountKey The service account key used for authentication.
  * @returns project ID
  */
-function setProject(serviceAccountKey) {
+function setProject(projectId) {
     return __awaiter(this, void 0, void 0, function* () {
-        tmp.setGracefulCleanup();
-        const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
         const toolCommand = getToolCommand();
-        yield exec.exec(toolCommand, [
+        return yield exec.exec(toolCommand, [
             '--quiet',
             'config',
             'set',
             'project',
-            serviceAccountJson.project_id,
+            projectId,
         ]);
-        return serviceAccountJson.project_id;
     });
 }
 exports.setProject = setProject;
+/**
+ * Sets the GCP Project Id in the gcloud config
+ *
+ * @param serviceAccountKey The service account key used for authentication.
+ * @returns project ID
+ */
+function setProjectWithKey(serviceAccountKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
+        yield setProject(serviceAccountJson.project_id);
+        return serviceAccountJson.project_id;
+    });
+}
+exports.setProjectWithKey = setProjectWithKey;
 
 
 /***/ }),

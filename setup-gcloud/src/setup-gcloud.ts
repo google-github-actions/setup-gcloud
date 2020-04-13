@@ -35,6 +35,13 @@ async function run(): Promise<void> {
       core.addPath(path.join(toolPath, 'bin'));
     }
 
+    // Set the project ID, if given.
+    const projectId = core.getInput('project_id');
+    if (projectId) {
+      await setupGcloud.setProject(projectId);
+      core.info('Successfully set default project');
+    }
+
     const serviceAccountKey = core.getInput('service_account_key');
     // If a service account key isn't provided, log an un-authenticated notice
     if (!serviceAccountKey) {
@@ -42,13 +49,6 @@ async function run(): Promise<void> {
       return;
     } else {
       await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
-    }
-
-    // Set the project ID, if given.
-    const projectId = core.getInput('project_id');
-    if (projectId) {
-      await setupGcloud.setProject(projectId);
-      core.info('Successfully set default project');
     }
 
     // Export credentials if requested - these credentials must be exported in

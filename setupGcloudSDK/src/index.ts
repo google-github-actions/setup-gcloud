@@ -148,7 +148,7 @@ export function parseServiceAccountKey(
  * @returns exit code.
  */
 export async function authenticateGcloudSDK(
-  serviceAccountKey: string
+  serviceAccountKey: string,
 ): Promise<number> {
   tmp.setGracefulCleanup();
   const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);

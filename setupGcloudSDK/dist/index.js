@@ -6020,10 +6020,10 @@ const installUtil = __importStar(__webpack_require__(962));
 const version_util_1 = __webpack_require__(71);
 exports.getLatestGcloudSDKVersion = version_util_1.getLatestGcloudSDKVersion;
 /**
- * Checks if gcloud is installed
+ * Checks if gcloud is installed.
  *
- * @param version (Optional) Cloud SDK version
- * @return true if gcloud is found in toolpath
+ * @param version (Optional) Cloud SDK version.
+ * @return true if gcloud is found in toolpath.
  */
 function isInstalled(version) {
     let toolPath;
@@ -6038,9 +6038,9 @@ function isInstalled(version) {
 }
 exports.isInstalled = isInstalled;
 /**
- * Returns the correct gcloud command for OS
+ * Returns the correct gcloud command for OS.
  *
- * @returns gcloud command
+ * @returns gcloud command.
  */
 function getToolCommand() {
     // A workaround for https://github.com/actions/toolkit/issues/229
@@ -6053,9 +6053,9 @@ function getToolCommand() {
 }
 exports.getToolCommand = getToolCommand;
 /**
- * Checks if the project Id is set in the gcloud config
+ * Checks if the project Id is set in the gcloud config.
  *
- * @returns true is project Id is set
+ * @returns true is project Id is set.
  */
 function isProjectIdSet() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6075,9 +6075,9 @@ function isProjectIdSet() {
 }
 exports.isProjectIdSet = isProjectIdSet;
 /**
- * Checks if gcloud is authenticated
+ * Checks if gcloud is authenticated.
  *
- * @returns true is gcloud is authenticated
+ * @returns true is gcloud is authenticated.
  */
 function isAuthenticated() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6100,7 +6100,6 @@ exports.isAuthenticated = isAuthenticated;
  * Installs the gcloud SDK into the actions environment.
  *
  * @param version The version being installed.
- * @param gcloudExtPath The extraction path for the gcloud SDK.
  * @returns The path of the installed tool.
  */
 function installGcloudSDK(version) {
@@ -6120,10 +6119,10 @@ function installGcloudSDK(version) {
 }
 exports.installGcloudSDK = installGcloudSDK;
 /**
- * Parses the service account string into JSON
+ * Parses the service account string into JSON.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns ServiceAccountKey object
+ * @returns ServiceAccountKey as an object.
  */
 function parseServiceAccountKey(serviceAccountKey) {
     let serviceAccount = serviceAccountKey;
@@ -6135,10 +6134,10 @@ function parseServiceAccountKey(serviceAccountKey) {
 }
 exports.parseServiceAccountKey = parseServiceAccountKey;
 /**
- * Authenticates the gcloud tool using a service account key
+ * Authenticates the gcloud tool using a service account key.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns exit code
+ * @returns exit code.
  */
 function authenticateGcloudSDK(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6172,10 +6171,10 @@ function authenticateGcloudSDK(serviceAccountKey) {
 }
 exports.authenticateGcloudSDK = authenticateGcloudSDK;
 /**
- * Sets the GCP Project Id in the gcloud config
+ * Sets the GCP Project Id in the gcloud config.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns project ID
+ * @returns project ID.
  */
 function setProject(projectId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -6191,10 +6190,10 @@ function setProject(projectId) {
 }
 exports.setProject = setProject;
 /**
- * Sets the GCP Project Id in the gcloud config
+ * Sets the GCP Project Id in the gcloud config.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns project ID
+ * @returns project ID.
  */
 function setProjectWithKey(serviceAccountKey) {
     return __awaiter(this, void 0, void 0, function* () {

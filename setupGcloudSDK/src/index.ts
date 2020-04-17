@@ -27,10 +27,10 @@ import { getLatestGcloudSDKVersion } from './version-util';
 export { getLatestGcloudSDKVersion };
 
 /**
- * Checks if gcloud is installed
+ * Checks if gcloud is installed.
  *
- * @param version (Optional) Cloud SDK version
- * @return true if gcloud is found in toolpath
+ * @param version (Optional) Cloud SDK version.
+ * @return true if gcloud is found in toolpath.
  */
 export function isInstalled(version?: string): boolean {
   let toolPath;
@@ -44,9 +44,9 @@ export function isInstalled(version?: string): boolean {
 }
 
 /**
- * Returns the correct gcloud command for OS
+ * Returns the correct gcloud command for OS.
  *
- * @returns gcloud command
+ * @returns gcloud command.
  */
 export function getToolCommand(): string {
   // A workaround for https://github.com/actions/toolkit/issues/229
@@ -59,9 +59,9 @@ export function getToolCommand(): string {
 }
 
 /**
- * Checks if the project Id is set in the gcloud config
+ * Checks if the project Id is set in the gcloud config.
  *
- * @returns true is project Id is set
+ * @returns true is project Id is set.
  */
 export async function isProjectIdSet(): Promise<boolean> {
   let output = '';
@@ -81,9 +81,9 @@ export async function isProjectIdSet(): Promise<boolean> {
 }
 
 /**
- * Checks if gcloud is authenticated
+ * Checks if gcloud is authenticated.
  *
- * @returns true is gcloud is authenticated
+ * @returns true is gcloud is authenticated.
  */
 export async function isAuthenticated(): Promise<boolean> {
   let output = '';
@@ -106,7 +106,6 @@ export async function isAuthenticated(): Promise<boolean> {
  * Installs the gcloud SDK into the actions environment.
  *
  * @param version The version being installed.
- * @param gcloudExtPath The extraction path for the gcloud SDK.
  * @returns The path of the installed tool.
  */
 export async function installGcloudSDK(version: string): Promise<string> {
@@ -126,10 +125,10 @@ export async function installGcloudSDK(version: string): Promise<string> {
 }
 
 /**
- * Parses the service account string into JSON
+ * Parses the service account string into JSON.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns ServiceAccountKey object
+ * @returns ServiceAccountKey as an object.
  */
 export function parseServiceAccountKey(
   serviceAccountKey: string,
@@ -143,13 +142,13 @@ export function parseServiceAccountKey(
 }
 
 /**
- * Authenticates the gcloud tool using a service account key
+ * Authenticates the gcloud tool using a service account key.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns exit code
+ * @returns exit code.
  */
 export async function authenticateGcloudSDK(
-  serviceAccountKey: string,
+  serviceAccountKey: string
 ): Promise<number> {
   tmp.setGracefulCleanup();
   const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
@@ -183,10 +182,10 @@ export async function authenticateGcloudSDK(
 }
 
 /**
- * Sets the GCP Project Id in the gcloud config
+ * Sets the GCP Project Id in the gcloud config.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns project ID
+ * @returns project ID.
  */
 export async function setProject(projectId: string): Promise<number> {
   const toolCommand = getToolCommand();
@@ -201,10 +200,10 @@ export async function setProject(projectId: string): Promise<number> {
 }
 
 /**
- * Sets the GCP Project Id in the gcloud config
+ * Sets the GCP Project Id in the gcloud config.
  *
  * @param serviceAccountKey The service account key used for authentication.
- * @returns project ID
+ * @returns project ID.
  */
 export async function setProjectWithKey(
   serviceAccountKey: string,

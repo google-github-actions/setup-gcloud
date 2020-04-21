@@ -95,4 +95,4 @@ jobs:
         run: npm run test
         working-directory: ./upload-cloud-storage
         env:
-          TEST_BUCKET: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}
+          UPLOAD_CLOUD_STORAGE_TEST_BUCKET: ${{ secrets.UPLOAD_CLOUD_STORAGE_TEST_BUCKET }}

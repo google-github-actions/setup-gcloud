@@ -18,18 +18,30 @@ import { Storage, UploadResponse } from '@google-cloud/storage';
 import * as path from 'path';
 import { getFiles } from './util';
 
+/**
+ * Wraps interactions with the the GCS library.
+ *
+ * @param storage The GCS Storage client.
+ */
 export class UploadHelper {
   readonly storage: Storage;
+  /**
+   * Create an UploadHelper.
+   *
+   * @param storage The GCS Storage client.
+   */
   constructor(storage: Storage) {
     this.storage = storage;
   }
 
   /**
-   * Uploads a file to a bucket
-   * based on https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadFile.js
-   * @param bucketName The name of the bucket
-   * @param filename The file path
-   * @param destination The destination prefix
+   * Uploads a file to a bucket. Based on
+   * https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadFile.js
+   *
+   * @param bucketName The name of the bucket.
+   * @param filename The file path.
+   * @param destination The destination prefix.
+   * @returns The UploadResponse which contains the file and metadata.
    */
   async uploadFile(
     bucketName: string,
@@ -42,7 +54,7 @@ export class UploadHelper {
     }
     const options: UploadOptions = { gzip: true };
     if (destination) {
-      // if obj prefix is set, then extract filename and append to prefix
+      // If obj prefix is set, then extract filename and append to prefix.
       options.destination = `${destination}/${path.posix.basename(filename)}`;
     }
     const uploadedFile = await this.storage
@@ -52,12 +64,14 @@ export class UploadHelper {
   }
 
   /**
-   * Uploads a specified directory to a GCS bucket
-   * based on https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadDirectory.js
-   * @param bucketName The name of the bucket
-   * @param directoryPath The path of the directory to upload
-   * @param objectKeyPrefix Optional Prefix for in the GCS bucket
-   * @param clearExistingFilesFirst Clean files in the prefix before uploading
+   * Uploads a specified directory to a GCS bucket. Based on
+   * https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadDirectory.js
+   *
+   * @param bucketName The name of the bucket.
+   * @param directoryPath The path of the directory to upload.
+   * @param objectKeyPrefix Optional Prefix for in the GCS bucket.
+   * @param clearExistingFilesFirst Clean files in the prefix before uploading.
+   * @returns The list of UploadResponses which contains the file and metadata.
    */
   async uploadDirectory(
     bucketName: string,
@@ -65,20 +79,18 @@ export class UploadHelper {
     prefix = '',
   ): Promise<UploadResponse[]> {
     const pathDirName = path.posix.dirname(directoryPath);
-    // get list of files in the directory
+    // Get list of files in the directory.
     const filesList = await getFiles(directoryPath);
 
     const resp = await Promise.all(
       filesList.map(async (filePath) => {
-        //get relative path from directoryPath
+        // Get relative path from directoryPath.
         let destination = `${path.posix.dirname(
           path.posix.relative(pathDirName, filePath),
         )}`;
-        //if prefix is set, prepend
+        // If prefix is set, prepend.
         if (prefix) {
-          destination = `${prefix}/${path.posix.dirname(
-            path.posix.relative(pathDirName, filePath),
-          )}`;
+          destination = `${prefix}/${destination}`;
         }
 
         const uploadResp = await this.uploadFile(

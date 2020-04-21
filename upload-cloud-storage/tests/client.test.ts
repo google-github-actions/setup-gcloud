@@ -19,9 +19,12 @@ import 'mocha';
 import * as sinon from 'sinon';
 import { Client } from '../src/client';
 import { UploadHelper } from '../src/upload-helper';
-import { mockUploadFile } from './mocks/mockUploadFile';
+import { FAKE_FILE, FAKE_METADATA } from './constants.test';
 
-describe('Client', function() {
+/**
+ * Unit Test upload method in Client.
+ */
+describe('Unit Test Client', function() {
   afterEach(function() {
     sinon.restore();
   });
@@ -41,7 +44,9 @@ describe('Client', function() {
   it('calls uploadFile', async function() {
     const uploadFileStub = sinon
       .stub(UploadHelper.prototype, 'uploadFile')
-      .callsFake(mockUploadFile);
+      .callsFake(() => {
+        return Promise.resolve([FAKE_FILE, FAKE_METADATA]);
+      });
     const client = new Client();
     const path = './tests/testdata/test1.txt';
     const bucketName = 'foo';
@@ -54,7 +59,9 @@ describe('Client', function() {
   });
 
   it('calls uploadDirectory', async function() {
-    sinon.stub(UploadHelper.prototype, 'uploadFile').callsFake(mockUploadFile);
+    sinon.stub(UploadHelper.prototype, 'uploadFile').callsFake(() => {
+      return Promise.resolve([FAKE_FILE, FAKE_METADATA]);
+    });
     const uploadDirSpy = sinon.spy(UploadHelper.prototype, 'uploadDirectory');
     const client = new Client();
     const path = './tests/testdata';

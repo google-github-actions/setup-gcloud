@@ -29,11 +29,10 @@ type ClientOptions = {
 };
 
 /**
- * Handles credential lookup, registration and
- * wraps interactions with the GCS Helper
+ * Handles credential lookup, registration and wraps interactions with the GCS
+ * Helper.
  *
- * @param opts list of ClientOptions
- * @returns Client
+ * @param opts List of ClientOptions.
  */
 export class Client {
   readonly storage: Storage;
@@ -53,17 +52,16 @@ export class Client {
     }
   }
   /**
-   * Invokes GCS Helper for uploading file
-   * or directory
-   * @param bucketName Name of bucket to upload file/dir
-   * @param path path of the file/dir to upload
-   * @param prefix optional prefix when uploading to GCS
+   * Invokes GCS Helper for uploading file or directory.
+   * @param bucketName Name of bucket to upload file/dir.
+   * @param path Path of the file/dir to upload.
+   * @param prefix Optional prefix when uploading to GCS.
+   * @returns List of uploaded file(s).
    */
   async upload(destination: string, path: string): Promise<UploadResponse[]> {
     let bucketName = destination;
     let prefix = '';
-    //if destination of the form my-bucket/subfolder
-    // get bucket and prefix
+    // If destination of the form my-bucket/subfolder get bucket and prefix.
     const idx = destination.indexOf('/');
     if (idx > -1) {
       bucketName = destination.substring(0, idx);

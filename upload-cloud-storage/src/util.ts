@@ -18,9 +18,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Directory walk helper
- * @param directory The path of the directory to traverse
- * @param fileList  The files within the directory
+ * Recursively traverses a directory to extract a list of file paths.
+ *
+ * @param directory The path of the directory to traverse.
+ * @param fileList  The files within the directory.
+ * @returns The list of file paths in a given directory.
  */
 export async function getFiles(
   directory: string,

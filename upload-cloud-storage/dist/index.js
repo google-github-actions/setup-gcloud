@@ -18556,22 +18556,34 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(__webpack_require__(622));
 const util_1 = __webpack_require__(322);
+/**
+ * Wraps interactions with the the GCS library.
+ *
+ * @param storage The GCS Storage client.
+ */
 class UploadHelper {
+    /**
+     * Create an UploadHelper.
+     *
+     * @param storage The GCS Storage client.
+     */
     constructor(storage) {
         this.storage = storage;
     }
     /**
-     * Uploads a file to a bucket
-     * based on https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadFile.js
-     * @param bucketName The name of the bucket
-     * @param filename The file path
-     * @param destination The destination prefix
+     * Uploads a file to a bucket. Based on
+     * https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadFile.js
+     *
+     * @param bucketName The name of the bucket.
+     * @param filename The file path.
+     * @param destination The destination prefix.
+     * @returns The UploadResponse which contains the file and metadata.
      */
     uploadFile(bucketName, filename, destination) {
         return __awaiter(this, void 0, void 0, function* () {
             const options = { gzip: true };
             if (destination) {
-                // if obj prefix is set, then extract filename and append to prefix
+                // If obj prefix is set, then extract filename and append to prefix.
                 options.destination = `${destination}/${path.posix.basename(filename)}`;
             }
             const uploadedFile = yield this.storage
@@ -18581,24 +18593,26 @@ class UploadHelper {
         });
     }
     /**
-     * Uploads a specified directory to a GCS bucket
-     * based on https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadDirectory.js
-     * @param bucketName The name of the bucket
-     * @param directoryPath The path of the directory to upload
-     * @param objectKeyPrefix Optional Prefix for in the GCS bucket
-     * @param clearExistingFilesFirst Clean files in the prefix before uploading
+     * Uploads a specified directory to a GCS bucket. Based on
+     * https://github.com/googleapis/nodejs-storage/blob/master/samples/uploadDirectory.js
+     *
+     * @param bucketName The name of the bucket.
+     * @param directoryPath The path of the directory to upload.
+     * @param objectKeyPrefix Optional Prefix for in the GCS bucket.
+     * @param clearExistingFilesFirst Clean files in the prefix before uploading.
+     * @returns The list of UploadResponses which contains the file and metadata.
      */
     uploadDirectory(bucketName, directoryPath, prefix = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const pathDirName = path.posix.dirname(directoryPath);
-            // get list of files in the directory
+            // Get list of files in the directory.
             const filesList = yield util_1.getFiles(directoryPath);
             const resp = yield Promise.all(filesList.map((filePath) => __awaiter(this, void 0, void 0, function* () {
-                //get relative path from directoryPath
+                // Get relative path from directoryPath.
                 let destination = `${path.posix.dirname(path.posix.relative(pathDirName, filePath))}`;
-                //if prefix is set, prepend
+                // If prefix is set, prepend.
                 if (prefix) {
-                    destination = `${prefix}/${path.posix.dirname(path.posix.relative(pathDirName, filePath))}`;
+                    destination = `${prefix}/${destination}`;
                 }
                 const uploadResp = yield this.uploadFile(bucketName, filePath, destination);
                 return uploadResp;
@@ -27610,9 +27624,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 /**
- * Directory walk helper
- * @param directory The path of the directory to traverse
- * @param fileList  The files within the directory
+ * Recursively traverses a directory to extract a list of file paths.
+ *
+ * @param directory The path of the directory to traverse.
+ * @param fileList  The files within the directory.
+ * @returns The list of file paths in a given directory.
  */
 function getFiles(directory, fileList = []) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30654,7 +30670,7 @@ exports.BrowserCrypto = BrowserCrypto;
 /* 382 */
 /***/ (function(module) {
 
-module.exports = {"_from":"@google-cloud/storage","_id":"@google-cloud/storage@4.3.1","_inBundle":false,"_integrity":"sha512-/i7tAcUZDQNDs8/+oN+U2mOXdWdP2eld0pFKLkpthmWmaD89JQlrgHAFL7uvlgCSbaD7YxgbSyJebgd6YBgMgQ==","_location":"/@google-cloud/storage","_phantomChildren":{},"_requested":{"type":"tag","registry":true,"raw":"@google-cloud/storage","name":"@google-cloud/storage","escapedName":"@google-cloud%2fstorage","scope":"@google-cloud","rawSpec":"","saveSpec":null,"fetchSpec":"latest"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/@google-cloud/storage/-/storage-4.3.1.tgz","_shasum":"fce4c4ab74d3524ab040e0e15b9b50e6df13fd39","_spec":"@google-cloud/storage","_where":"/Users/bbaiju/Documents/gha/gcs-test-action/gcs-action","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/nodejs-storage/issues"},"bundleDependencies":false,"dependencies":{"@google-cloud/common":"^2.1.1","@google-cloud/paginator":"^2.0.0","@google-cloud/promisify":"^1.0.0","arrify":"^2.0.0","compressible":"^2.0.12","concat-stream":"^2.0.0","date-and-time":"^0.12.0","duplexify":"^3.5.0","extend":"^3.0.2","gaxios":"^2.0.1","gcs-resumable-upload":"^2.2.4","hash-stream-validation":"^0.2.2","mime":"^2.2.0","mime-types":"^2.0.8","onetime":"^5.1.0","p-limit":"^2.2.0","pumpify":"^2.0.0","readable-stream":"^3.4.0","snakeize":"^0.1.0","stream-events":"^1.0.1","through2":"^3.0.0","xdg-basedir":"^4.0.0"},"deprecated":false,"description":"Cloud Storage Client Library for Node.js","devDependencies":{"@google-cloud/pubsub":"^1.0.0","@grpc/proto-loader":"^0.5.1","@types/compressible":"^2.0.0","@types/concat-stream":"^1.6.0","@types/configstore":"^4.0.0","@types/date-and-time":"^0.6.0","@types/extend":"^3.0.0","@types/mime":"^2.0.0","@types/mime-types":"^2.1.0","@types/mocha":"^7.0.0","@types/nock":"^10.0.0","@types/node":"^11.13.4","@types/node-fetch":"^2.1.3","@types/proxyquire":"^1.3.28","@types/pumpify":"^1.4.1","@types/sinon":"^7.0.10","@types/through2":"^2.0.33","@types/tmp":"0.1.0","@types/uuid":"^3.4.4","@types/xdg-basedir":"^2.0.0","c8":"^7.0.0","codecov":"^3.0.0","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","grpc":"^1.22.2","gts":"^1.0.0","intelli-espower-loader":"^1.0.1","jsdoc":"^3.6.2","jsdoc-fresh":"^1.0.1","jsdoc-region-tag":"^1.0.2","linkinator":"^2.0.0","mocha":"^7.0.0","nock":"~11.7.0","node-fetch":"^2.2.0","normalize-newline":"^3.0.0","power-assert":"^1.4.4","prettier":"^1.7.0","proxyquire":"^2.1.3","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","typescript":"3.6.4","uuid":"^3.1.0","yargs":"^15.0.0"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map","AUTHORS","CONTRIBUTORS","COPYING"],"homepage":"https://github.com/googleapis/nodejs-storage#readme","keywords":["google apis client","google api client","google apis","google api","google","google cloud platform","google cloud","cloud","google storage","storage"],"license":"Apache-2.0","main":"./build/src/index.js","name":"@google-cloud/storage","repository":{"type":"git","url":"git+https://github.com/googleapis/nodejs-storage.git"},"scripts":{"all-test":"npm test && npm run system-test && npm run samples-test","benchwrapper":"node bin/benchwrapper.js","check":"gts check","clean":"gts clean","compile":"tsc -p .","conformance-test":"mocha build/conformance-test","docs":"jsdoc -c .jsdoc.js","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","lint":"eslint samples/ && gts check","preconformance-test":"npm run compile","predocs":"npm run compile","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"npm link && cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 600000 --exit","test":"c8 mocha build/test"},"types":"./build/src/index.d.ts","version":"4.3.1"};
+module.exports = {"_args":[["@google-cloud/storage@4.3.1","/Users/bbaiju/Documents/gha/gha-upstream/github-actions/upload-cloud-storage"]],"_from":"@google-cloud/storage@4.3.1","_id":"@google-cloud/storage@4.3.1","_inBundle":false,"_integrity":"sha512-/i7tAcUZDQNDs8/+oN+U2mOXdWdP2eld0pFKLkpthmWmaD89JQlrgHAFL7uvlgCSbaD7YxgbSyJebgd6YBgMgQ==","_location":"/@google-cloud/storage","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"@google-cloud/storage@4.3.1","name":"@google-cloud/storage","escapedName":"@google-cloud%2fstorage","scope":"@google-cloud","rawSpec":"4.3.1","saveSpec":null,"fetchSpec":"4.3.1"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/@google-cloud/storage/-/storage-4.3.1.tgz","_spec":"4.3.1","_where":"/Users/bbaiju/Documents/gha/gha-upstream/github-actions/upload-cloud-storage","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/nodejs-storage/issues"},"dependencies":{"@google-cloud/common":"^2.1.1","@google-cloud/paginator":"^2.0.0","@google-cloud/promisify":"^1.0.0","arrify":"^2.0.0","compressible":"^2.0.12","concat-stream":"^2.0.0","date-and-time":"^0.12.0","duplexify":"^3.5.0","extend":"^3.0.2","gaxios":"^2.0.1","gcs-resumable-upload":"^2.2.4","hash-stream-validation":"^0.2.2","mime":"^2.2.0","mime-types":"^2.0.8","onetime":"^5.1.0","p-limit":"^2.2.0","pumpify":"^2.0.0","readable-stream":"^3.4.0","snakeize":"^0.1.0","stream-events":"^1.0.1","through2":"^3.0.0","xdg-basedir":"^4.0.0"},"description":"Cloud Storage Client Library for Node.js","devDependencies":{"@google-cloud/pubsub":"^1.0.0","@grpc/proto-loader":"^0.5.1","@types/compressible":"^2.0.0","@types/concat-stream":"^1.6.0","@types/configstore":"^4.0.0","@types/date-and-time":"^0.6.0","@types/extend":"^3.0.0","@types/mime":"^2.0.0","@types/mime-types":"^2.1.0","@types/mocha":"^7.0.0","@types/nock":"^10.0.0","@types/node":"^11.13.4","@types/node-fetch":"^2.1.3","@types/proxyquire":"^1.3.28","@types/pumpify":"^1.4.1","@types/sinon":"^7.0.10","@types/through2":"^2.0.33","@types/tmp":"0.1.0","@types/uuid":"^3.4.4","@types/xdg-basedir":"^2.0.0","c8":"^7.0.0","codecov":"^3.0.0","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","grpc":"^1.22.2","gts":"^1.0.0","intelli-espower-loader":"^1.0.1","jsdoc":"^3.6.2","jsdoc-fresh":"^1.0.1","jsdoc-region-tag":"^1.0.2","linkinator":"^2.0.0","mocha":"^7.0.0","nock":"~11.7.0","node-fetch":"^2.2.0","normalize-newline":"^3.0.0","power-assert":"^1.4.4","prettier":"^1.7.0","proxyquire":"^2.1.3","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","typescript":"3.6.4","uuid":"^3.1.0","yargs":"^15.0.0"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map","AUTHORS","CONTRIBUTORS","COPYING"],"homepage":"https://github.com/googleapis/nodejs-storage#readme","keywords":["google apis client","google api client","google apis","google api","google","google cloud platform","google cloud","cloud","google storage","storage"],"license":"Apache-2.0","main":"./build/src/index.js","name":"@google-cloud/storage","repository":{"type":"git","url":"git+https://github.com/googleapis/nodejs-storage.git"},"scripts":{"all-test":"npm test && npm run system-test && npm run samples-test","benchwrapper":"node bin/benchwrapper.js","check":"gts check","clean":"gts clean","compile":"tsc -p .","conformance-test":"mocha build/conformance-test","docs":"jsdoc -c .jsdoc.js","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","lint":"eslint samples/ && gts check","preconformance-test":"npm run compile","predocs":"npm run compile","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"npm link && cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 600000 --exit","test":"c8 mocha build/test"},"types":"./build/src/index.d.ts","version":"4.3.1"};
 
 /***/ }),
 /* 383 */,
@@ -68563,7 +68579,7 @@ function isLooseTypedArray(arr) {
 /* 947 */
 /***/ (function(module) {
 
-module.exports = {"_from":"google-auth-library@^5.5.0","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"google-auth-library@^5.5.0","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"^5.5.0","saveSpec":null,"fetchSpec":"^5.5.0"},"_requiredBy":["/@google-cloud/common","/gcs-resumable-upload"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_shasum":"e528f4f1cd10657073d7ae2b9a9ce17ac97c3538","_spec":"google-auth-library@^5.5.0","_where":"/Users/bbaiju/Documents/gha/gcs-test-action/gcs-action/node_modules/@google-cloud/common","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
+module.exports = {"_args":[["google-auth-library@5.9.2","/Users/bbaiju/Documents/gha/gha-upstream/github-actions/upload-cloud-storage"]],"_from":"google-auth-library@5.9.2","_id":"google-auth-library@5.9.2","_inBundle":false,"_integrity":"sha512-rBE1YTOZ3/Hu6Mojkr+UUmbdc/F28hyMGYEGxjyfVA9ZFmq12oqS3AeftX4h9XpdVIcxPooSo8hECYGT6B9XqQ==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.9.2","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.9.2","saveSpec":null,"fetchSpec":"5.9.2"},"_requiredBy":["/@google-cloud/common","/gcs-resumable-upload"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.9.2.tgz","_spec":"5.9.2","_where":"/Users/bbaiju/Documents/gha/gha-upstream/github-actions/upload-cloud-storage","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.3.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^5.2.1","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^1.5.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^11.3.2","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^8.0.0","source-map-support":"^0.5.6","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.9.2"};
 
 /***/ }),
 /* 948 */
@@ -70755,11 +70771,10 @@ const fs = __importStar(__webpack_require__(747));
 const upload_helper_1 = __webpack_require__(231);
 const storage_1 = __webpack_require__(527);
 /**
- * Handles credential lookup, registration and
- * wraps interactions with the GCS Helper
+ * Handles credential lookup, registration and wraps interactions with the GCS
+ * Helper.
  *
- * @param opts list of ClientOptions
- * @returns Client
+ * @param opts List of ClientOptions.
  */
 class Client {
     constructor(opts) {
@@ -70779,18 +70794,17 @@ class Client {
         }
     }
     /**
-     * Invokes GCS Helper for uploading file
-     * or directory
-     * @param bucketName Name of bucket to upload file/dir
-     * @param path path of the file/dir to upload
-     * @param prefix optional prefix when uploading to GCS
+     * Invokes GCS Helper for uploading file or directory.
+     * @param bucketName Name of bucket to upload file/dir.
+     * @param path Path of the file/dir to upload.
+     * @param prefix Optional prefix when uploading to GCS.
+     * @returns List of uploaded file(s).
      */
     upload(destination, path) {
         return __awaiter(this, void 0, void 0, function* () {
             let bucketName = destination;
             let prefix = '';
-            //if destination of the form my-bucket/subfolder
-            // get bucket and prefix
+            // If destination of the form my-bucket/subfolder get bucket and prefix.
             const idx = destination.indexOf('/');
             if (idx > -1) {
                 bucketName = destination.substring(0, idx);

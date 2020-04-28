@@ -34,7 +34,6 @@ For pushes to the _default_ branch, `master`, the workflow will:
 
   1. Fill in the [repository's secret][secrets]:
     * `PROJECT_ID` Your Project Id
-    * `SA_EMAIL` Service Account email
     * `GOOGLE_APPLICATION_CREDENTIALS` Service Account Key
 
   1. Enable the [App Engine API and Cloud Build API.](https://console.cloud.google.com/flows/enableapi?apiid=appengine.googleapis.com,cloudbuild.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.248833607.-1346582427.1578963531).

@@ -24,8 +24,7 @@ jobs:
     - name: setup-gcloud
       uses: ./setup-gcloud/
       with:
-        version: '286.0.0'
-        service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+        version: '290.0.1'
         service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
     - name: Integration Tests
@@ -34,6 +33,26 @@ jobs:
 
   latest:
     name: setup-gcloud latest
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          version: 'latest'
+          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+      - name: Integration Tests
+        shell: bash
+        run: ./setup-gcloud/tests/integration-tests.sh
+
+  email:
+    name: setup-gcloud user-defined email
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
@@ -67,7 +86,6 @@ jobs:
         uses: ./setup-gcloud/
         with:
           version: 'latest'
-          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
           export_default_credentials: true
 

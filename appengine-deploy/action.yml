@@ -11,14 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: 'Deploy to Google App Engine'
-description: 'Deploy to Google App Engine'
-author: 'GoogleCloudPlatform'
+name: Deploy to Google App Engine
+author: GoogleCloudPlatform
+description: |-
+  App Engine is a fully managed, serverless platform for developing and hosting
+  web applications at scale. You can choose from several popular languages,
+  libraries, and frameworks to develop your apps, then let App Engine take care
+  of provisioning servers and scaling your app instances based on demand.
 
 inputs:
   project_id:
-    description: 'The GCP project ID. Overrides project ID set by credentials.'
-    require: true
+    description: The GCP project ID. Overrides project ID set by credentials.
+    required: true
+
   deliverables:
     description: |-
       The yaml files for the services or configurations you want to deploy.
@@ -26,25 +31,28 @@ inputs:
       not found, attempts to automatically generate necessary configuration
       files (such as app.yaml) in the current directory.
     required: false
+
   image_url:
     description: |-
       Deploy with a specific container image. The image url must be from one of
       the valid gcr hostnames.
     required: false
+
   version:
     description: |-
       The version of the app that will be created or replaced by this
       deployment. If you do not specify a version, one will be generated for
       you.
     required: false
+    
   promote:
-    description: 'Promote the deployed version to receive all traffic.'
-    default: true
+    description: Promote the deployed version to receive all traffic.
     required: false
+    default: true
 
 outputs:
   url:
-    description: 'URL of your App Engine Application'
+    description: URL of your App Engine Application
 
 runs:
   using: node12

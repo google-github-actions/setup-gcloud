@@ -1,0 +1,49 @@
+{
+  "name": "cloud-run",
+  "version": "0.1.0",
+  "description": "Github Action: Deploy to Google Cloud Run",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write **/*.ts",
+    "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoogleCloudPlatform/github-actions.git"
+  },
+  "keywords": [
+    "actions",
+    "google",
+    "cloud",
+    "cloud",
+    "run"
+  ],
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/GoogleCloudPlatform/github-actions/issues"
+  },
+  "homepage": "https://github.com/GoogleCloudPlatform/github-actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "googleapis": "^49.0.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.9",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.4",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "@zeit/ncc": "^0.21.0",
+    "chai": "^4.2.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint": "^6.8.0",
+    "mocha": "^7.0.1",
+    "prettier": "^1.19.1",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
+  }
+}

@@ -20,7 +20,7 @@ later build steps via outputs. This allows you to parameterize your App Engine
 deployments.
 
 **Note** This action will install gcloud in the background if not using in with
-the [`setup-gcloud` action](../setup-gclou/README.md).
+the [`setup-gcloud` action](../setup-gcloud/README.md).
 
 ## Prerequisites
 

@@ -70,8 +70,6 @@ For pushes to the `master` branch, this workflow will:
 
     - `RUN_PROJECT`: Google Cloud project ID
 
-    - `RUN_SA_EMAIL`: the email of the service account
-
     - `RUN_SA_KEY`: the content of the service account JSON file
 
 ## Run the workflow

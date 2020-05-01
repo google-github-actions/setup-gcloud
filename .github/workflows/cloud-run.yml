@@ -1,0 +1,35 @@
+name: cloud-run Unit
+
+on:
+  push:
+    paths:
+    - 'cloud-run/**'
+  pull_request:
+    paths:
+    - 'cloud-run/**'
+
+jobs:
+  run:
+    name: test
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+
+    - name: npm install
+      run: npm install
+      working-directory: ./cloud-run
+
+    - name: npm lint
+      run: npm run lint
+      working-directory: ./cloud-run
+
+    - name: npm test
+      run: npm run test
+      working-directory: ./cloud-run

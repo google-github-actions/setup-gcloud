@@ -23,18 +23,18 @@ inputs:
   image:
     description: |-
       Name of the container image to deploy (e.g. gcr.io/cloudrun/hello:latest).
-    require: true
+    required: true
 
   service_name:
     description: |-
       ID of the service or fully qualified identifier for the service.
-    require: true
+    required: true
 
   service_region:
     description: |-
       Region in which the resource can be found. Alternatively, set the
       property [run/region] using the setup-gcloud action.
-    require: false
+    required: false
     default: us-central1
 
   env_vars:
@@ -42,24 +42,24 @@ inputs:
       List of key-value pairs to set as environment variables in the format:
       KEY1=VALUE1,KEY2=VALUE2. All existing environment variables will be
       removed first.
-    require: false
+    required: false
 
   allow_unauthenticated:
     description: |-
       Whether to enable allowing unauthenticated access to the service.
-    require: false
+    required: false
     default: false
 
   project_id:
     description: The GCP project ID. Overrides project ID set by credentials.
-    require: false
+    required: false
 
   credentials:
     description: |-
       Service account key to use for authentication. This should be the JSON
       formatted private key which can be exported from the Cloud Console. The
       value can be raw or base64-encoded.
-    require: false
+    required: false
 
 outputs:
   url:

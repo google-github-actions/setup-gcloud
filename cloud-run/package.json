@@ -28,6 +28,7 @@
   "homepage": "https://github.com/GoogleCloudPlatform/github-actions#readme",
   "dependencies": {
     "@actions/core": "^1.2.4",
+    "gaxios": "^3.0.3",
     "googleapis": "^49.0.0"
   },
   "devDependencies": {

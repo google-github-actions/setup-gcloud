@@ -1,0 +1,59 @@
+name: cloud-run Integration
+
+on:
+  push:
+    paths:
+    - 'cloud-run/**'
+  pull_request:
+    paths:
+    - 'cloud-run/**'
+
+jobs:
+  gcloud:
+    name: with setup-gcloud
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./setup-gcloud
+      with:
+        service_account_email: ${{ secrets.APPENGINE_DEPLOY_SA_EMAIL }}
+        service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+        export_default_credentials: true
+    - id: deploy
+      uses: ./cloud-run
+      with:
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
+        image: gcr.io/cloudrun/hello
+        service_name: test-hello
+    - name: get output
+      run: echo '${{ steps.deploy.outputs.url }}'
+
+  b64_json:
+    name: with base64 json creds
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: deploy
+      uses: ./cloud-run
+      with:
+        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
+        image: gcr.io/cloudrun/hello
+        service_name: test-hello
+    - name: get output
+      run: echo '${{ steps.deploy.outputs.url }}'
+
+  json:
+    name: with json creds
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: deploy
+      uses: ./cloud-run
+      with:
+        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
+        image: gcr.io/cloudrun/hello
+        service_name: test-hello
+    - name: get output
+      run: echo '${{ steps.deploy.outputs.url }}'

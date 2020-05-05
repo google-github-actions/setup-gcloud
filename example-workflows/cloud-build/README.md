@@ -1,7 +1,7 @@
-# Cloud Run - GitHub Actions
+# Cloud Build - GitHub Actions
 
-An example workflow that uses [GitHub Actions][actions] to deploy a
-[Hello World Node.js app](index.js) to [Cloud Run][cloud-run].
+An example workflow that uses [GitHub Actions][actions] to build a
+[Hello World Node.js app](index.js) container image using [Cloud Build][cloud-build].
 
 This code is intended to be an _example_. You will likely need to change or
 update values to match your setup.
@@ -20,12 +20,10 @@ For pushes to the `master` branch, this workflow will:
     - The image is available through the following tags: `latest` and first 8 of
       the commit SHA.
 
-1.  Deploy the image to [Cloud Run][cloud-run].
-
 ## Setup
 
 1.  Create a new Google Cloud Project (or select an existing project) and
-    [enable the Cloud Run and Cloud Build APIs](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com).
+    [enable the Cloud Build and Cloud Build APIs](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com).
 
 1.  Create or reuse a GitHub repository for the example workflow:
 
@@ -40,7 +38,7 @@ For pushes to the `master` branch, this workflow will:
     1.  Copy the example into the repository:
 
         ```
-        $ cp -r <path_to>/github-actions/example-workflows/cloud-run/ .
+        $ cp -r <path_to>/github-actions/example-workflows/cloud-build/ .
         ```
 
 1.  [Create a Google Cloud service account][create-sa] if one does not already
@@ -48,7 +46,7 @@ For pushes to the `master` branch, this workflow will:
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
-    - `Cloud Run Admin` - allows for the creation of new services
+    - `Cloud Build Admin` - allows for the creation of new services
 
     - `Cloud Build Editor` - allows for deploying cloud builds
 
@@ -56,7 +54,7 @@ For pushes to the `master` branch, this workflow will:
 
     - `Viewer` - allows for viewing the project
 
-    - `Service Account User` -  required to deploy services to Cloud Run
+    - `Service Account User` -  required to deploy services to Cloud Build
 
     Note: These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privledge. To
@@ -69,6 +67,8 @@ For pushes to the `master` branch, this workflow will:
 1.  Add the following secrets to your repository's secrets:
 
     - `RUN_PROJECT`: Google Cloud project ID
+
+    - `RUN_SA_EMAIL`: the email of the service account
 
     - `RUN_SA_KEY`: the content of the service account JSON file
 
@@ -88,11 +88,11 @@ For pushes to the `master` branch, this workflow will:
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top
-    of your repository on GitHub. Then click on the `Build and Deploy to Cloud
-    Run` element to see the details.
+    of your repository on GitHub. Then click on the `Build using Cloud Build` 
+    element to see the details.
 
 [actions]: https://help.github.com/en/categories/automating-your-workflow-with-github-actions
-[cloud-run]: https://cloud.google.com/run/
+[cloud-build]: https://cloud.google.com/cloud-build/
 [create-sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
 [create-key]: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
 [sdk]: https://cloud.google.com/sdk

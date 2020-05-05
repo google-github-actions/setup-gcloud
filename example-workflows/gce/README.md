@@ -64,8 +64,6 @@ For pushes to the `master` branch, this workflow will:
 
     - `GCE_PROJECT`: Google Cloud project ID
 
-    - `GCE_SA_EMAIL`: the email of the service account
-
     - `GCE_SA_KEY`: the content of the service account JSON file
 
 1.  Update `.github/workflows/gce.yml` to match the values corresponding to your

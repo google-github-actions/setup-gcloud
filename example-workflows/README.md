@@ -12,6 +12,7 @@ update values to match your setup.
 | [Google Kubernetes Engine](gke/)| Deploy a static site to an existing GKE cluster |
 | [Cloud Run](cloud-run/)         | Deploy a container to Cloud Run (Fully Managed)|
 | [Google Compute Engine](gce/)  | Deploy a container to a GCE VM |
+| [Google Cloud Build](cloud-build)| Build a container image using CLoud Build|
 
 ## Github Actions resources
 

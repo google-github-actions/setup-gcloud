@@ -30,8 +30,8 @@ It does the following:
     per-invocation basis using the `--project` flag.
 
 1.  If `service_account_key` is specified, authenticates the gcloud CLI tool
-    using the inputs: `service_account_email` and `service_account_key`. Please
-    see the [Service Account documentation][sa-iam-docs] for more information.
+    using the service account key. For legacy .p12 keys, you must also specify a
+    `service_account_email`.
 
 1.  If `export_default_credentials` is specified, exports the path to the
     credentials in the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to
@@ -56,9 +56,8 @@ steps:
 - uses: actions/checkout@v2
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
-    version: '285.0.0'
+    version: '290.0.1'
     project_id: ${{ secrets.GCP_PROJECT_ID }}
-    service_account_email: ${{ secrets.GCP_SA_EMAIL }}
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
 - run: gcloud info
@@ -66,9 +65,9 @@ steps:
 
 ## Inputs
 
-* `version`: (Optional) The version of the gcloud to be installed.  Example: `285.0.0`, Default: `latest`
+* `version`: (Optional) The version of the gcloud to be installed.  Example: `290.0.1`, Default: `latest`
 
-* `service_account_email`: (Optional) The service account email which will be used for authentication.
+* `service_account_email`: (Optional) Service account email address to use for authentication. This is required for legacy .p12 keys but can be omitted for .json keys. This is usually of the format `<name>@<project-id>.iam.gserviceaccount.com`.
 
 * `service_account_key`: (Optional) The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys), encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS), and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets).
 

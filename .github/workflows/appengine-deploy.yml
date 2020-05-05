@@ -1,8 +1,8 @@
-name: appengine-deploy Unit
+name: app-engine-deploy Unit
 on: [push, pull_request]
 jobs:
   run:
-    name: appengine-deploy
+    name: app-engine-deploy
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
@@ -16,8 +16,8 @@ jobs:
 
     - name: npm install
       run: npm install
-      working-directory: ./appengine-deploy
+      working-directory: ./app-engine-deploy
 
     - name: npm lint
       run: npm run lint
-      working-directory: ./appengine-deploy
+      working-directory: ./app-engine-deploy

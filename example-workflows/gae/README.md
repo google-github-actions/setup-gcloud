@@ -25,7 +25,7 @@ For pushes to the _default_ branch, `master`, the workflow will:
 
   1. [Add the the following role to your service account][roles]:
 
-    * `App Engine- roles/appengine.appAdmin`: allows for the creation of new services
+    * `App Engine - roles/appengine.appAdmin`: allows for the creation of new services
     * `Browser - roles/browser`: allows for viewing and inserting items to the project (needed for Storage access)
     * `Cloud Build Service Account - roles/cloudbuild.builds.builder`: allows for
       running and manipulating Cloud Build and Storage resources

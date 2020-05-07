@@ -94,8 +94,11 @@ however you must provide your Project ID to the `app-engine-deploy` action:
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
+    version: '290.0.1'
+    service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
-- uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
+- id: Deploy
+  uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
   with:
     project_id: ${{ secrets.project_id }}
 ```
@@ -108,10 +111,10 @@ Secret][gh-secret] that contains the JSON content, then import it into the
 action:
 
 ```yaml
-- id: secrets
+- id: Deploy
   uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
   with:
-    credentials: ${{ secrets.gcp_credentials }}
+    credentials: ${{ secrets.GCP_SA_KEY }}
 ```
 
 ### Via Application Default Credentials
@@ -122,7 +125,7 @@ authenticate requests as the service account attached to the instance. **This
 only works using a custom runner hosted on GCP.**
 
 ```yaml
-- id: secrets
+- id: Deploy
   uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
 ```
 

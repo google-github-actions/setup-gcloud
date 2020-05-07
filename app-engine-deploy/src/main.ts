@@ -42,13 +42,16 @@ async function run(): Promise<void> {
     ) {
       core.setFailed('No project Id provided.');
     }
-
+    console.log(setupGcloud.isProjectIdSet());
+    core.info((projectId == '').toString());
     // Authenticate gcloud SDK.
     if (serviceAccountKey) {
       await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
       // Set and retrieve Project Id if not provided
       if (projectId === '') {
         projectId = await setupGcloud.setProjectWithKey(serviceAccountKey);
+        core.info((projectId == '').toString());
+        core.info('set project id');
       }
     }
     if (!setupGcloud.isAuthenticated()) {

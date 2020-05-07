@@ -1011,21 +1011,18 @@ function run() {
                 yield setupGcloud.installGcloudSDK(gcloudVersion);
             }
             // Fail if no Project Id is provided if not already set.
-            if (!setupGcloud.isProjectIdSet() &&
+            const projectSet = yield setupGcloud.isProjectIdSet();
+            if (!projectSet &&
                 projectId === '' &&
                 serviceAccountKey === '') {
                 core.setFailed('No project Id provided.');
             }
-            console.log(setupGcloud.isProjectIdSet());
-            core.info((projectId == '').toString());
             // Authenticate gcloud SDK.
             if (serviceAccountKey) {
                 yield setupGcloud.authenticateGcloudSDK(serviceAccountKey);
                 // Set and retrieve Project Id if not provided
                 if (projectId === '') {
                     projectId = yield setupGcloud.setProjectWithKey(serviceAccountKey);
-                    core.info((projectId == '').toString());
-                    core.info('set project id');
                 }
             }
             if (!setupGcloud.isAuthenticated()) {

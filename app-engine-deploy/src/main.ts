@@ -36,7 +36,6 @@ async function run(): Promise<void> {
 
     // Fail if no Project Id is provided if not already set.
     const projectIdSet = await setupGcloud.isProjectIdSet();
-    console.log(projectIdSet, projectId, serviceAccountKey);
     if (!projectIdSet && projectId === '' && serviceAccountKey === '') {
       core.setFailed('No project Id provided.');
     }

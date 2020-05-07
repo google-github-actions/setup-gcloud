@@ -6059,18 +6059,25 @@ exports.getToolCommand = getToolCommand;
  */
 function isProjectIdSet() {
     return __awaiter(this, void 0, void 0, function* () {
+        // stdout captures project id
         let output = '';
         const stdout = (data) => {
             output += data.toString();
         };
+        // stderr captures "(unset)"
+        let errOutput = '';
+        const stderr = (data) => {
+            errOutput += data.toString();
+        };
         const options = {
             listeners: {
                 stdout,
+                stderr,
             },
         };
         const toolCommand = getToolCommand();
         yield exec.exec(toolCommand, ['config', 'get-value', 'project'], options);
-        return !output.includes('unset');
+        return !(output.includes('unset') || errOutput.includes('unset'));
     });
 }
 exports.isProjectIdSet = isProjectIdSet;

@@ -1,4 +1,4 @@
-name: app-engine-deploy Integration
+name: appengine-deploy Integration
 on: [push, pull_request]
 jobs:
   gcloud:
@@ -12,10 +12,10 @@ jobs:
         export_default_credentials: true
     - id: deploy
       name: Deploy to App Engine
-      uses: ./app-engine-deploy
+      uses: ./appengine-deploy
       with:
-        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
-        deliverables: ./app-engine-deploy/test/app.yaml
+        project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+        deliverables: ./appengine-deploy/test/app.yaml
         version: gcloud
     - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
@@ -28,10 +28,10 @@ jobs:
     - uses: actions/checkout@v2
     - id: deploy
       name: Deploy to App Engine
-      uses: ./app-engine-deploy
+      uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
-        deliverables: ./app-engine-deploy/test/app.yaml
+        deliverables: ./appengine-deploy/test/app.yaml
         version: b64-json
         promote: false # Allows for deletion
     - name: Test Output
@@ -48,10 +48,10 @@ jobs:
     - uses: actions/checkout@v2
     - id: deploy
       name: Deploy to App Engine
-      uses: ./app-engine-deploy
+      uses: ./appengine-deploy
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
-        deliverables: ./app-engine-deploy/test/app.yaml
+        deliverables: ./appengine-deploy/test/app.yaml
         version: json
         promote: false # Allows for deletion
     - name: Test Output

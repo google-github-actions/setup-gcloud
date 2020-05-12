@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-# app-engine-deploy
+# appengine-deploy
 
 This action deploys your source code to [App Engine][gae] and makes the URL
 available to later build steps via outputs. This allows you to parameterize your
@@ -32,7 +32,7 @@ App Engine Application. See the Authorization section below for more information
 ```yaml
 steps:
 - id: deploy
-  uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
+  uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
     credentials: ${{ secrets.gcp_credentials }}
 
@@ -89,7 +89,7 @@ Roles needed:
 ### Used with setup-gcloud
 
 You can provide credentials using the [setup-gcloud][setup-gcloud] action,
-however you must provide your Project ID to the `app-engine-deploy` action:
+however you must provide your Project ID to the `appengine-deploy` action:
 
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -98,7 +98,7 @@ however you must provide your Project ID to the `app-engine-deploy` action:
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
+  uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
     project_id: ${{ secrets.project_id }}
 ```
@@ -112,7 +112,7 @@ action:
 
 ```yaml
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
+  uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
   with:
     credentials: ${{ secrets.GCP_SA_KEY }}
 ```
@@ -126,7 +126,7 @@ only works using a custom runner hosted on GCP.**
 
 ```yaml
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/app-engine-deploy@master
+  uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
 ```
 
 The action will automatically detect and use the Application Default

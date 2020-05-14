@@ -28,13 +28,17 @@
   "homepage": "https://github.com/GoogleCloudPlatform/github-actions#readme",
   "dependencies": {
     "@actions/core": "^1.2.4",
+    "fs": "0.0.1-security",
     "gaxios": "^3.0.3",
-    "googleapis": "^49.0.0"
+    "googleapis": "^49.0.0",
+    "yaml": "^1.9.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.9",
+    "@types/lodash": "^4.14.150",
     "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.4",
+    "@types/uuid": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.21.0",

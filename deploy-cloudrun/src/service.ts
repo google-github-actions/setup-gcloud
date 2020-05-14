@@ -15,59 +15,109 @@
  */
 
 import { run_v1 } from 'googleapis';
+import fs from 'fs';
+import YAML from 'yaml';
 
+export type EnvVar = {
+  name: string;
+  value: string;
+};
+
+/**
+ * Available options to create the Service.
+ *
+ * @param image Name of the container image to deploy
+ * @param name Name of the Cloud Run service
+ * @param envVars String list of envvars
+ * @param yaml Path to YAML file
+ */
+export type ServiceOptions = {
+  image?: string;
+  name?: string;
+  envVars?: string;
+  yaml?: string;
+};
+
+/**
+ * Construct a Cloud Run Service
+ *
+
+ * @param opts ServiceOptions
+ * @returns Service
+ */
 export class Service {
   readonly request: run_v1.Schema$Service;
   readonly name: string;
-  readonly allowUnauthenticated: boolean;
 
-  constructor(
-    image: string,
-    serviceName: string,
-    authenticated?: string,
-    metadata?: Metadata,
-  ) {
-    this.name = serviceName;
-
-    if (authenticated) {
-      this.allowUnauthenticated = authenticated === 'true';
-    } else {
-      this.allowUnauthenticated = false;
+  constructor(opts: ServiceOptions) {
+    if ((!opts.name || !opts.image) && !opts.yaml) {
+      throw new Error('Provide image and services names or a YAML file.');
     }
 
-    let envVars;
-    if (metadata && metadata.envVars) {
-      envVars = this.parseEnvVars(metadata.envVars);
-    }
-    // Specify the container
-    const container: run_v1.Schema$Container = { image };
-    if (envVars) {
-      container.env = envVars;
-    }
-
-    // Construct new service
-    const request: run_v1.Schema$Service = {
+    let request: run_v1.Schema$Service = {
       apiVersion: 'serving.knative.dev/v1',
       kind: 'Service',
-      metadata: {
-        name: serviceName,
-      },
-      spec: {
-        template: {
-          spec: {
-            containers: [container],
-          },
-        },
-      },
+      metadata: {},
+      spec: {},
     };
+
+    // Parse Env Vars
+    let envVars;
+    if (opts?.envVars) {
+      envVars = this.parseEnvVars(opts.envVars);
+    }
+
+    // Parse YAML
+    if (opts.yaml) {
+      const file = fs.readFileSync(opts.yaml, 'utf8');
+      const yaml = YAML.parse(file);
+      request = yaml as run_v1.Schema$Service;
+    }
+
+    // If name is provided, set or override
+    if (opts.name) {
+      if (request.metadata) {
+        request.metadata.name = opts.name;
+      } else {
+        request.metadata = { name: opts.name };
+      }
+    }
+
+    // If image is provided, set or override
+    if (opts.image) {
+      const container: run_v1.Schema$Container = { image: opts.image };
+      // Set Env Vars
+      if (envVars) {
+        container.env = envVars;
+      }
+      if (request.spec?.template) {
+        request.spec.template!.spec!.containers = [container];
+      } else {
+        request.spec = {
+          template: {
+            spec: {
+              containers: [container],
+            },
+          },
+        };
+      }
+    }
+
     this.request = request;
+    this.name = request.metadata!.name!;
   }
 
+  /**
+   * Parses a string of the format `KEY1=VALUE1`.
+   *
+   * @param envVarInput Env var string to parse
+   * @returns EnvVar[]
+   */
   protected parseEnvVars(envVarInput: string): EnvVar[] {
     const envVarList = envVarInput.split(',');
     const envVars = envVarList.map((envVar) => {
       if (!envVar.includes('=')) {
-        throw new Error(
+        throw new TypeError(
           `Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received ${envVar}`,
         );
       }
@@ -77,12 +127,3 @@ export class Service {
     return envVars;
   }
 }
-
-type EnvVar = {
-  name: string;
-  value: string;
-};
-
-type Metadata = {
-  envVars?: string;
-};

@@ -1,0 +1,40 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  annotations:
+    client.knative.dev/user-image: gcr.io/cloudrun/hello
+    run.googleapis.com/client-name: cloud-console
+    serving.knative.dev/creator: example@gmail.com
+    serving.knative.dev/lastModifier: example@gmail.com
+  creationTimestamp: '2020-04-27T21:04:20Z'
+  generation: 1
+  name: hello
+  namespace: default
+  resourceVersion: '5065647'
+  selfLink: /apis/serving.knative.dev/v1alpha1/namespaces/default/services/hello
+  uid: aa1dd6f3-88ca-11ea-bda9-42010a80019d
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: cloud-console
+      name: hello-00001-vag
+    spec:
+      containerConcurrency: 80
+      containers:
+      - image: gcr.io/cloudrun/hello
+        name: user-container
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          successThreshold: 1
+          tcpSocket:
+            port: 0
+        resources:
+          limits:
+            cpu: '1'
+            memory: 256Mi
+      timeoutSeconds: 300
+  traffic:
+  - latestRevision: true
+    percent: 100

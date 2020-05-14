@@ -44,6 +44,11 @@ inputs:
       removed first.
     required: false
 
+  metadata:
+    description: |-
+      YAML file with Cloud Run Service
+    required: false
+
   allow_unauthenticated:
     description: |-
       Whether to enable allowing unauthenticated access to the service.

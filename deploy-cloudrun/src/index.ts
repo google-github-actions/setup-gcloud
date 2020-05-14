@@ -26,34 +26,24 @@ async function run(): Promise<void> {
   try {
     // Get inputs
     const image = core.getInput('image', { required: true });
-    const serviceName = core.getInput('service_name', { required: true });
-    const allowUnauthenticated = core.getInput('allow_unauthenticated');
+    const name = core.getInput('service_name', { required: true });
     const envVars = core.getInput('env_vars');
+    const yaml = core.getInput('metadata');
     const credentials = core.getInput('credentials');
     const projectId = core.getInput('project_id');
-    const region = core.getInput('service_region');
+    const region = core.getInput('service_region') || 'us-central1';
 
-    const cr = new CloudRun(projectId, region, credentials);
+    // Create Cloud Run client
+    const client = new CloudRun(region, { projectId, credentials });
 
-    const metadata = {
-      envVars,
-    };
-    const service = new Service(
-      image,
-      serviceName,
-      allowUnauthenticated,
-      metadata,
-    );
+    // Initialize service
+    const service = new Service({ image, name, envVars, yaml });
+
     // Deploy service
-    const serviceResponse = await cr.deploy(service);
+    const serviceResponse = await client.deploy(service);
 
     // Set URL as output
     core.setOutput('url', serviceResponse.status!.url);
-
-    // Set IAM policy if needed
-    if (allowUnauthenticated && allowUnauthenticated === 'true') {
-      cr.allowUnauthenticatedRequests(service);
-    }
   } catch (error) {
     core.setFailed(error.message);
   }

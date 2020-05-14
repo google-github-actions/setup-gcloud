@@ -1,0 +1,3 @@
+If creating a tailored DevX around this config is not needed, I recommend using the Knative YAML service description. This is used for "gitops" deploying via `gcloud run services replace`, can be generating from a deployed service with `gcloud run services describe SVC --format yaml`, and will mean one less declarative format to teach developers.
+
+1. Cloud Run product recommendation is that CI/CD systems not set unauthenticated, and instead point out to developers how to make things public. This may not be strongly enough articulated in the docs but is part of my ongoing discussions on this subject with steren@.

@@ -29,7 +29,7 @@ export class CloudRun {
     readonly methodOptions = {
         userAgentDirectives: [
             {
-                product: 'github-actions-cloud-run-deploy',
+                product: 'github-actions-deploy-cloudrun',
                 version: '0.1.0',
             },
         ],

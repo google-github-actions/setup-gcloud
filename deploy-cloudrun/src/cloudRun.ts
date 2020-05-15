@@ -85,7 +85,7 @@ export class CloudRun {
       this.auth.jsonContent = jsonContent;
 
       if (!projectId) {
-        projectId = jsonContent.project_Id;
+        projectId = jsonContent.project_id;
         core.info('Setting project Id from credentials');
       }
     } else if (!projectId) {

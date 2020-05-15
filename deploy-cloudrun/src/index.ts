@@ -25,13 +25,13 @@ import { Service } from './service';
 async function run(): Promise<void> {
   try {
     // Get inputs
-    const image = core.getInput('image', { required: true });
-    const name = core.getInput('service_name', { required: true });
+    const image = core.getInput('image');
+    const name = core.getInput('service');
     const envVars = core.getInput('env_vars');
     const yaml = core.getInput('metadata');
     const credentials = core.getInput('credentials');
     const projectId = core.getInput('project_id');
-    const region = core.getInput('service_region') || 'us-central1';
+    const region = core.getInput('region') || 'us-central1';
 
     // Create Cloud Run client
     const client = new CloudRun(region, { projectId, credentials });

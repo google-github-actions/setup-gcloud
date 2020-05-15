@@ -23,17 +23,18 @@ inputs:
   image:
     description: |-
       Name of the container image to deploy (e.g. gcr.io/cloudrun/hello:latest).
-    required: true
+      Required if not using a service YAML.
+    required: false
 
-  service_name:
+  name:
     description: |-
       ID of the service or fully qualified identifier for the service.
-    required: true
+      Required if not using a service YAML.
+    required: false
 
-  service_region:
+  region:
     description: |-
-      Region in which the resource can be found. Alternatively, set the
-      property [run/region] using the setup-gcloud action.
+      Region in which the resource can be found.
     required: false
     default: us-central1
 
@@ -46,14 +47,8 @@ inputs:
 
   metadata:
     description: |-
-      YAML file with Cloud Run Service
+      YAML serivce description for the Cloud Run service.
     required: false
-
-  allow_unauthenticated:
-    description: |-
-      Whether to enable allowing unauthenticated access to the service.
-    required: false
-    default: false
 
   project_id:
     description: The GCP project ID. Overrides project ID set by credentials.
@@ -63,7 +58,8 @@ inputs:
     description: |-
       Service account key to use for authentication. This should be the JSON
       formatted private key which can be exported from the Cloud Console. The
-      value can be raw or base64-encoded.
+      value can be raw or base64-encoded. Required if not using a the
+      setup-gcloud action with exported credentials.
     required: false
 
 outputs:

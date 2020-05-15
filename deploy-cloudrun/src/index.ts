@@ -45,6 +45,7 @@ async function run(): Promise<void> {
     // Set URL as output
     core.setOutput('url', serviceResponse.status!.url);
   } catch (error) {
+    core.error(error);
     core.setFailed(error.message);
   }
 }

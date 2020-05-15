@@ -156,6 +156,7 @@ export class CloudRun {
     const serviceNames = await this.listServices();
     let serviceResponse: GaxiosResponse<run_v1.Schema$Service>;
     if (serviceNames!.includes(service.name)) {
+      core.info('Creating a service revision...');
       // Replace service
       const createServiceRequest: run_v1.Params$Resource$Projects$Locations$Services$Replaceservice = {
         name: this.getResource(service),
@@ -167,6 +168,7 @@ export class CloudRun {
         this.methodOptions,
       );
     } else {
+      core.info('Creating a new service...');
       // Create service
       const createServiceRequest: run_v1.Params$Resource$Projects$Locations$Services$Create = {
         parent: this.parent,

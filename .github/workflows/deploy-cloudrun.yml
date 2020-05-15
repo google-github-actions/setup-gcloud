@@ -1,12 +1,12 @@
-name: cloud-run Unit
+name: deploy-cloudrun Unit
 
 on:
   push:
     paths:
-    - 'cloud-run/**'
+    - 'deploy-cloudrun/**'
   pull_request:
     paths:
-    - 'cloud-run/**'
+    - 'deploy-cloudrun/**'
 
 jobs:
   run:
@@ -24,12 +24,12 @@ jobs:
 
     - name: npm install
       run: npm install
-      working-directory: ./cloud-run
+      working-directory: ./deploy-cloudrun
 
     - name: npm lint
       run: npm run lint
-      working-directory: ./cloud-run
+      working-directory: ./deploy-cloudrun
 
     - name: npm test
       run: npm run test
-      working-directory: ./cloud-run
+      working-directory: ./deploy-cloudrun

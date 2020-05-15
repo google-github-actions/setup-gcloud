@@ -22,7 +22,7 @@ import { Service } from '../src/service';
 import { JWT } from 'google-auth-library';
 
 const credentials = process.env.TEST_DEPLOY_CLOUDRUN_CREDENTIALS;
-const project = process.env.GCLOUD_PROJECT;
+const project = process.env.TEST_DEPLOY_CLOUDRUN_PROJECT;
 const region = 'us-central1';
 const image = 'gcr.io/cloudrun/hello';
 const name = `test-${Math.round(Math.random() * 100000)}`; // Cloud Run currently has name length restrictions

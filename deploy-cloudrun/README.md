@@ -109,7 +109,9 @@ permissions to access the secrets being requested.
 
 Roles needed:
 
-- Cloud Run  (`roles/compute.storageAdmin`): to upload files
+- Cloud Run Admin (`roles/run.admin`):
+  - Can create, update, and delete services.
+  - Can get and set IAM policies.
 
 
 ### Used with `setup-gcloud`

@@ -9,23 +9,25 @@ on:
     - 'deploy-cloudrun/**'
 
 jobs:
-  # gcloud:
-  #   name: with setup-gcloud
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - uses: ./setup-gcloud
-  #     with:
-  #       service_account_email: ${{ secrets.APPENGINE_DEPLOY_SA_EMAIL }}
-  #       service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
-  #       export_default_credentials: true
-  #   - id: deploy
-  #     uses: ./deploy-cloudrun
-  #     with:
-  #       image: gcr.io/cloudrun/hello
-  #       service: test-hello
-  #   - name: get output
-  #     run: echo '${{ steps.deploy.outputs.url }}'
+  gcloud:
+    name: with setup-gcloud
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./setup-gcloud
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
+    - id: deploy
+      uses: ./deploy-cloudrun
+      env:
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
+      with:
+        image: gcr.io/cloudrun/hello
+        service: test-hello
+    - name: get output
+      run: echo '${{ steps.deploy.outputs.url }}'
 
   b64_json:
     name: with base64 json creds
@@ -35,7 +37,7 @@ jobs:
     - id: deploy
       uses: ./deploy-cloudrun
       with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
         image: gcr.io/cloudrun/hello
         service: test-hello
     - name: get output
@@ -49,7 +51,7 @@ jobs:
     - id: deploy
       uses: ./deploy-cloudrun
       with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
         service: test-hello
     - name: get output
@@ -63,7 +65,7 @@ jobs:
     - id: deploy
       uses: ./deploy-cloudrun
       with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
         service: test-hello
         env_vars:
@@ -78,7 +80,7 @@ jobs:
     - id: deploy
       uses: ./deploy-cloudrun
       with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         metadata: ./deploy-cloudrun/tests/service.basic.yaml
     - name: get output
       run: echo '${{ steps.deploy.outputs.url }}'
@@ -91,7 +93,7 @@ jobs:
     - id: deploy
       uses: ./deploy-cloudrun
       with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         metadata: ./deploy-cloudrun/tests/service.full.yaml
     - name: get output
       run: echo '${{ steps.deploy.outputs.url }}'

@@ -27,9 +27,9 @@ inputs:
     required: true
   credentials:
     description: |-
-      You can provide Google Cloud Service Account JSON directly to the action by 
-      specifying the credentials input. First, create a GitHub Secret that contains 
-      the JSON content, then import it into the action.
+      Service account key to use for authentication. This should be the JSON
+      formatted private key which can be exported from the Cloud Console. The
+      value can be raw or base64-encoded.
     required: false
 
 runs:

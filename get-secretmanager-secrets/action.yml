@@ -25,6 +25,12 @@ inputs:
       Comma-separated or newline-separated list of secrets to fetch. Secrets
       must be of the format <project>/<secret> or <project>/<secret>/<version>.
     required: true
+  credentials:
+    description: |-
+      You can provide Google Cloud Service Account JSON directly to the action by 
+      specifying the credentials input. First, create a GitHub Secret that contains 
+      the JSON content, then import it into the action.
+    required: false
 
 runs:
   using: node12

@@ -38,4 +38,4 @@ jobs:
       # Deploy App to App Engine
       - name: Deploy
         run: |
-          gcloud app deploy
+          gcloud app deploy --quiet

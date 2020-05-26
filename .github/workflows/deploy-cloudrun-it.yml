@@ -25,9 +25,14 @@ jobs:
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
       with:
         image: gcr.io/cloudrun/hello
-        service: test-hello
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+        service: test-gcloud
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   b64_json:
     name: with base64 json creds
@@ -39,9 +44,14 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
         image: gcr.io/cloudrun/hello
-        service: test-hello
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+        service: test-b64
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   json:
     name: with json creds
@@ -53,9 +63,14 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: test-hello
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+        service: test-json
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   envVars:
     name: with Env Vars
@@ -67,10 +82,15 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: test-hello
+        service: test-envvars
         env_vars:
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   yaml:
     name: with YAML metadata
@@ -82,8 +102,13 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         metadata: ./deploy-cloudrun/tests/service.basic.yaml
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   metadata:
     name: with full YAML metada
@@ -95,5 +120,10 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         metadata: ./deploy-cloudrun/tests/service.full.yaml
-    - name: get output
-      run: echo '${{ steps.deploy.outputs.url }}'
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+      working-directory: ./deploy-cloudrun
+      run: npm install
+    - id: integration tests
+      run: URL=${{ steps.deploy.outputs.url }} npm run e2e-tests

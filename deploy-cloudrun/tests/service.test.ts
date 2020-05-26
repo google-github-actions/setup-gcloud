@@ -72,7 +72,7 @@ describe('Service', function() {
   it('creates service from yaml', function() {
     const yaml = './tests/service.basic.yaml';
     const service = new Service({ yaml });
-    expect(service.request.metadata!.name).equal(yamlName);
+    expect(service.request.metadata!.name).equal('test-basic-yaml');
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers[0]!.image).equal(yamlImage);
     expect(service.request).to.have.property('kind');
@@ -84,14 +84,18 @@ describe('Service', function() {
     const service = new Service({ yaml, envVars });
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers).to.be.length(1);
+    expect(containers[0].image).to.equal(yamlImage);
+    expect(containers[0].env).to.equal({'KEY1': 'VALUE1'})
   });
 
   it('sets args from yaml', function() {
-    const yaml = './tests/service.args.yaml';
+    const yaml = './tests/service.full.yaml';
     const service = new Service({ yaml });
-    expect(service.request.metadata!.name!).equal(yamlName);
+    expect(service.request.metadata!.name!).equal('test-full-yaml');
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers[0]?.resources?.limits?.cpu).equal('2');
-    expect(containers[0]?.resources?.limits?.memory).equal('2Gi');
+    expect(containers[0]?.resources?.limits?.memory).equal('1Gi');
+    const concurrency = get(service, 'request.spec.template.spec.containerConcurrency');
+    expect(concurrency).equal(20);
   });
 });

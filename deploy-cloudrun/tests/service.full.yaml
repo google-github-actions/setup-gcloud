@@ -1,19 +1,19 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: hello
+  name: test-full-yaml
 spec:
   template:
     spec:
-      containerConcurrency: 80
+      containerConcurrency: 20
       containers:
       - image: gcr.io/cloudrun/hello
         ports:
         - containerPort: 8080
         resources:
           limits:
-            cpu: '1'
-            memory: 256Mi
+            cpu: '2'
+            memory: 1Gi
       timeoutSeconds: 300
   traffic:
   - latestRevision: true

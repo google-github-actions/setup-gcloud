@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./setup-gcloud
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
@@ -53,11 +53,17 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
 
   json:
     name: with json creds
@@ -75,11 +81,17 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
 
   envVars:
     name: with Env Vars
@@ -98,11 +110,17 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
 
   yaml:
     name: with YAML metadata
@@ -119,11 +137,17 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
 
   metadata:
     name: with full YAML metada
@@ -140,8 +164,14 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
+    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service # Set up ADC to make authenticated request to service
+      with:
+        service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}

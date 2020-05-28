@@ -31,7 +31,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   b64_json:
@@ -50,7 +50,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   json:
@@ -69,7 +69,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   envVars:
@@ -89,7 +89,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   yaml:
@@ -107,7 +107,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
   metadata:
@@ -125,5 +125,5 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - id: integration tests
+    - name: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests

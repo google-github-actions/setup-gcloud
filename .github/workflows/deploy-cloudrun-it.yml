@@ -29,8 +29,8 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
@@ -48,8 +48,8 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
@@ -67,8 +67,8 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
@@ -87,8 +87,8 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
@@ -105,8 +105,8 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
 
@@ -123,7 +123,7 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
+    - run: npm install
       working-directory: ./deploy-cloudrun
-      run: npm install
     - id: integration tests
       run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests

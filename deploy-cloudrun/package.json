@@ -7,8 +7,8 @@
     "build": "ncc build src/index.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts",
-    "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'",
-    "e2e-tests": "mocha -r ts-node/register -t 120s 'tests/e2e-test.ts'"
+    "test": "mocha -r ts-node/register -t 120s 'tests/unit/*.test.ts'",
+    "e2e-tests": "mocha -r ts-node/register -t 120s 'tests/e2e.test.ts'"
   },
   "repository": {
     "type": "git",

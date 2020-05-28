@@ -26,7 +26,6 @@ jobs:
       with:
         image: gcr.io/cloudrun/hello
         service: test-gcloud
-    - run: echo ${{ steps.deploy.outputs.url }}
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
@@ -100,10 +99,9 @@ jobs:
     - uses: actions/checkout@v2
     - id: deploy
       uses: ./deploy-cloudrun
-      working-directory: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        metadata: ./tests/service.basic.yaml
+        metadata: ./deploy-cloudrun/tests/unit/service.basic.yaml
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
@@ -119,10 +117,9 @@ jobs:
     - uses: actions/checkout@v2
     - id: deploy
       uses: ./deploy-cloudrun
-      working-directory: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        metadata: ./tests/service.full.yaml
+        metadata: ./deploy-cloudrun/tests/unit/service.full.yaml
     - uses: actions/setup-node@master
       with:
         node-version: 12.x

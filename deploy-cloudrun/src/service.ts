@@ -86,10 +86,6 @@ export class Service {
     // If image is provided, set or override
     if (opts.image) {
       const container: run_v1.Schema$Container = { image: opts.image };
-      // Set Env Vars
-      if (envVars) {
-        container.env = envVars;
-      }
       if (request.spec?.template) {
         request.spec.template!.spec!.containers = [container];
       } else {
@@ -100,6 +96,13 @@ export class Service {
             },
           },
         };
+      }
+    }
+
+    // If Env Vars are provided, set or override
+    if (envVars) {
+      if (request.spec?.template?.spec?.containers) {
+        request.spec!.template!.spec!.containers[0]!.env = envVars;
       }
     }
 

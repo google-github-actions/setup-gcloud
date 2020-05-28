@@ -23,7 +23,6 @@ import { Service, EnvVar } from '../src/service';
 const image = 'gcr.io/projectId/image';
 const name = 'serviceName';
 const yamlImage = 'gcr.io/cloudrun/hello';
-const yamlName = 'hello';
 
 describe('Service', function() {
   it('creates a service', function() {
@@ -50,6 +49,7 @@ describe('Service', function() {
     const containers = get(service, 'request.spec.template.spec.containers');
     const actual = containers[0]?.env;
     expect(actual).to.have.lengthOf(3);
+    expect(actual[0]).to.eql({ name: 'KEY1', value: 'VALUE1' });
   });
 
   it('throws error with bad env vars', function() {
@@ -85,7 +85,7 @@ describe('Service', function() {
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers).to.be.length(1);
     expect(containers[0].image).to.equal(yamlImage);
-    expect(containers[0].env).to.equal({'KEY1': 'VALUE1'})
+    expect(containers[0]?.env[0]).to.eql({ name: 'KEY1', value: 'VALUE1' });
   });
 
   it('sets args from yaml', function() {
@@ -95,7 +95,10 @@ describe('Service', function() {
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers[0]?.resources?.limits?.cpu).equal('2');
     expect(containers[0]?.resources?.limits?.memory).equal('1Gi');
-    const concurrency = get(service, 'request.spec.template.spec.containerConcurrency');
+    const concurrency = get(
+      service,
+      'request.spec.template.spec.containerConcurrency',
+    );
     expect(concurrency).equal(20);
   });
 });

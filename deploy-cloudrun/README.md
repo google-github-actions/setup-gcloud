@@ -67,7 +67,10 @@ steps:
 ### Metadata customizations
 
 You can store your service specification in a YAML file. This will allow for
-further service configuration, such as [memory limits](https://cloud.google.com/run/docs/configuring/memory-limits), [CPU allocation](https://cloud.google.com/run/docs/configuring/cpu), [max instances](), and [more.](https://cloud.google.com/sdk/gcloud/reference/run/deploy#OPTIONAL-FLAGS)
+further service configuration, such as [memory limits](https://cloud.google.com/run/docs/configuring/memory-limits),
+[CPU allocation](https://cloud.google.com/run/docs/configuring/cpu),
+[max instances](https://cloud.google.com/run/docs/configuring/max-instances),
+and [more.](https://cloud.google.com/sdk/gcloud/reference/run/deploy#OPTIONAL-FLAGS)
 
 - See [Deploying a new service](https://cloud.google.com/run/docs/deploying#yaml)
 to create a new YAML service definition, for example:
@@ -104,15 +107,17 @@ see [Controlling access on an individual service](https://cloud.google.com/run/d
 
 ## Authorization
 
-There are a few ways to authenticate this action. The caller must have
-permissions to access the secrets being requested.
-
-Roles needed:
+There are a few ways to authenticate this action. A service account will be needed
+with the following roles:
 
 - Cloud Run Admin (`roles/run.admin`):
   - Can create, update, and delete services.
   - Can get and set IAM policies.
 
+This service account needs to a member of the `Compute Engine default service account`,
+`(PROJECT_NUMBER-compute@developer.gserviceaccount.com)`, with role
+`Service Account User`. To grant a user permissions for a service account, use
+one of the methods found in [Configuring Ownership and access to a service account](https://cloud.google.com/iam/docs/granting-roles-to-service-accounts#granting_access_to_a_user_for_a_service_account).
 
 ### Used with `setup-gcloud`
 

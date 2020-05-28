@@ -32,7 +32,9 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: echo URL=${{ steps.deploy.outputs.url }}
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }}
 
   b64_json:
     name: with base64 json creds
@@ -51,7 +53,9 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }}
 
   json:
     name: with json creds
@@ -70,7 +74,9 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }}
 
   envVars:
     name: with Env Vars
@@ -90,7 +96,9 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }}
 
   yaml:
     name: with YAML metadata
@@ -108,7 +116,9 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }}
 
   metadata:
     name: with full YAML metada
@@ -126,4 +136,6 @@ jobs:
     - run: npm install
       working-directory: ./deploy-cloudrun
     - name: integration tests
-      run: export URL=${{ steps.deploy.outputs.url }} npm run e2e-tests
+      run: npm run e2e-tests
+      env:
+        URL: ${{ steps.deploy.outputs.url }} 

@@ -85,7 +85,7 @@ async function run(): Promise<void> {
 
     // Set the project ID
     const providedProjectId = core.getInput('project_id');
-    const projectId = providedProjectId || serviceAccountJSON["project_id"];
+    const projectId = providedProjectId || serviceAccountJSON['project_id'];
     if (projectId) {
       await exec.exec(toolCommand, [
         '--quiet',

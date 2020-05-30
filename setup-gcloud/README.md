@@ -26,8 +26,10 @@ It does the following:
 1.  Installs and caches the downloaded version into the actions environment.
 
 1.  If `project_id` is specified, gcloud will use this project ID as the default
-    project ID for all future invocations. You can override this on a
-    per-invocation basis using the `--project` flag.
+    project ID for all future invocations. If `service_account_key` is set, and
+    `project_id` is unset, the project will be set to the service account's
+    project. You can override this on a per-invocation basis using the
+    `--project` flag.
 
 1.  If `service_account_key` is specified, authenticates the gcloud CLI tool
     using the service account key. For legacy .p12 keys, you must also specify a

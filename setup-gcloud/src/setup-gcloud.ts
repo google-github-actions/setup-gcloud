@@ -68,19 +68,6 @@ async function run(): Promise<void> {
       toolCommand = 'gcloud.cmd';
     }
 
-    // Set the project ID, if given.
-    const projectId = core.getInput('project_id');
-    if (projectId) {
-      await exec.exec(toolCommand, [
-        '--quiet',
-        'config',
-        'set',
-        'core/project',
-        projectId,
-      ]);
-      core.info('Successfully set default project');
-    }
-
     const serviceAccountEmail = core.getInput('service_account_email') || '';
     const serviceAccountKey = core.getInput('service_account_key');
 
@@ -96,6 +83,20 @@ async function run(): Promise<void> {
       serviceAccountJSON = Buffer.from(serviceAccountKey, 'base64').toString();
     }
 
+    // Set the project ID
+    const providedProjectId = core.getInput('project_id');
+    const projectId = providedProjectId || serviceAccountJSON["project_id"];
+    if (projectId) {
+      await exec.exec(toolCommand, [
+        '--quiet',
+        'config',
+        'set',
+        'core/project',
+        projectId,
+      ]);
+      core.info('Successfully set default project');
+    }
+    
     // write the service account key to a temporary file
     //
     // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid

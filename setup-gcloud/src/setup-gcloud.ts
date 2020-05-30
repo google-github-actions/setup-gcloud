@@ -84,8 +84,14 @@ async function run(): Promise<void> {
     }
 
     // Set the project ID
+    let serviceAccountProject = '';
+    try {
+      serviceAccountProject = JSON.parse(serviceAccountJSON)['project_id'];
+    } catch {
+      // could not parse service account project ID
+    }
     const providedProjectId = core.getInput('project_id');
-    const projectId = providedProjectId || serviceAccountJSON['project_id'];
+    const projectId = providedProjectId || serviceAccountProject;
     if (projectId) {
       await exec.exec(toolCommand, [
         '--quiet',
@@ -96,7 +102,7 @@ async function run(): Promise<void> {
       ]);
       core.info('Successfully set default project');
     }
-    
+
     // write the service account key to a temporary file
     //
     // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid

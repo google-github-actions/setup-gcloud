@@ -66,7 +66,7 @@ For pushes to the `master` branch, this workflow will:
 
     - `GKE_SA_KEY`: the content of the service account JSON file
 
-1.  Update `.github/workflows/gce.yml` to match the values corresponding to your
+1.  Update `.github/workflows/gke.yml` to match the values corresponding to your
     VM:
 
     - `GKE_CLUSTER` - the instance name of your cluster

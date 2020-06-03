@@ -139,9 +139,12 @@ export class CloudRun {
     );
     const serviceList: run_v1.Schema$ListServicesResponse =
       serviceListResponse.data;
-    const serviceNames = serviceList.items!.map(
-      (service: run_v1.Schema$Service) => service.metadata!.name as string,
-    );
+    let serviceNames: string[] = [];
+    if (serviceList.items !== undefined) {
+      serviceNames = serviceList.items!.map(
+        (service: run_v1.Schema$Service) => service.metadata!.name as string,
+      );
+    }
     return serviceNames;
   }
 

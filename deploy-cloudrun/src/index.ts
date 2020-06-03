@@ -40,8 +40,10 @@ async function run(): Promise<void> {
     const service = new Service({ image, name, envVars, yaml });
 
     // Deploy service
-    const serviceResponse = await client.deploy(service);
-
+    let serviceResponse = await client.deploy(service);
+    while (!serviceResponse.status!.url) {
+      serviceResponse = await client.getService(service);
+    }
     // Set URL as output
     core.setOutput('url', serviceResponse.status!.url);
   } catch (error) {

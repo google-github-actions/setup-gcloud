@@ -123,6 +123,24 @@ export class CloudRun {
   }
 
   /**
+   * Retrieves a Cloud Run services.
+   *
+   * @returns a Cloud Run service.
+   */
+  async getService(service: Service): Promise<run_v1.Schema$Service> {
+    const authClient = await this.getAuthClient();
+    const getRequest: run_v1.Params$Resource$Projects$Locations$Services$Get = {
+      name: this.getResource(service),
+      auth: authClient,
+    };
+    const serviceResponse: GaxiosResponse<run_v1.Schema$Service> = await this.run.projects.locations.services.get(
+      getRequest,
+      this.methodOptions,
+    );
+    return serviceResponse.data;
+  }
+
+  /**
    * Retrieves a list of Cloud Run services.
    *
    * @returns list of Cloud Run services.

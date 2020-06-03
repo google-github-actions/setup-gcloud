@@ -52,8 +52,12 @@ describe('CloudRun', function() {
       credentials: credentials,
       projectId: project,
     });
-    const result = await client.deploy(service);
+    let result = await client.deploy(service);
+    while (!result.status!.url) {
+      result = await client.getService(service);
+    }
     expect(result).to.not.eql(null);
+    expect(result.status!.url).to.include('run.app');
     await client.delete(service);
   });
 });

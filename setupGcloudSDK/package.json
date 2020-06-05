@@ -1,0 +1,49 @@
+{
+  "name": "setupGcloudSDK",
+  "version": "1.0.0",
+  "description": "Common tools needed to install and use the Cloud SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "ncc build src/index.ts",
+    "lint": "eslint ./src --ext .ts,.tsx",
+    "format": "prettier --write **/*.ts",
+    "test": "mocha -r ts-node/register -t 30s 'tests/*.test.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoogleCloudPlatform/github-actions.git"
+  },
+  "author": "GoogleCloudPlatform",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/GoogleCloudPlatform/github-actions/issues"
+  },
+  "homepage": "https://github.com/GoogleCloudPlatform/github-actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/exec": "^1.0.3",
+    "@actions/tool-cache": "^1.3.3",
+    "@lifeomic/attempt": "^3.0.0",
+    "@types/tmp": "^0.1.0",
+    "tmp": "^0.1.0",
+    "typed-rest-client": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.x",
+    "@types/mocha": "^7.0.x",
+    "@types/node": "^12.12.27",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "@zeit/ncc": "^0.20.x",
+    "chai": "^4.2.x",
+    "eslint": "^6.8.x",
+    "eslint-config-prettier": "^6.10.x",
+    "eslint-plugin-prettier": "^3.1.x",
+    "husky": "^4.2.3",
+    "mocha": "^7.0.x",
+    "prettier": "^1.19.1",
+    "ts-node": "^8.6.x",
+    "typescript": "^3.7.x"
+  }
+}

@@ -24,12 +24,9 @@
     "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "declaration": true,
+    "composite": true
   },
-  "references": [
-    {
-      "path": "../setupGcloudSDK"
-    }
-  ],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

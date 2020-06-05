@@ -1,0 +1,61 @@
+name: appengine-deploy Integration
+on: [push, pull_request]
+jobs:
+  gcloud:
+    name: with setup-gcloud
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./setup-gcloud
+      with:
+        service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        export_default_credentials: true
+    - id: deploy
+      name: Deploy to App Engine
+      uses: ./appengine-deploy
+      with:
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: gcloud
+    - name: Test Output
+      run: curl '${{ steps.deploy.outputs.url }}'
+
+  b64_json:
+    needs: gcloud
+    name: with base64 json creds
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: deploy
+      name: Deploy to App Engine
+      uses: ./appengine-deploy
+      with:
+        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: b64-json
+        promote: false # Allows for deletion
+    - name: Test Output
+      run: curl '${{ steps.deploy.outputs.url }}'
+    - name: Clean Up
+      run: |
+        gcloud app versions delete b64-json --quiet
+
+  json:
+    needs: [gcloud, b64_json]
+    name: with json creds
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: deploy
+      name: Deploy to App Engine
+      uses: ./appengine-deploy
+      with:
+        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+        deliverables: ./appengine-deploy/test/app.yaml
+        version: json
+        promote: false # Allows for deletion
+    - name: Test Output
+      run: curl '${{ steps.deploy.outputs.url }}'
+    - name: Clean Up
+      run: |
+        gcloud app versions delete json --quiet

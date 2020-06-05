@@ -1,0 +1,23 @@
+name: appengine-deploy Unit
+on: [push, pull_request]
+jobs:
+  run:
+    name: appengine-deploy
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@master
+      with:
+        node-version: 12.x
+
+    - name: npm install
+      run: npm install
+      working-directory: ./appengine-deploy
+
+    - name: npm lint
+      run: npm run lint
+      working-directory: ./appengine-deploy

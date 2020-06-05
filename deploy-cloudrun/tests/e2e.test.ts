@@ -33,7 +33,6 @@ describe('E2E tests', function() {
     const client = await auth.getIdTokenClient(URL);
     const response = await client.request({ url: URL });
     expect(response.status).to.be.equal(200);
-    console.log(response);
-    expect(response.data).to.include('Congrats');
+    expect(response.data).to.include('Congrat');
   });
 });

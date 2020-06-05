@@ -171,7 +171,7 @@ export async function authenticateGcloudSDK(
       'activate-service-account',
       serviceAccountEmail,
       '--key-file',
-      'stdin',
+      '-',
     ],
     options,
   );

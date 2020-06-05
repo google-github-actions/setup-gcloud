@@ -14,7 +14,7 @@ jobs:
       name: Deploy to App Engine
       uses: ./appengine-deploy
       with:
-        project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
         deliverables: ./appengine-deploy/test/app.yaml
         version: gcloud
     - name: Test Output

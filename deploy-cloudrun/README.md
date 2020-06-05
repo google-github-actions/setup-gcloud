@@ -20,8 +20,12 @@ available to later build steps via outputs.
 
 ## Prerequisites
 
-This action requires Google Cloud credentials that are authorized to deploy a
+This action requires:
+
+- Google Cloud credentials that are authorized to deploy a
 Cloud Run service. See the Authorization section below for more information.
+
+- [Enable the Cloud Run API](http://console.cloud.google.com/apis/library/run.googleapis.com?_ga=2.267842766.1374248275.1591025444-475066991.1589991158)
 
 ## Usage
 
@@ -95,11 +99,11 @@ gcloud run services describe SERVICE --format yaml > service.yaml
 ```
 ## Allow unauthenticated requests
 
-A Cloud Run product recommendation is that CI/CD systems not set the
-allow unauthenticated requests flag. Therefore new deployments are automatically
-private services. Deploying a revision of a public (unauthenticated) service
-will preserve the IAM setting of public (unauthenticated). For more information,
-see [Controlling access on an individual service](https://cloud.google.com/run/docs/securing/managing-access).
+A Cloud Run product recommendation is that CI/CD systems not set or change
+settings for allowing unauthenticated invocations. New deployments are
+automatically private services, while deploying a revision of a public
+(unauthenticated) service will preserve the IAM setting of public
+(unauthenticated). For more information, see [Controlling access on an individual service](https://cloud.google.com/run/docs/securing/managing-access).
 
 ## Outputs
 

@@ -26,10 +26,10 @@ export type EnvVar = {
 /**
  * Available options to create the Service.
  *
- * @param image Name of the container image to deploy
- * @param name Name of the Cloud Run service
- * @param envVars String list of envvars
- * @param yaml Path to YAML file
+ * @param image Name of the container image to deploy.
+ * @param name Name of the Cloud Run service.
+ * @param envVars String list of envvars.
+ * @param yaml Path to YAML file.
  */
 export type ServiceOptions = {
   image?: string;
@@ -39,11 +39,10 @@ export type ServiceOptions = {
 };
 
 /**
- * Construct a Cloud Run Service
+ * Construct a Cloud Run Service.
  *
-
- * @param opts ServiceOptions
- * @returns Service
+ * @param opts ServiceOptions.
+ * @returns Service.
  */
 export class Service {
   readonly request: run_v1.Schema$Service;
@@ -113,8 +112,8 @@ export class Service {
   /**
    * Parses a string of the format `KEY1=VALUE1`.
    *
-   * @param envVarInput Env var string to parse
-   * @returns EnvVar[]
+   * @param envVarInput Env var string to parse.
+   * @returns EnvVar[].
    */
   protected parseEnvVars(envVarInput: string): EnvVar[] {
     const envVarList = envVarInput.split(',');

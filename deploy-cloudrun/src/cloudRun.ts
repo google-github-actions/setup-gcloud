@@ -37,11 +37,11 @@ type ClientOptions = {
 };
 
 /**
- * Wraps interactions with the Google Cloud Run API
+ * Wraps interactions with the Google Cloud Run API.
  *
  * @param region Region of the GCP resource.
- * @param opts list of ClientOptions
- * @returns CloudRun client
+ * @param opts list of ClientOptions.
+ * @returns CloudRun client.
  */
 export class CloudRun {
   readonly methodOptions = {
@@ -76,24 +76,23 @@ export class CloudRun {
       scopes: ['https://www.googleapis.com/auth/cloud-platform'],
     });
     // Set credentials, if any.
+    let jsonContent;
     if (opts?.credentials) {
       let creds = opts?.credentials;
       if (!opts?.credentials.trim().startsWith('{')) {
         creds = Buffer.from(creds, 'base64').toString('utf8');
       }
-      const jsonContent = JSON.parse(creds);
+      jsonContent = JSON.parse(creds);
       this.auth.jsonContent = jsonContent;
-
-      if (!projectId) {
-        projectId = jsonContent.project_id;
-        core.info('Setting project Id from credentials');
-      }
-    } else if (!projectId) {
+    }
+    // Set project Id
+    if (!projectId && jsonContent && jsonContent.project_id) {
+      projectId = jsonContent.project_id;
+      core.info('Setting project Id from credentials');
+    } else if (!projectId && process.env.GCLOUD_PROJECT) {
       projectId = process.env.GCLOUD_PROJECT;
       core.info('Setting project Id from $GCLOUD_PROJECT');
-    }
-
-    if (!projectId) {
+    } else if (!projectId) {
       throw new Error('No project Id found. Set project Id in this action.');
     }
 
@@ -101,9 +100,9 @@ export class CloudRun {
   }
 
   /**
-   * Retrieves the auth client for authenticating requests
+   * Retrieves the auth client for authenticating requests.
    *
-   * @returns JWT | Compute | UserRefreshClient
+   * @returns JWT | Compute | UserRefreshClient.
    */
   async getAuthClient(): Promise<JWT | Compute | UserRefreshClient> {
     if (!this.authClient) {
@@ -115,8 +114,8 @@ export class CloudRun {
   /**
    * Generates full resource name.
    *
-   * @param service Service object
-   * @returns full resource name
+   * @param service Service object.
+   * @returns full resource name.
    */
   getResource(service: Service): string {
     return `${this.parent}/services/${service.name}`;
@@ -169,8 +168,8 @@ export class CloudRun {
   /**
    * Deploy a Cloud Run service.
    *
-   * @param service Service object
-   * @returns Service object
+   * @param service Service object.
+   * @returns Service object.
    */
   async deploy(service: Service): Promise<run_v1.Schema$Service> {
     const authClient = await this.getAuthClient();
@@ -208,7 +207,7 @@ export class CloudRun {
   /**
    * Deletes a Cloud Run service.
    *
-   * @param service Service object
+   * @param service Service object.
    */
   async delete(service: Service): Promise<void> {
     const authClient = await this.getAuthClient();
@@ -228,9 +227,9 @@ export class CloudRun {
   }
 
   /**
-   * Set's IAM policy for service (Not Recommended)
+   * Set's IAM policy for service (Not Recommended).
    *
-   * @param service Service object
+   * @param service Service object.
    */
   async allowUnauthenticatedRequests(service: Service): Promise<void> {
     const authClient = await this.getAuthClient();

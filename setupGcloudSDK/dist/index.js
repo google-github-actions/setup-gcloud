@@ -6324,7 +6324,7 @@ function authenticateGcloudSDK(serviceAccountKey) {
             'activate-service-account',
             serviceAccountEmail,
             '--key-file',
-            '/dev/stdin',
+            'stdin',
         ], options);
     });
 }

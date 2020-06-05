@@ -18,7 +18,6 @@ import * as exec from '@actions/exec';
 import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
 import * as tmp from 'tmp';
-import { promises as fs } from 'fs';
 import { getReleaseURL } from './format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
@@ -161,31 +160,21 @@ export async function authenticateGcloudSDK(
   const serviceAccountJson = parseServiceAccountKey(serviceAccountKey);
   const serviceAccountEmail = serviceAccountJson.client_email;
 
-  // write the service account key to a temporary file
-  //
-  // TODO: if actions/toolkit#164 is fixed, pass the key in on stdin and avoid
-  // writing a file to disk.
-  const tmpKeyFilePath = await new Promise<string>((resolve, reject) => {
-    tmp.file((err, path) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(path);
-    });
-  });
-  await fs.writeFile(tmpKeyFilePath, JSON.stringify(serviceAccountJson));
-
   const toolCommand = getToolCommand();
-
   // Authenticate as the specified service account.
-  return await exec.exec(toolCommand, [
-    '--quiet',
-    'auth',
-    'activate-service-account',
-    serviceAccountEmail,
-    '--key-file',
-    tmpKeyFilePath,
-  ]);
+  const options = { input: Buffer.from(JSON.stringify(serviceAccountJson)) };
+  return await exec.exec(
+    toolCommand,
+    [
+      '--quiet',
+      'auth',
+      'activate-service-account',
+      serviceAccountEmail,
+      '--key-file',
+      '/dev/stdin',
+    ],
+    options,
+  );
 }
 
 /**

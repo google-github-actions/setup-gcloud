@@ -64,7 +64,11 @@ async function run(): Promise<void> {
       const credsPath = path.join(workspace, uuidv4());
       await fs.writeFile(
         credsPath,
-        setupGcloud.parseServiceAccountKey(serviceAccountKey),
+        JSON.stringify(
+          setupGcloud.parseServiceAccountKey(serviceAccountKey),
+          null,
+          2,
+        ), // Print to file as string w/ indents
       );
 
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);

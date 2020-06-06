@@ -48,12 +48,12 @@ jobs:
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
         deliverables: ${{ github.workspace }}/app.yaml
-        version: ${{ github.job }}-${{ github.run_number }}-b64-json
+        version: b64-json
         promote: false # Allows for deletion
     - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
     - name: Clean Up
-      run: gcloud app versions delete ${{ github.job }}-${{ github.run_number }}-b64-json --quiet
+      run: gcloud app versions delete b64-json --quiet
 
   json:
     name: with json creds
@@ -72,9 +72,9 @@ jobs:
       with:
         credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
         deliverables: ${{ github.workspace }}/app.yaml
-        version: ${{ github.job }}-${{ github.run_number }}-json
+        version: json
         promote: false # Allows for deletion
     - name: Test Output
       run: curl '${{ steps.deploy.outputs.url }}'
     - name: Clean Up
-      run: gcloud app versions delete ${{ github.job }}-${{ github.run_number }}-json --quiet
+      run: gcloud app versions delete json --quiet

@@ -1,8 +1,15 @@
-name: setupGcloudSDK Unit
-on: [push, pull_request]
+name: setup-gcloud-sdk Unit
+on:
+  push:
+    paths:
+    - 'setupGcloudSDK/**'
+  pull_request:
+    paths:
+    - 'setupGcloudSDK/**'
+
 jobs:
   run:
-    name: setupGcloudSDK
+    name: setup-gcloud-sdk
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:

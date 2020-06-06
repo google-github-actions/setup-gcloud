@@ -19,7 +19,7 @@ jobs:
       - name: make temp folder and file
         run: |
           mkdir -p test
-          touch test/test1.txt
+          touch test/test2.txt
       - id: upload
         name: upload file
         uses: ./upload-cloud-storage

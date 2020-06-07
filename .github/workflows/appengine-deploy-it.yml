@@ -4,6 +4,7 @@ on:
   push:
     paths:
     - 'appengine-deploy/**'
+    - '.github/workflows/appengine-deploy*'
 
 jobs:
   gcloud:

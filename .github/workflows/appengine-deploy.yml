@@ -1,5 +1,14 @@
 name: appengine-deploy Unit
-on: [push, pull_request]
+on:
+  push:
+    paths:
+    - 'appengine-deploy/**'
+    - '.github/workflows/appengine-deploy*'
+  pull_request:
+    paths:
+    - 'appengine-deploy/**'
+    - '.github/workflows/appengine-deploy*'
+
 jobs:
   run:
     name: appengine-deploy

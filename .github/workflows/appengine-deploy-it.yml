@@ -40,7 +40,7 @@ jobs:
           --retry-delay 5 \
           --retry-max-time 300
 
-  b64_json:
+  b64-json:
     name: with base64 json creds
     runs-on: ubuntu-latest
     steps:

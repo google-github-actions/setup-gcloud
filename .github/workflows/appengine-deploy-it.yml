@@ -16,11 +16,20 @@ jobs:
       with:
         service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
         export_default_credentials: true
-    - name: create yaml
+    - name: create app
       run: |-
         cat <<EOF > ${{ github.workspace }}/app.yaml
         service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "python37"
+        runtime: "nodejs10"
+        EOF
+
+        cat <<EOF > ${{ github.workspace }}/index.js
+        const http = require('http');
+        const server = http.createServer(function (req, res) {
+          res.writeHead(200)
+          res.end('Hello world!');
+        });
+        server.listen(8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -32,7 +41,6 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
           --fail \
           --location \
           --retry 5 \
@@ -45,11 +53,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: create yaml
+    - name: create app
       run: |-
         cat <<EOF > ${{ github.workspace }}/app.yaml
         service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "python37"
+        runtime: "nodejs10"
+        EOF
+
+        cat <<EOF > ${{ github.workspace }}/index.js
+        const http = require('http');
+        const server = http.createServer(function (req, res) {
+          res.writeHead(200)
+          res.end('Hello world!');
+        });
+        server.listen(8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -62,7 +79,6 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
           --fail \
           --location \
           --retry 5 \
@@ -77,11 +93,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: create yaml
+    - name: create app
       run: |-
         cat <<EOF > ${{ github.workspace }}/app.yaml
         service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "python37"
+        runtime: "nodejs10"
+        EOF
+
+        cat <<EOF > ${{ github.workspace }}/index.js
+        const http = require('http');
+        const server = http.createServer(function (req, res) {
+          res.writeHead(200)
+          res.end('Hello world!');
+        });
+        server.listen(8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -94,7 +119,6 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
           --fail \
           --location \
           --retry 5 \

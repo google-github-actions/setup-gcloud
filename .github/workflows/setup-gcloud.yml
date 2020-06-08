@@ -4,9 +4,11 @@ on:
   push:
     paths:
     - 'setup-gcloud/**'
+    - '.github/workflows/setup-gcloud*'
   pull_request:
     paths:
     - 'setup-gcloud/**'
+    - '.github/workflows/setup-gcloud*'
 
 jobs:
   run:

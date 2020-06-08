@@ -23,13 +23,13 @@ jobs:
         runtime: "nodejs10"
         EOF
 
-        cat <<EOF > ${{ github.workspace }}/index.js
+        cat <<EOF > ${{ github.workspace }}/app.js
         const http = require('http');
         const server = http.createServer(function (req, res) {
           res.writeHead(200)
           res.end('Hello world!');
         });
-        server.listen(8080);
+        server.listen(process.env.PORT || 8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -41,6 +41,7 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
           --fail \
           --location \
           --retry 5 \
@@ -60,13 +61,13 @@ jobs:
         runtime: "nodejs10"
         EOF
 
-        cat <<EOF > ${{ github.workspace }}/index.js
+        cat <<EOF > ${{ github.workspace }}/app.js
         const http = require('http');
         const server = http.createServer(function (req, res) {
           res.writeHead(200)
           res.end('Hello world!');
         });
-        server.listen(8080);
+        server.listen(process.env.PORT || 8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -79,6 +80,7 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
           --fail \
           --location \
           --retry 5 \
@@ -100,13 +102,13 @@ jobs:
         runtime: "nodejs10"
         EOF
 
-        cat <<EOF > ${{ github.workspace }}/index.js
+        cat <<EOF > ${{ github.workspace }}/app.js
         const http = require('http');
         const server = http.createServer(function (req, res) {
           res.writeHead(200)
           res.end('Hello world!');
         });
-        server.listen(8080);
+        server.listen(process.env.PORT || 8080);
         EOF
     - id: deploy
       name: Deploy to App Engine
@@ -119,6 +121,7 @@ jobs:
     - name: Test Output
       run: |-
         curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
           --fail \
           --location \
           --retry 5 \

@@ -30,7 +30,15 @@ jobs:
         deliverables: ${{ github.workspace }}/app.yaml
         version: gcloud
     - name: Test Output
-      run: curl -sfL '${{ steps.deploy.outputs.url }}'
+      run: |-
+        curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
+          --fail \
+          --location \
+          --retry 5 \
+          --retry-connrefused \
+          --retry-delay 5 \
+          --retry-max-time 300
 
   b64_json:
     name: with base64 json creds
@@ -52,7 +60,15 @@ jobs:
         version: b64-json
         promote: false # Allows for deletion
     - name: Test Output
-      run: curl '${{ steps.deploy.outputs.url }}'
+      run: |-
+        curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
+          --fail \
+          --location \
+          --retry 5 \
+          --retry-connrefused \
+          --retry-delay 5 \
+          --retry-max-time 300
     - name: Clean Up
       run: gcloud app versions delete b64-json --quiet
 
@@ -76,6 +92,14 @@ jobs:
         version: json
         promote: false # Allows for deletion
     - name: Test Output
-      run: curl '${{ steps.deploy.outputs.url }}'
+      run: |-
+        curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
+          --fail \
+          --location \
+          --retry 5 \
+          --retry-connrefused \
+          --retry-delay 5 \
+          --retry-max-time 300
     - name: Clean Up
       run: gcloud app versions delete json --quiet

@@ -4,9 +4,11 @@ on:
   push:
     paths:
     - 'upload-cloud-storage/**'
+    - '.github/workflows/upload-cloud-storage*'
   pull_request:
     paths:
     - 'upload-cloud-storage/**'
+    - '.github/workflows/upload-cloud-storage*'
 
 jobs:
   run:

@@ -3,7 +3,8 @@ name: upload-cloud-storage Integration
 on:
   push:
     paths:
-      - "upload-cloud-storage/**"
+      - 'upload-cloud-storage/**'
+      - '.github/workflows/upload-cloud-storage*'
 
 jobs:
   gcloud:

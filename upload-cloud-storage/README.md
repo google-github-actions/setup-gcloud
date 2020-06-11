@@ -148,6 +148,7 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
+    service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
 - uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
 ```

@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Setup gcloud environment
+  uses: GoogleCloudPlatform/github-actions@0.1.2
+
 name: Set up gcloud Cloud SDK environment
 author: GoogleCloudPlatform
-description: |-
+description: |-- 
+
   Downloads, installs, and configures a gcloud Cloud SDK environment for the
   worker. This will add the `gcloud` CLI command to the worker's $PATH.
 

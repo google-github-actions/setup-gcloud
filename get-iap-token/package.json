@@ -1,0 +1,24 @@
+{
+  "name": "get-iap-token",
+  "version": "0.1.0",
+  "description": "GitHub action for getting a JWT that can be used to authenticate API calls behind a Goocle Cloud Identity Aware Proxy (IAP).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcoclavero/github-actions/tree/master/get-iap-token"
+  },
+  "keywords": [
+    "actions",
+    "google cloud",
+    "gcloud",
+    "sdk",
+    "cloud sdk",
+    "setup",
+    "iap"
+  ],
+  "author": "fcoclavero",
+  "license": "Apache-2.0"
+}

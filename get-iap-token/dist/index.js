@@ -7672,7 +7672,7 @@ try {
   // Get the input defined in action metadata file
   const IAPOAuthClientID = code.getInput('iap-oauth-client-id');
   const privateKey = core.getInput('private-key');
-  const serviceAccount = code.getInput('service-account');
+  const serviceAccount = core.getInput('service-account');
   const tokenDuration = Number(code.getInput('token-duration'));
   const iat = Math.floor(Date.now() / 1000)
   const exp = iat + tokenDuration

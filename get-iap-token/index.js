@@ -4,11 +4,12 @@ const jwt = require('jsonwebtoken');
 
 try {
   // Get the input defined in action metadata file
+  const IAPOAuthClientID = code.getInput('iap-oauth-client-id');
   const privateKey = core.getInput('private-key');
   const serviceAccount = code.getInput('service-account');
-  const IAPOAuthClientID = code.getInput('iap-oauth-client-id');
+  const tokenDuration = Number(code.getInput('token-duration'));
   const iat = Math.floor(Date.now() / 1000)
-  const exp = iat + 3600
+  const exp = iat + tokenDuration
 
   const payload = {
     "iss": serviceAccount,

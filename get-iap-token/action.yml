@@ -18,10 +18,19 @@ description: |-
   Get a JWT that can be used to authenticate API calls behind a Goocle Cloud
   Identity Aware Proxy (IAP).
 inputs:
-  who-to-greet: # id of input
-    description: "Who to greet"
+  iap-oauth-client-id: # id of input
+    description: "Client ID for the IAP OAuth client."
     required: true
-    default: "World"
+  private-key: # id of input
+    description: "Private key string (from JSON) for the service account credentials."
+    required: true
+  service-account: # id of input
+    description: "Service account email address."
+    required: true
+  token-duration: # id of input
+    description: "Token duration in seconds. Tokens must be short lived (1 hour tops)."
+    required: false
+    default: "3600"
 outputs:
   token: # id of output
     description: The IAP authentication JWT.

@@ -3,6 +3,7 @@ const github = require('@actions/github');
 const jwt = require('jsonwebtoken');
 
 try {
+  console.log('hello')
   // Get the input defined in action metadata file
   const IAPOAuthClientID = code.getInput('iap-oauth-client-id');
   const privateKey = core.getInput('private-key');
@@ -18,6 +19,7 @@ try {
     "exp": exp,
     "target_audience": IAPOAuthClientID
   }
+  console.log(payload)
   jwt.sign(payload, privateKey, {
     algorithm: 'RS256'
   }, function (err, token) {

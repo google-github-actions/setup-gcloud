@@ -6,7 +6,7 @@ on:
       - "get-iap-token/**"
       - ".github/workflows/get-iap-token*"
 
-  # jobs:
+  jobs:
   #   gcloud:
   #     name: with setup-gcloud
   #     runs-on: ubuntu-latest

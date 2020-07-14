@@ -1,0 +1,32 @@
+name: get-iap-token Unit
+on:
+  push:
+    paths:
+      - "get-iap-token/**"
+      - ".github/workflows/get-iap-token*"
+  pull_request:
+    paths:
+      - "get-iap-token/**"
+      - ".github/workflows/get-iap-token*"
+
+jobs:
+  run:
+    name: get-iap-token
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@master
+        with:
+          node-version: 12.x
+
+      - name: npm install
+        run: npm install
+        working-directory: ./get-iap-token
+
+      - name: npm lint
+        run: npm run lint
+        working-directory: ./get-iap-token

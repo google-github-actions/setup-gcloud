@@ -21,8 +21,8 @@ inputs:
   iap-oauth-client-id: # id of input
     description: "Client ID for the IAP OAuth client."
     required: true
-  private-key: # id of input
-    description: "Private key string (from JSON) for the service account credentials."
+  credentials: # id of input
+    description: "The service account key which will be used for authentication. This key should be created, encoded as a Base64 string (eg. cat my-key.json | base64 on macOS), and stored as a secret."
     required: true
   service-account: # id of input
     description: "Service account email address."

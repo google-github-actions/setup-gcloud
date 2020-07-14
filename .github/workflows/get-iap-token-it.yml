@@ -5,8 +5,7 @@ on:
     paths:
       - "get-iap-token/**"
       - ".github/workflows/get-iap-token*"
-
-  jobs:
+  # jobs:
   #   gcloud:
   #     name: with setup-gcloud
   #     runs-on: ubuntu-latest
@@ -25,7 +24,6 @@ on:
   #             password:${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF }}
   #       - name: get output
   #         run: echo '${{ steps.secrets.outputs.token }}${{ steps.secrets.outputs.password }}'
-
   #   b64_json:
   #     name: with base64 json creds
   #     runs-on: ubuntu-latest
@@ -41,7 +39,7 @@ on:
   #             password:${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF }}
   #       - name: get output
   #         run: echo '${{ steps.secrets.outputs.token }}${{ steps.secrets.outputs.password }}'
-
+jobs:
   json:
     name: with json creds
     runs-on: ubuntu-latest

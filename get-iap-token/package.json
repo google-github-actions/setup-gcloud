@@ -4,7 +4,8 @@
   "description": "GitHub action for getting a JWT that can be used to authenticate API calls behind a Goocle Cloud Identity Aware Proxy (IAP).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.2.4",
+    "axios": "^0.19.2",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {

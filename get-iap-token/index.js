@@ -1,3 +1,4 @@
+const axios = require('axios');
 const core = require('@actions/core');
 const jwt = require('jsonwebtoken');
 
@@ -36,8 +37,16 @@ try {
   const token = jwt.sign(payload, privateKey, {
     algorithm: 'RS256'
   });
-  console.log(token);
-  core.setOutput('token', token);
+  axios.post('https://oauth2.googleapis.com/token', {
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: token
+    })
+    .then(function (response) {
+      core.setOutput('token', response.data.id_token);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 } catch (error) {
   core.setFailed(error.message);
 }

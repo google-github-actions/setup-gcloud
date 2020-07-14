@@ -4,9 +4,7 @@ const jwt = require('jsonwebtoken');
 
 /** Parse the given credentials into an object.
  *
- * If the credentials are not JSON, they are probably base64-encoded. Even
- * though we don't instruct users to provide base64-encoded credentials,
- * sometimes they still do.
+ * If the credentials are not JSON, they are probably base64-encoded.
  *
  * @param {object} credentials - the credentials object. Either JSON or
  *   base64-encoded JSON.
@@ -39,7 +37,7 @@ try {
     algorithm: 'RS256'
   });
   console.log(token);
-  core.setOutput('token', time);
+  core.setOutput('token', token);
 } catch (error) {
   core.setFailed(error.message);
 }

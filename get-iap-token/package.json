@@ -23,7 +23,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.2.4",
-    "@actions/github": "^4.0.0",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {

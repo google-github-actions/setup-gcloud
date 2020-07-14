@@ -24,22 +24,22 @@ on:
   #             password:${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF }}
   #       - name: get output
   #         run: echo '${{ steps.secrets.outputs.token }}${{ steps.secrets.outputs.password }}'
-  #   b64_json:
-  #     name: with base64 json creds
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - uses: actions/checkout@v2
-  #       - id: secrets
-  #         name: get secrets
-  #         uses: ./get-iap-token
-  #         with:
-  #           credentials: ${{ secrets.GET_SECRETMANAGER_SECRETS_SA_KEY_JSON }}
-  #           secrets: |-
-  #             token:${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_REF }}
-  #             password:${{ secrets.GET_SECRETMANAGER_SECRETS_SECRET_VERSION_REF }}
-  #       - name: get output
-  #         run: echo '${{ steps.secrets.outputs.token }}${{ steps.secrets.outputs.password }}'
 jobs:
+  b64_json:
+    name: with base64 json creds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: iap-token
+        name: get IAP token
+        uses: ./get-iap-token
+        with:
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+          iap-oauth-client-id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
+          service-account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - name: get output
+        run: echo '${{ steps.iap-token.outputs.token }}'
+
   json:
     name: with json creds
     runs-on: ubuntu-latest
@@ -53,4 +53,4 @@ jobs:
           iap-oauth-client-id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
           service-account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       - name: get output
-        run: echo '${{ steps.secrets.outputs.token }}'
+        run: echo '${{ steps.iap-token.outputs.token }}'

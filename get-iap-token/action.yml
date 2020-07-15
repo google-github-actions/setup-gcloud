@@ -9,14 +9,10 @@ inputs:
     required: true
   credentials: # id of input
     description: "The service account key which will be used for authentication. This key should be created, encoded as a Base64 string (eg. cat my-key.json | base64 on macOS), and stored as a secret."
-    required: true
+    required: false
   service-account: # id of input
     description: "Service account email address."
     required: true
-  token-duration: # id of input
-    description: "Token duration in seconds. Tokens must be short lived (1 hour tops)."
-    required: false
-    default: "3600"
 outputs:
   token: # id of output
     description: The IAP authentication JWT.

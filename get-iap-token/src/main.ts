@@ -1,6 +1,6 @@
-import axios from 'axios';
 import * as core from '@actions/core';
-import * as jwt from 'jsonwebtoken';
+import * as fs from 'fs';
+import { GoogleToken } from 'gtoken';
 
 /** Parse the given credentials into an object.
  *
@@ -17,35 +17,23 @@ function parseCredentials(credentials: string) {
   return JSON.parse(credentials);
 }
 
-try {
-  // Get the input defined in action metadata file
-  const IAPOAuthClientID = core.getInput('iap-oauth-client-id');
-  const privateKey = parseCredentials(core.getInput('credentials')).private_key;
-  const serviceAccount = core.getInput('service-account');
-  const tokenDuration = Number(core.getInput('token-duration'));
-  const iat = Math.floor(Date.now() / 1000);
-  const exp = iat + tokenDuration;
-  const payload = {
-    iss: serviceAccount,
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: iat,
-    exp: exp,
-    target_audience: IAPOAuthClientID,
-  };
-  const token = jwt.sign(payload, privateKey, {
-    algorithm: 'RS256',
+// Get the input defined in action metadata file
+const IAPOAuthClientID = core.getInput('iap-oauth-client-id');
+const credentials =
+  core.getInput('credentials') ||
+  fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8');
+const privateKey = parseCredentials(credentials).private_key;
+const serviceAccount = core.getInput('service-account');
+const gtoken = new GoogleToken({
+  iss: serviceAccount,
+  scope: [IAPOAuthClientID],
+  key: privateKey,
+});
+gtoken
+  .getToken()
+  .then(function (tokens) {
+    core.setOutput('token', tokens.id_token);
+  })
+  .catch(function (error) {
+    core.setFailed(error.message);
   });
-  axios
-    .post('https://oauth2.googleapis.com/token', {
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: token,
-    })
-    .then(function (response) {
-      core.setOutput('token', response.data.id_token);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-} catch (error) {
-  core.setFailed(error.message);
-}

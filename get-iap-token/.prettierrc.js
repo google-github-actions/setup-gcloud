@@ -15,15 +15,16 @@
  */
 
 module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'google',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
-  ],
+  arrowParens: 'always',
+  bracketSpacing: true,
+  endOfLine: 'auto',
+  jsxBracketSameLine: true,
+  jsxSingleQuote: true,
+  printWidth: 80,
+  quoteProps: 'consistent',
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'all',
+  useTabs: false,
 };

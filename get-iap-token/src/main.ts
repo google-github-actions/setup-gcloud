@@ -1,7 +1,6 @@
-const axios = require('axios');
-const core = require('@actions/core');
-const jwt = require('jsonwebtoken');
-
+import axios from 'axios';
+import * as core from '@actions/core';
+import * as jwt from 'jsonwebtoken';
 
 /** Parse the given credentials into an object.
  *
@@ -11,13 +10,12 @@ const jwt = require('jsonwebtoken');
  *   base64-encoded JSON.
  * @return {object} The parsed credentials object.
  */
-function parseCredentials(credentials) {
+function parseCredentials(credentials: string) {
   if (!credentials.trim().startsWith('{')) {
     credentials = Buffer.from(credentials, 'base64').toString('utf8');
   }
   return JSON.parse(credentials);
 }
-
 
 try {
   // Get the input defined in action metadata file
@@ -28,25 +26,26 @@ try {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + tokenDuration;
   const payload = {
-    'iss': serviceAccount,
-    'aud': 'https://oauth2.googleapis.com/token',
-    'iat': iat,
-    'exp': exp,
-    'target_audience': IAPOAuthClientID,
+    iss: serviceAccount,
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: iat,
+    exp: exp,
+    target_audience: IAPOAuthClientID,
   };
   const token = jwt.sign(payload, privateKey, {
     algorithm: 'RS256',
   });
-  axios.post('https://oauth2.googleapis.com/token', {
-    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-    assertion: token,
-  })
-      .then(function(response) {
-        core.setOutput('token', response.data.id_token);
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+  axios
+    .post('https://oauth2.googleapis.com/token', {
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: token,
+    })
+    .then(function (response) {
+      core.setOutput('token', response.data.id_token);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 } catch (error) {
   core.setFailed(error.message);
 }

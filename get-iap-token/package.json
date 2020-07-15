@@ -4,8 +4,10 @@
   "description": "GitHub action for getting a JWT that can be used to authenticate API calls behind a Goocle Cloud Identity Aware Proxy (IAP).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .js"
+    "build": "ncc build src/main.ts",
+    "format": "prettier --write **/*.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,17 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/node": "^14.0.23",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.1",
+    "@zeit/ncc": "^0.22.3",
     "eslint": "^7.4.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.6"
   }
 }

@@ -23,3 +23,7 @@ spec:
       targetPort: 5000
   selector:
     app: gke-test
+    
+  name: Setup gcloud environment
+  uses: GoogleCloudPlatform/github-actions@0.1.2
+

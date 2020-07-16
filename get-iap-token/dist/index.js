@@ -3431,28 +3431,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const fs = __importStar(__webpack_require__(747));
 const gtoken_1 = __webpack_require__(403);
-/** Parse the given credentials into an object.
- *
- * If the credentials are not JSON, they are probably base64-encoded.
- *
- * @param {object} credentials - the credentials object. Either JSON or
- *   base64-encoded JSON.
- * @return {object} The parsed credentials object.
- */
-function parseCredentials(credentials) {
-    if (!credentials.trim().startsWith('{')) {
-        credentials = Buffer.from(credentials, 'base64').toString('utf8');
-    }
-    return JSON.parse(credentials);
-}
-// Get the input defined in action metadata file
+const credentials_1 = __webpack_require__(660);
+// Retrieve input.
 const IAPOAuthClientID = core.getInput('iap_oauth_client_id');
-const credentials = parseCredentials(core.getInput('service_account_key') ||
-    fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8'));
+const credentials = credentials_1.getCredentials();
 const privateKey = credentials.private_key;
 const serviceAccount = credentials.client_email;
+// Create a new OIDC token.
 const gtoken = new gtoken_1.GoogleToken({
     iss: serviceAccount,
     scope: [IAPOAuthClientID],
@@ -26116,6 +26102,67 @@ function getConfig(err) {
     return;
 }
 //# sourceMappingURL=retry.js.map
+
+/***/ }),
+
+/***/ 660:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseCredentials = exports.getCredentials = void 0;
+const core = __importStar(__webpack_require__(470));
+const fs = __importStar(__webpack_require__(747));
+/** Get service account credentials.
+ *
+ * Tries to load from action input (as defined in `../action.yml`), and if unavailable
+ * tries to load from the `GOOGLE_APPLICATION_CREDENTIALS` environment variable, which is
+ * the default name used by the `../../setup-gcloud` action to store service account keys
+ * when the `export_default_credentials` option is used.
+ *
+ * @return {ServiceAccountCredentials} The parsed credentials object.
+ */
+function getCredentials() {
+    return parseCredentials(core.getInput('service_account_key') ||
+        fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8'));
+}
+exports.getCredentials = getCredentials;
+/** Parse the given credentials into an object.
+ *
+ * If the credentials are not JSON, they are probably Base64 encoded.
+ *
+ * @param {object} credentials - the credentials string. Either JSON string or a
+ *   Base64 encoded JSON string.
+ * @return {ServiceAccountCredentials} The parsed credentials object.
+ */
+function parseCredentials(credentials) {
+    if (!credentials.trim().startsWith('{')) {
+        credentials = Buffer.from(credentials, 'base64').toString('utf8');
+    }
+    return JSON.parse(credentials);
+}
+exports.parseCredentials = parseCredentials;
+
 
 /***/ }),
 

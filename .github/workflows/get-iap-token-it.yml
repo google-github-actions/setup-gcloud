@@ -8,7 +8,7 @@ on:
 
 jobs:
   gcloud:
-    name: with setup-gcloud
+    name: Authenticate with setup-gcloud.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
         run: echo '${{ steps.iap-token.outputs.token }}'
 
   b64_json:
-    name: with base64 json creds
+    name: Authenticate with Base64 JSON credentials.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
         run: echo '${{ steps.iap-token.outputs.token }}'
 
   json:
-    name: with json creds
+    name: Authenticate with JSON credentials.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

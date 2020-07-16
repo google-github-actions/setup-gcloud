@@ -1,0 +1,53 @@
+name: get-iap-token Integration
+
+on:
+  push:
+    paths:
+      - "get-iap-token/**"
+      - ".github/workflows/get-iap-token*"
+
+jobs:
+  gcloud:
+    name: Authenticate with setup-gcloud.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./setup-gcloud
+        with:
+          export_default_credentials: true
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+      - id: iap-token
+        name: get IAP token
+        uses: ./get-iap-token
+        with:
+          iap_oauth_client_id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
+      - name: get output
+        run: echo '${{ steps.iap-token.outputs.token }}'
+
+  b64_json:
+    name: Authenticate with Base64 JSON credentials.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: iap-token
+        name: get IAP token
+        uses: ./get-iap-token
+        with:
+          iap_oauth_client_id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+      - name: get output
+        run: echo '${{ steps.iap-token.outputs.token }}'
+
+  json:
+    name: Authenticate with JSON credentials.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: iap-token
+        name: get IAP token
+        uses: ./get-iap-token
+        with:
+          iap_oauth_client_id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}
+      - name: get output
+        run: echo '${{ steps.iap-token.outputs.token }}'

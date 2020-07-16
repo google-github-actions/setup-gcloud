@@ -20,6 +20,8 @@ This repository contains a library of [Github Actions](https://github.com/action
 
 * [setup-gcloud](./setup-gcloud/README.md): This action downloads, installs, and configures a [gcloud Cloud SDK](https://cloud.google.com/sdk/) environment for the worker, adding the `gcloud` CLI command to the worker's $PATH.
 
+* [get-iap-token](./get-iap-token/README.md): This action gets an [OpenID Connect](https://developers.google.com/identity/protocols/OpenIDConnect) (OIDC) token and makes it available as an output variable. The token can then be used to [authenticate a service account](https://cloud.google.com/iap/docs/authentication-howto#authenticating_from_a_service_account) to an [Identity Aware Proxy](https://cloud.google.com/iap) secured resource.
+
 * [get-secretmanager-secrets](./get-secretmanager-secrets/README.md): This action accesses secrets from [Google Secret Manager](https://cloud.google.com/secret-manager) and makes their results available as output variables.
 
 ## Example Workflows
@@ -49,6 +51,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 ## License
 
 See [LICENSE](LICENSE)
-
 
 [github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions

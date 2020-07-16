@@ -43,3 +43,6 @@ typings/
 
 # Output of 'npm pack'
 *.tgz
+
+# Environment files
+.env

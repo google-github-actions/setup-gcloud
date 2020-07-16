@@ -21,7 +21,6 @@ jobs:
         uses: ./get-iap-token
         with:
           iap-oauth-client-id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
-          service-account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       - name: get output
         run: echo '${{ steps.iap-token.outputs.token }}'
 
@@ -36,7 +35,6 @@ jobs:
         with:
           credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
           iap-oauth-client-id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
-          service-account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       - name: get output
         run: echo '${{ steps.iap-token.outputs.token }}'
 
@@ -51,6 +49,5 @@ jobs:
         with:
           credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}
           iap-oauth-client-id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
-          service-account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       - name: get output
         run: echo '${{ steps.iap-token.outputs.token }}'

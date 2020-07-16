@@ -3448,11 +3448,11 @@ function parseCredentials(credentials) {
     return JSON.parse(credentials);
 }
 // Get the input defined in action metadata file
-const IAPOAuthClientID = core.getInput('iap-oauth-client-id');
-const credentials = core.getInput('credentials') ||
-    fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8');
-const privateKey = parseCredentials(credentials).private_key;
-const serviceAccount = core.getInput('service-account');
+const IAPOAuthClientID = core.getInput('iap_oauth_client_id');
+const credentials = parseCredentials(core.getInput('service_account_key') ||
+    fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8'));
+const privateKey = credentials.private_key;
+const serviceAccount = credentials.client_email;
 const gtoken = new gtoken_1.GoogleToken({
     iss: serviceAccount,
     scope: [IAPOAuthClientID],

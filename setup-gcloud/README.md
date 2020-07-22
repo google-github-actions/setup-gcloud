@@ -41,10 +41,6 @@ It does the following:
     **IMPORTANT!** Exporting default credentials requires `actions/checkout@v2`.
     The `v1` tag is not supported and will not work.
 
-    **WARNING!** This persists the credentials to a temporary path on disk. If
-    you are building packages, ensure you do **not** use `RUNNER_TEMP` or you
-    risk including the service account credential in your build.
-
 ## Prerequisites
 
 * This action requires [Python](https://www.python.org/) 2.7.9 or later to be installed on the environment.

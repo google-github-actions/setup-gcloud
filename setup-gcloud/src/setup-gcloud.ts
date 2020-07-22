@@ -56,9 +56,9 @@ async function run(): Promise<void> {
     // all steps.
     const exportCreds = core.getInput('export_default_credentials');
     if (String(exportCreds).toLowerCase() === 'true') {
-      const workspace = process.env.RUNNER_TEMP;
+      const workspace = process.env.GITHUB_WORKSPACE;
       if (!workspace) {
-        throw new Error('Missing RUNNER_TEMP!');
+        throw new Error('Missing GITHUB_WORKSPACE!');
       }
 
       const credsPath = path.join(workspace, uuidv4());

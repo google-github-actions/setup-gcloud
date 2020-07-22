@@ -40,6 +40,9 @@ It does the following:
 
     **IMPORTANT!** Exporting default credentials requires `actions/checkout@v2`.
     The `v1` tag is not supported and will not work.
+    
+    **WARNING!** This persists the application credentials inside the workspace. If
+    you are building packages or artifacts, be sure to exclude the credentials!
 
 ## Prerequisites
 

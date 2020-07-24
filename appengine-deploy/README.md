@@ -50,7 +50,7 @@ steps:
   for the services or configurations you want to deploy. If not given, defaults
   to app.yaml in the current directory. If that is not found, attempts to
   automatically generate necessary configuration files (such as app.yaml) in
-  the current directory.
+  the current directory (example, `app.yaml cron.yaml`).
 
 - `image-url`: (Optional) Deploy with a specific container image. The image url
   must be from one of the valid GCR hostnames (example, `gcr.io/`).

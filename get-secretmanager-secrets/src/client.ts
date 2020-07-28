@@ -25,6 +25,7 @@ import { GoogleAuth } from 'google-auth-library';
 type ClientOptions = {
   credentials?: string;
   endpoint?: string;
+  trim?: boolean;
 };
 
 /**
@@ -41,9 +42,11 @@ export class Client {
 
   readonly auth: GoogleAuth;
   readonly endpoint: string;
+  readonly trim: boolean;
 
   constructor(opts?: ClientOptions) {
     this.endpoint = opts?.endpoint || this.defaultEndpoint;
+    this.trim = opts?.trim || false;
 
     if (opts?.credentials) {
       // If the credentials are not JSON, they are probably base64-encoded. Even
@@ -95,7 +98,11 @@ export class Client {
     }
 
     const data = Buffer.from(b64data, 'base64');
-    return data.toString();
+    if (this.trim) {
+      return data.toString().trim();
+    } else {
+      return data.toString();
+    }
   }
 }
 

@@ -47,14 +47,14 @@ async function run(): Promise<void> {
 
     // Get credentials, if any.
     const credentials = core.getInput('credentials');
-    
+
     // Get trim flag, if any.
     const trim = core.getInput('trim');
-    
+
     // Create an API client.
     const client = new Client({
       credentials: credentials,
-      trim: trim
+      trim: trim,
     });
 
     // Parse all the provided secrets into references.

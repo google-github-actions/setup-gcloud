@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(738);
+/******/ 		return __webpack_require__(325);
 /******/ 	};
 /******/
 /******/ 	// run startup
@@ -1362,6 +1362,18 @@ exports.debug = debug; // for test
 /***/ (function(module) {
 
 module.exports = require("https");
+
+/***/ }),
+
+/***/ 325:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const setup_gcloud_1 = __webpack_require__(738);
+setup_gcloud_1.run();
+
 
 /***/ }),
 
@@ -16436,11 +16448,14 @@ function run() {
             // all steps.
             const exportCreds = core.getInput('export_default_credentials');
             if (String(exportCreds).toLowerCase() === 'true') {
-                const workspace = process.env.GITHUB_WORKSPACE;
-                if (!workspace) {
-                    throw new Error('Missing GITHUB_WORKSPACE!');
+                let credsPath = core.getInput('credentials_file_path');
+                if (!credsPath) {
+                    const credsDir = process.env.GITHUB_WORKSPACE;
+                    if (!credsDir) {
+                        throw new Error('No path for credentials. Set credentials_file_path or process.env.GITHUB_WORKSPACE');
+                    }
+                    credsPath = path_1.default.join(credsDir, uuid_1.v4());
                 }
-                const credsPath = path_1.default.join(workspace, uuid_1.v4());
                 const serviceAccountKeyObj = setupGcloud.parseServiceAccountKey(serviceAccountKey);
                 yield fs_1.promises.writeFile(credsPath, JSON.stringify(serviceAccountKeyObj, null, 2));
                 core.exportVariable('GCLOUD_PROJECT', projectId ? projectId : serviceAccountKeyObj.project_id); // If projectId is set export it, else export projectId from SA
@@ -16453,7 +16468,7 @@ function run() {
         }
     });
 }
-run();
+exports.run = run;
 
 
 /***/ }),

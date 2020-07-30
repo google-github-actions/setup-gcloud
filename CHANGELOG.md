@@ -34,9 +34,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Security
 
  ### Added
- - [deploy-cloudrun]: Added action for deploying to Google Cloud Run
- - [appengine-deploy]: Added action for deploying to Google App Engine
- - [upload-cloud-storage]: Added action for uploading an artifact to GCS
+ - [deploy-cloudrun](https://github.com/GoogleCloudPlatform/github-actions/pull/117): Added action for deploying to Google Cloud Run
+ - [appengine-deploy](https://github.com/GoogleCloudPlatform/github-actions/pull/91): Added action for deploying to Google App Engine
+ - [upload-cloud-storage](https://github.com/GoogleCloudPlatform/github-actions/pull/121): Added action for uploading an artifact to GCS
+ - [get-secretmanager-secrets](https://github.com/GoogleCloudPlatform/github-actions/pull/53): Fetch secrets from Secret Manager
 
  ### Changed
  - [setup-gcloud]: Allow setting of project Id

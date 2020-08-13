@@ -16443,7 +16443,7 @@ function run() {
                 const credsPath = path_1.default.join(workspace, uuid_1.v4());
                 const serviceAccountKeyObj = setupGcloud.parseServiceAccountKey(serviceAccountKey);
                 yield fs_1.promises.writeFile(credsPath, JSON.stringify(serviceAccountKeyObj, null, 2));
-                core.exportVariable('GCLOUD_PROJECT', serviceAccountKeyObj.project_id);
+                core.exportVariable('GCLOUD_PROJECT', projectId ? projectId : serviceAccountKeyObj.project_id); // If projectId is set export it, else export projectId from SA
                 core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
                 core.info('Successfully exported Default Application Credentials');
             }

@@ -69,7 +69,10 @@ async function run(): Promise<void> {
         credsPath,
         JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
       );
-      core.exportVariable('GCLOUD_PROJECT', serviceAccountKeyObj.project_id);
+      core.exportVariable(
+        'GCLOUD_PROJECT',
+        projectId ? projectId : serviceAccountKeyObj.project_id,
+      ); // If projectId is set export it, else export projectId from SA
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
       core.info('Successfully exported Default Application Credentials');
     }

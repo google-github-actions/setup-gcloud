@@ -1,13 +1,13 @@
-name: deploy-cloudfunctions Integration
+name: deploy-cloud-functions Integration
 
 on:
   push:
     paths:
-    - 'deploy-cloudfunctions/**'
+    - 'deploy-cloud-functions/**'
     - '.github/workflows/deploy-cf**'
   pull_request:
     paths:
-    - 'deploy-cloudfunctions/**'
+    - 'deploy-cloud-functions/**'
     - '.github/workflows/deploy-cf**'
 
 jobs:
@@ -22,27 +22,27 @@ jobs:
         service_account_key: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
         export_default_credentials: true
     - id: deploy
-      uses: ./deploy-cloudfunctions
+      uses: ./deploy-cloud-functions
       env:
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
       with:
         name: cf-http-gcloud-${{ github.run_number }}
         runtime: nodejs10
         entry_point: helloWorld
-        source_dir: ./deploy-cloudfunctions/tests/test-node-func/
+        source_dir: ./deploy-cloud-functions/tests/test-node-func/
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
     - run: npm install
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
     - name: integration tests
       run: npm run e2e-tests
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         URL: ${{ steps.deploy.outputs.url }}
     - name: integration test clean up
       run: npm run cleanup
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
@@ -54,18 +54,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: deploy
-      uses: ./deploy-cloudfunctions
+      uses: ./deploy-cloud-functions
       with:
         name: cf-http-b64-${{ github.run_number }}
         runtime: nodejs10
         entry_point: helloWorld
-        source_dir: ./deploy-cloudfunctions/tests/test-node-func/
+        source_dir: ./deploy-cloud-functions/tests/test-node-func/
         credentials: ${{ secrets.DEPLOY_CF_SA_KEY_B64 }}
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
     - run: npm install
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CF_SA_EMAIL }}
@@ -73,12 +73,12 @@ jobs:
         export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         URL: ${{ steps.deploy.outputs.url }}
     - name: integration test clean up
       run: npm run cleanup
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
@@ -90,18 +90,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: deploy
-      uses: ./deploy-cloudfunctions
+      uses: ./deploy-cloud-functions
       with:
         name: cf-http-json-${{ github.run_number }}
         runtime: nodejs10
         entry_point: helloWorld
-        source_dir: ./deploy-cloudfunctions/tests/test-node-func/
+        source_dir: ./deploy-cloud-functions/tests/test-node-func/
         credentials: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
     - run: npm install
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CF_SA_EMAIL }}
@@ -109,12 +109,12 @@ jobs:
         export_default_credentials: true
     - name: integration tests
       run: npm run e2e-tests
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         URL: ${{ steps.deploy.outputs.url }}
     - name: integration test clean up
       run: npm run cleanup
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}

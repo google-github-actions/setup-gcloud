@@ -1,13 +1,13 @@
-name: deploy-cloudfunctions Unit
+name: deploy-cloud-functions Unit
 
 on:
   push:
     paths:
-    - 'deploy-cloudfunctions/**'
+    - 'deploy-cloud-functions/**'
     - '.github/workflows/deploy-cf**'
   pull_request:
     paths:
-    - 'deploy-cloudfunctions/**'
+    - 'deploy-cloud-functions/**'
     - '.github/workflows/deploy-cf**'
 
 jobs:
@@ -26,11 +26,11 @@ jobs:
 
     - name: npm install
       run: npm install
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
 
     - name: npm lint
       run: npm run lint
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
 
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
@@ -39,7 +39,7 @@ jobs:
         export_default_credentials: true
     - name: npm test
       run: npm run test
-      working-directory: ./deploy-cloudfunctions
+      working-directory: ./deploy-cloud-functions
       env:
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
         GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}

@@ -56,7 +56,12 @@ async function run(): Promise<void> {
     const toolCommand = setupGcloud.getToolCommand();
 
     // Create app engine gcloud cmd.
-    const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
+    const appDeployCmd = [
+      'app',
+      'deploy',
+      '--quiet',
+      ...deliverables.split(' '),
+    ];
 
     // Add gcloud flags.
     if (projectId !== '') {

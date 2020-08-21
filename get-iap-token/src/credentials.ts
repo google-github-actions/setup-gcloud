@@ -35,7 +35,7 @@ interface ServiceAccountCredentials {
  */
 export function getCredentials(): ServiceAccountCredentials {
   return parseCredentials(
-    core.getInput('service_account_key') ||
+    core.getInput('credentials') ||
       fs.readFileSync(
         String(process.env.GOOGLE_APPLICATION_CREDENTIALS),
         'utf8',

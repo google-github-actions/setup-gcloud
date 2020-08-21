@@ -26166,7 +26166,7 @@ const fs = __importStar(__webpack_require__(747));
  * @return {ServiceAccountCredentials} The parsed credentials object.
  */
 function getCredentials() {
-    return parseCredentials(core.getInput('service_account_key') ||
+    return parseCredentials(core.getInput('credentials') ||
         fs.readFileSync(String(process.env.GOOGLE_APPLICATION_CREDENTIALS), 'utf8'));
 }
 exports.getCredentials = getCredentials;

@@ -15,7 +15,7 @@ jobs:
       - uses: ./setup-gcloud
         with:
           export_default_credentials: true
-          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
       - id: iap-token
         name: get IAP token
         uses: ./get-iap-token
@@ -34,7 +34,7 @@ jobs:
         uses: ./get-iap-token
         with:
           iap_oauth_client_id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
-          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
       - name: get output
         run: echo '${{ steps.iap-token.outputs.token }}'
 
@@ -48,6 +48,6 @@ jobs:
         uses: ./get-iap-token
         with:
           iap_oauth_client_id: ${{ secrets.IAP_OAUTH_CLIENT_ID }}
-          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}
       - name: get output
         run: echo '${{ steps.iap-token.outputs.token }}'

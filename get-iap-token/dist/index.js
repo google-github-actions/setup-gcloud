@@ -3429,29 +3429,52 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const gtoken_1 = __webpack_require__(403);
 const credentials_1 = __webpack_require__(660);
-// Retrieve input.
-const IAPOAuthClientID = core.getInput('iap_oauth_client_id');
-const credentials = credentials_1.getCredentials();
-const privateKey = credentials.private_key;
-const serviceAccount = credentials.client_email;
-// Create a new OIDC token.
-const gtoken = new gtoken_1.GoogleToken({
-    iss: serviceAccount,
-    scope: [IAPOAuthClientID],
-    key: privateKey,
-});
-gtoken
-    .getToken()
-    .then(function (tokens) {
-    core.setOutput('token', tokens.id_token);
-})
-    .catch(function (error) {
-    core.setFailed(error.message);
-});
+/**
+ * Executes the main action. It includes the main business logic and is the
+ * primary entry point. It is documented inline.
+ */
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Retrieve input.
+            const IAPOAuthClientID = core.getInput('iap_oauth_client_id');
+            const credentials = credentials_1.getCredentials();
+            const privateKey = credentials.private_key;
+            const serviceAccount = credentials.client_email;
+            // Create a new OIDC token.
+            const gtoken = new gtoken_1.GoogleToken({
+                iss: serviceAccount,
+                scope: [IAPOAuthClientID],
+                key: privateKey,
+            });
+            gtoken
+                .getToken()
+                .then(function (tokens) {
+                core.setOutput('token', tokens.id_token);
+            })
+                .catch(function (error) {
+                core.setFailed(error.message);
+            });
+        }
+        catch (error) {
+            core.setFailed(error.message);
+        }
+    });
+}
+run();
 
 
 /***/ }),

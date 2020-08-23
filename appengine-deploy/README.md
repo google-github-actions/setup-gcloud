@@ -20,7 +20,7 @@ available to later build steps via outputs. This allows you to parameterize your
 App Engine deployments.
 
 **Note:** This action will install [gcloud](https://cloud.google.com/sdk) in the
-background if not using in with the [`setup-gcloud` action](../setup-gclou/README.md).
+background if not using in with the [`setup-gcloud` action](../setup-gcloud/README.md).
 
 ## Prerequisites
 

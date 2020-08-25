@@ -1,7 +1,7 @@
 {
   "name": "get-iap-token",
   "version": "0.1.0",
-  "description": "GitHub action for getting a JWT that can be used to authenticate API calls behind a Goocle Cloud Identity Aware Proxy (IAP).",
+  "description": "GitHub action for getting a JWT that can be used to authenticate API calls behind a Google Cloud Identity Aware Proxy (IAP).",
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/main.ts",

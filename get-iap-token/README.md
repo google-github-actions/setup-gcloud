@@ -14,7 +14,7 @@ This action gets an [OpenID Connect](https://developers.google.com/identity/prot
 
 **Required.** The client ID for the IAP OAuth client.
 
-### `service_account_key`
+### `credentials`
 
 **Optional.** The [service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) to use for authentication. This key should be either in JSON format or as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS). It should be stored as a [GitHub secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be ommited if using [`setup-gcloud`](../setup-gcloud/README.md) with `export_default_credentials`.
 

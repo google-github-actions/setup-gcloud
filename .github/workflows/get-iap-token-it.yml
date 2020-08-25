@@ -15,7 +15,7 @@ jobs:
       - uses: ./setup-gcloud
         with:
           export_default_credentials: true
-          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}
       - id: iap-token
         name: get IAP token
         uses: ./get-iap-token

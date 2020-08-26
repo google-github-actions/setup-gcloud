@@ -28,7 +28,7 @@ async function run(): Promise<void> {
     }
 
     // Install the gcloud if not already present
-    if (!setupGcloud.isInstalled()) {
+    if (!setupGcloud.isInstalled(version)) {
       await setupGcloud.installGcloudSDK(version);
     } else {
       const toolPath = toolCache.find('gcloud', version);

@@ -1001,7 +1001,7 @@ function run() {
             // Get action inputs.
             let projectId = core.getInput('project_id');
             const deliverables = core.getInput('deliverables');
-            const imageUrl = core.getInput('image-url');
+            const imageUrl = core.getInput('image_url');
             const version = core.getInput('version');
             const promote = core.getInput('promote');
             const serviceAccountKey = core.getInput('credentials');
@@ -1029,7 +1029,12 @@ function run() {
             }
             const toolCommand = setupGcloud.getToolCommand();
             // Create app engine gcloud cmd.
-            const appDeployCmd = ['app', 'deploy', '--quiet', ...deliverables.split(' ')];
+            const appDeployCmd = [
+                'app',
+                'deploy',
+                '--quiet',
+                ...deliverables.split(' '),
+            ];
             // Add gcloud flags.
             if (projectId !== '') {
                 appDeployCmd.push('--project', projectId);

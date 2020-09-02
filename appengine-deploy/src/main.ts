@@ -23,7 +23,7 @@ async function run(): Promise<void> {
     // Get action inputs.
     let projectId = core.getInput('project_id');
     const deliverables = core.getInput('deliverables');
-    const imageUrl = core.getInput('image-url');
+    const imageUrl = core.getInput('image_url');
     const version = core.getInput('version');
     const promote = core.getInput('promote');
     const serviceAccountKey = core.getInput('credentials');

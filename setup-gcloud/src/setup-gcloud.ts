@@ -62,15 +62,17 @@ async function run(): Promise<void> {
       }
 
       const credsPath = path.join(workspace, uuidv4());
+      const serviceAccountKeyObj = setupGcloud.parseServiceAccountKey(
+        serviceAccountKey,
+      );
       await fs.writeFile(
         credsPath,
-        JSON.stringify(
-          setupGcloud.parseServiceAccountKey(serviceAccountKey),
-          null,
-          2,
-        ), // Print to file as string w/ indents
+        JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
       );
-
+      core.exportVariable(
+        'GCLOUD_PROJECT',
+        projectId ? projectId : serviceAccountKeyObj.project_id,
+      ); // If projectId is set export it, else export projectId from SA
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
       core.info('Successfully exported Default Application Credentials');
     }

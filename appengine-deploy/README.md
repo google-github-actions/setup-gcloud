@@ -52,7 +52,7 @@ steps:
   automatically generate necessary configuration files (such as app.yaml) in
   the current directory (example, `app.yaml cron.yaml`).
 
-- `image-url`: (Optional) Deploy with a specific container image. The image url
+- `image_url`: (Optional) Deploy with a specific container image. The image url
   must be from one of the valid GCR hostnames (example, `gcr.io/`).
 
 - `version`: (Optional) The version of the app that will be created or replaced

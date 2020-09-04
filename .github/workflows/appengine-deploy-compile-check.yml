@@ -1,0 +1,16 @@
+name: appengine-deploy compile check
+on:
+  push:
+    paths:
+    - 'appengine-deploy/**'
+  pull_request:
+    paths:
+    - 'appengine-deploy/**'
+
+jobs:
+  run:
+    name: appengine-deploy compile check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: utils/compile-check.sh appengine-deploy

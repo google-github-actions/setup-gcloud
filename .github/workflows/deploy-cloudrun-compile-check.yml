@@ -1,0 +1,16 @@
+name: deploy-cloudrun compile check
+on:
+  push:
+    paths:
+    - 'deploy-cloudrun/**'
+  pull_request:
+    paths:
+    - 'deploy-cloudrun/**'
+
+jobs:
+  run:
+    name: deploy-cloudrun compile check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: utils/compile-check.sh deploy-cloudrun

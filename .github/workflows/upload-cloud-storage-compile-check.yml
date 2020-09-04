@@ -1,0 +1,16 @@
+name: upload-cloud-storage compile check
+on:
+  push:
+    paths:
+    - 'upload-cloud-storage/**'
+  pull_request:
+    paths:
+    - 'upload-cloud-storage/**'
+
+jobs:
+  run:
+    name: upload-cloud-storage compile check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: utils/compile-check.sh upload-cloud-storage

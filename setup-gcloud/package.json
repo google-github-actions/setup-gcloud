@@ -4,7 +4,8 @@
   "description": "Setup gcloud GitHub action",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/setup-gcloud.ts",
+    "build": "docker build -t builder -f ../utils/Buildfile ../setup-gcloud/ && cd .. && docker run --rm -v ${PWD}/setup-gcloud/dist:/build/dist -v ${PWD}/setup-gcloud/src:/build/src -v ${PWD}/setupGcloudSDK:/setupGcloudSDK -t builder",
+    "ncc-build": "ncc build src/setup-gcloud.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts"
   },

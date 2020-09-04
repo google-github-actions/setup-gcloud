@@ -4,7 +4,8 @@
   "description": "Github Action: Deploy to Google App Engine",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts",
+    "build": "docker build -t builder -f ../utils/Buildfile ../appengine-deploy/ && cd .. &&  docker run --rm -v ${PWD}/appengine-deploy/dist:/build/dist -v ${PWD}/appengine-deploy/src:/build/src -v ${PWD}/setupGcloudSDK:/setupGcloudSDK -t builder",
+    "ncc-build": "ncc build src/main.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts"
   },

@@ -1,0 +1,16 @@
+name: setup-gcloud compile check
+on:
+  push:
+    paths:
+    - 'setup-gcloud/**'
+  pull_request:
+    paths:
+    - 'setup-gcloud/**'
+
+jobs:
+  run:
+    name: setup-gcloud compile check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: utils/compile-check.sh setup-gcloud

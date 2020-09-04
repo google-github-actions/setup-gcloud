@@ -4,7 +4,8 @@
   "description": "Get Secret Manager secrets GitHub action",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts",
+    "build": "docker build -t builder -f ../utils/Buildfile ../get-secretmanager-secrets/ && docker run --rm -v ${PWD}/dist:/build/dist -v ${PWD}/src:/build/src -t builder",
+    "ncc-build": "ncc build src/main.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts",
     "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"

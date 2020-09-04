@@ -146,7 +146,7 @@ export class CloudFunctionClient {
    *
    * @returns list of Cloud Functions.
    */
-  async getFunctions(): Promise<string[]> {
+  async listFunctions(): Promise<string[]> {
     const authClient = await this.getAuthClient();
     const getRequest: cloudfunctions_v1.Params$Resource$Projects$Locations$Functions$List = {
       parent: this.parent,
@@ -195,7 +195,7 @@ export class CloudFunctionClient {
    */
   async deploy(cf: CloudFunction): Promise<cloudfunctions_v1.Schema$Operation> {
     const authClient = await this.getAuthClient();
-    const deployedFunctions = await this.getFunctions();
+    const deployedFunctions = await this.listFunctions();
     const zipPath = await zipDir(cf.sourceDir);
     const uploadUrl = await this.getUploadUrl();
     if (!uploadUrl.uploadUrl) {
@@ -209,6 +209,8 @@ export class CloudFunctionClient {
     // If CF already exists, create a revision else create new deployment
     if (deployedFunctions.includes(cf.fqn)) {
       core.info('Creating a function revision');
+      // fieldMasks are used if we are overwriting only specific fields of the resource
+      // In the case we assume we will always need to replace sourceUploadUrl due to code change and along with it updates any inputs if changed
       const updateMasks = [
         'sourceUploadUrl',
         'name',

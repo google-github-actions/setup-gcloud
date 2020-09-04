@@ -23,8 +23,6 @@ jobs:
         export_default_credentials: true
     - id: deploy
       uses: ./deploy-cloud-functions
-      env:
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
       with:
         name: cf-http-gcloud-${{ github.run_number }}
         runtime: nodejs10
@@ -44,9 +42,8 @@ jobs:
       run: npm run cleanup
       working-directory: ./deploy-cloud-functions
       env:
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
-        CF_NAME: ${{ steps.deploy.outputs.name }}
+        CF_NAME: projects/${{ secrets.DEPLOY_CF_PROJECT_ID }}/locations/us-central1/functions/cf-http-gcloud-${{ github.run_number }}
 
   b64_json:
     name: with base64 json creds
@@ -80,9 +77,8 @@ jobs:
       run: npm run cleanup
       working-directory: ./deploy-cloud-functions
       env:
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
-        CF_NAME: ${{ steps.deploy.outputs.name }}
+        CF_NAME: projects/${{ secrets.DEPLOY_CF_PROJECT_ID }}/locations/us-central1/functions/cf-http-b64-${{ github.run_number }}
 
   json:
     name: with json creds
@@ -116,7 +112,6 @@ jobs:
       run: npm run cleanup
       working-directory: ./deploy-cloud-functions
       env:
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CF_PROJECT_ID }}
         DEPLOY_CF_SA_KEY_JSON: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
-        CF_NAME: ${{ steps.deploy.outputs.name }}
+        CF_NAME: projects/${{ secrets.DEPLOY_CF_PROJECT_ID }}/locations/us-central1/functions/cf-http-json-${{ github.run_number }}
 

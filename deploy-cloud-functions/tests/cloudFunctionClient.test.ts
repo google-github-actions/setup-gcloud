@@ -21,13 +21,14 @@ describe('CloudFunction', function () {
     expect(client.auth.jsonContent).eql({ foo: 'bar' });
   });
 
+  it('discovers project id from creds', function () {
+    const client = new CloudFunctionClient(region, {
+      credentials: `{"foo":"bar", "project_id":"baz"}`,
+    });
+    expect(client.parent).eql(`projects/baz/locations/${region}`);
+  });
+
   it('initializes with ADC', async function () {
-    if (
-      !process.env.GCLOUD_PROJECT ||
-      !process.env.GOOGLE_APPLICATION_CREDENTIALS
-    ) {
-      this.skip();
-    }
     const client = new CloudFunctionClient(region);
     expect(client.auth.jsonContent).eql(null);
     const auth = (await client.getAuthClient()) as JWT;

@@ -15,7 +15,7 @@ limitations under the License.
 -->
 # deploy-cloud-functions
 
-This action deploys your function source code to [Cloud Functions][cloud-functions] and makes the URL
+This action deploys your function source code to [Cloud Functions](cloud-functions) and makes the URL
 available to later build steps via outputs.
 
 ## Prerequisites
@@ -23,7 +23,7 @@ available to later build steps via outputs.
 This action requires:
 
 - Google Cloud credentials that are authorized to deploy a
-Cloud Run service. See the Authorization section below for more information.
+Cloud Function. See the Authorization section below for more information.
 
 - [Enable the Cloud Functions API](http://console.cloud.google.com/apis/library/cloudfunctions.googleapis.com?_ga=2.267842766.1374248275.1591025444-475066991.1589991158)
 
@@ -45,78 +45,64 @@ steps:
 
 ## Inputs
 
-- `image`: Name of the container image to deploy (e.g. gcr.io/cloudrun/hello:latest).
-  Required if not using a service YAML.
+- `name`: (Required) Name of the Cloud Function.
 
-- `service`: ID of the service or fully qualified identifier for the service.
-  Required if not using a service YAML.
+- `runtime`: (Required) Runtime to use for the function. Possible options documented [here][runtimes].
 
-- `region`: Region in which the resource can be found.
+- `entry_point`: (Optional) Name of a function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified. 
 
-- `credentials`: Service account key to use for authentication. This should be
+- `region`: (Optional) Region in which the function should be deployed. Defaults to `us-central1`.
+
+- `credentials`: (Optional) Service account key to use for authentication. This should be
   the JSON formatted private key which can be exported from the Cloud Console. The
   value can be raw or base64-encoded. Required if not using a the
   `setup-gcloud` action with exported credentials.
 
-- `env_vars`: List of key-value pairs to set as environment variables in the format:
+- `env_vars`: (Optional) List of key-value pairs to set as environment variables in the format:
   KEY1=VALUE1,KEY2=VALUE2. All existing environment variables will be
   removed first.
 
-- `metadata`: YAML serivce description for the Cloud Run service. See
-  [Metadata customizations](#metadata-customizations) for more information.
+- `source_dir`: (Optional) Source directory for the function. Defaults to current directory.
 
 - `project_id`: (Optional) ID of the Google Cloud project. If provided, this
   will override the project configured by gcloud.
 
-### Metadata customizations
+- `description`: (Optional) Description for the CF.
 
-You can store your service specification in a YAML file. This will allow for
-further service configuration, such as [memory limits](https://cloud.google.com/run/docs/configuring/memory-limits),
-[CPU allocation](https://cloud.google.com/run/docs/configuring/cpu),
-[max instances](https://cloud.google.com/run/docs/configuring/max-instances),
-and [more.](https://cloud.google.com/sdk/gcloud/reference/run/deploy#OPTIONAL-FLAGS)
+- `vpc_connector`: (Optional) The VPC Access connector that the function can connect to..
 
-- See [Deploying a new service](https://cloud.google.com/run/docs/deploying#yaml)
-to create a new YAML service definition, for example:
+- `service_account_email`: (Optional) The email address of the IAM service account associated with the function at runtime.
 
-```YAML
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: SERVICE
-spec:
-  template:
-    spec:
-      containers:
-      - image: IMAGE
-```
+- `timeout`: (Optional) The function execution timeout in seconds. Defaults to 60.
 
-- See [Deploy a new revision of an existing service](https://cloud.google.com/run/docs/deploying#yaml_1)
-to generated a YAML service specification from an existing service:
+- `max_instances`: (Optional) The maximum number of instances for the function.
 
-```
-gcloud run services describe SERVICE --format yaml > service.yaml
-```
+- `event_trigger_type`: (Optional) Specifies which action should trigger the function. Defaults to creation of http trigger.
+
+- `event_trigger_resource`: (Optional) Specifies which resource from eventTrigger is observed.
+
+- `event_trigger_service`: (Optional) The hostname of the service that should be observed.
+
 ## Allow unauthenticated requests
 
-A Cloud Run product recommendation is that CI/CD systems not set or change
+A Cloud Functions product recommendation is that CI/CD systems not set or change
 settings for allowing unauthenticated invocations. New deployments are
 automatically private services, while deploying a revision of a public
 (unauthenticated) service will preserve the IAM setting of public
-(unauthenticated). For more information, see [Controlling access on an individual service](https://cloud.google.com/run/docs/securing/managing-access).
+(unauthenticated). For more information, see [Controlling access on an individual service](https://cloud.google.com/functions/docs/securing/managing-access-iam).
 
 ## Outputs
 
-- `url`: The URL of your Cloud Run service.
+- `url`: The URL of your Cloud Function. Only available with HTTP Trigger.
 
 ## Authorization
 
 There are a few ways to authenticate this action. A service account will be needed
 with the following roles:
 
-- Cloud Run Admin (`roles/run.admin`):
-  - Can create, update, and delete services.
-  - Can get and set IAM policies.
+- Cloud Functions Admin (`cloudfunctions.admin`):
+  - Can create, update, and delete functions.
+  - Can set IAM policies and view source code.
 
 This service account needs to a member of the `Compute Engine default service account`,
 `(PROJECT_NUMBER-compute@developer.gserviceaccount.com)`, with role
@@ -130,14 +116,13 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 ```yaml
 - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
   with:
-    version: '290.0.1'
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
+  uses: GoogleCloudPlatform/github-actions/deploy-cloud-functions@master
   with:
-    image: gcr.io/cloudrun/hello
-    service: hello-cloud-run
+    name: my-function
+    runtime: nodejs10
 ```
 
 ### Via Credentials
@@ -149,11 +134,11 @@ action:
 
 ```yaml
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
+  uses: GoogleCloudPlatform/github-actions/deploy-cloud-functions@master
   with:
     credentials: ${{ secrets.GCP_SA_KEY }}
-    image: gcr.io/cloudrun/hello
-    service: hello-cloud-run
+    name: my-function
+    runtime: nodejs10
 ```
 
 ### Via Application Default Credentials
@@ -165,16 +150,17 @@ only works using a custom runner hosted on GCP.**
 
 ```yaml
 - id: Deploy
-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
+  uses: GoogleCloudPlatform/github-actions/deploy-cloud-functions@master
   with:
-    image: gcr.io/cloudrun/hello
-    service: hello-cloud-run
+    name: my-function
+    runtime: nodejs10
 ```
 
 The action will automatically detect and use the Application Default
 Credentials.
 
-[cloud-run]: https://cloud.google.com/run
+[cloud-functions]: https://cloud.google.com/functions
+[runtimes]: https://cloud.google.com/sdk/gcloud/reference/functions/deploy#--runtime
 [sm]: https://cloud.google.com/secret-manager
 [sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
 [gh-runners]: https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners

@@ -99,7 +99,7 @@ async function run(): Promise<void> {
       /https:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.com/,
     );
     if (urlMatch) {
-      const url = urlMatch[0];
+      const url = urlMatch[urlMatch.length - 1];
       core.setOutput('url', url);
     } else {
       core.info(

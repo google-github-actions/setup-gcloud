@@ -32,7 +32,7 @@ Cloud Run service. See the Authorization section below for more information.
 ```yaml
 steps:
 - id: deploy
-  uses: GoogleCloudPlatform/github-actions/deploy-appengine@master
+  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
   with:
     image: gcr.io/cloudrun/hello
     service: hello-cloud-run

@@ -27,7 +27,7 @@
   "author": "GoogleCloudPlatform",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.2.2",
+    "@actions/core": "^1.2.6",
     "google-auth-library": "^5.9.2"
   },
   "devDependencies": {

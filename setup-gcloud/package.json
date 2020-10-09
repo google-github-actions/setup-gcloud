@@ -8,11 +8,6 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write **/*.ts"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build && git add dist/"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/GoogleCloudPlatform/github-actions"

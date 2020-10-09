@@ -46,7 +46,7 @@ For pushes to the `master` branch, this workflow will:
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
-    - `Cloud Build Admin` - allows for the creation of new services
+    - `Cloud Run Admin` - allows for the creation of new services
 
     - `Cloud Build Editor` - allows for deploying cloud builds
 

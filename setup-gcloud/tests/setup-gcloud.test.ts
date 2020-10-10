@@ -98,7 +98,7 @@ describe('#run', function() {
     expect(this.stubs.installGcloudSDK.withArgs('888').callCount).to.eq(1);
   });
 
-  it('uses the cached gcloud sdk if it was already installed', async function() {
+  it('uses the cached gcloud SDK if it was already installed', async function() {
     this.stubs.isInstalled.returns(true);
     this.stubs.getInput.withArgs('version').returns('777');
     await run();

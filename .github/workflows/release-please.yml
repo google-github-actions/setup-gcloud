@@ -1,0 +1,42 @@
+on:
+  push:
+    branches:
+      - master
+name: build and release-please
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+        max-parallel: 1
+        matrix: 
+          actions: ["setupGcloudSDK", "appengine-deploy","deploy-cloudrun", "setup-gcloud", "get-secretmanager-secrets", "upload-cloud-storage"]
+    steps:
+      - uses: actions/checkout@v2
+      - run: git pull
+      - name: install
+        working-directory: ${{ matrix.actions }}
+        run: npm install
+      - name: build
+        run: npm run build
+        working-directory: ${{ matrix.actions }}
+      - name: commit
+        run: |-
+          git config --global user.name "actions-bot"
+          git add dist/
+          git diff-index --quiet HEAD || git commit -m "chore: build dist"
+          git pull --rebase
+          git push origin master
+        working-directory: ${{ matrix.actions }}
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+        matrix: 
+          actions: ["setupGcloudSDK", "appengine-deploy","deploy-cloudrun", "setup-gcloud", "get-secretmanager-secrets", "upload-cloud-storage"]
+    steps:
+      - uses: GoogleCloudPlatform/release-please-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          package-name: ${{ matrix.actions }}
+          path: ${{ matrix.actions }}

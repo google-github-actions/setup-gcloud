@@ -14,11 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
         export_default_credentials: true
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       env:
@@ -42,6 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       with:
@@ -53,7 +65,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
@@ -70,6 +82,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       with:
@@ -81,7 +99,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
@@ -98,6 +116,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       with:
@@ -110,7 +134,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
@@ -127,6 +151,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       with:
@@ -137,7 +167,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
@@ -154,6 +184,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloudrun
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloudrun
       with:
@@ -164,7 +200,7 @@ jobs:
         node-version: 12.x
     - run: npm install
       working-directory: ./deploy-cloudrun
-    - uses: ./setup-gcloud # Set up ADC to make authenticated request to service # Set up ADC to make authenticated request to service
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}

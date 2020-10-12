@@ -5,6 +5,7 @@ on:
     paths:
     - 'appengine-deploy/**'
     - '.github/workflows/appengine-deploy*'
+    - 'setupGcloudSDK/**'
 
 jobs:
   gcloud:
@@ -12,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./setup-gcloud
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
         export_default_credentials: true
@@ -31,6 +32,18 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
+    - id: build dependency
+      name: Build dependency
+      working-directory: setupGcloudSDK
+      run: |-
+        npm install
+        npm run build
+    - id: build
+      name: Build dist
+      working-directory: appengine-deploy
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       name: Deploy to App Engine
       uses: ./appengine-deploy
@@ -69,6 +82,18 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
+    - id: build dependency
+      name: Build dependency
+      working-directory: setupGcloudSDK
+      run: |-
+        npm install
+        npm run build
+    - id: build
+      name: Build dist
+      working-directory: appengine-deploy
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       name: Deploy to App Engine
       uses: ./appengine-deploy
@@ -110,6 +135,18 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
+    - id: build dependency
+      name: Build dependency
+      working-directory: setupGcloudSDK
+      run: |-
+        npm install
+        npm run build
+    - id: build
+      name: Build dist
+      working-directory: appengine-deploy
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       name: Deploy to App Engine
       uses: ./appengine-deploy

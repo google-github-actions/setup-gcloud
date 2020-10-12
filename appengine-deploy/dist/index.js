@@ -941,10 +941,72 @@ module.exports = require("tls");
 
 /***/ }),
 
+/***/ 82:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
 module.exports = require("os");
+
+/***/ }),
+
+/***/ 102:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
 
 /***/ }),
 
@@ -1126,6 +1188,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
 /**
  * Commands
  *
@@ -1180,13 +1243,13 @@ class Command {
     }
 }
 function escapeData(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -1220,6 +1283,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
+const file_command_1 = __webpack_require__(102);
+const utils_1 = __webpack_require__(82);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -1242,11 +1307,21 @@ var ExitCode;
 /**
  * Sets env variable for this action and future actions in the job
  * @param name the name of the variable to set
- * @param val the value of the variable
+ * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
+    const convertedVal = utils_1.toCommandValue(val);
+    process.env[name] = convertedVal;
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -1262,7 +1337,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -1285,12 +1366,22 @@ exports.getInput = getInput;
  * Sets the value of an output.
  *
  * @param     name     name of the output to set
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
+/**
+ * Enables or disables the echoing of commands into stdout for the rest of the step.
+ * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
+ *
+ */
+function setCommandEcho(enabled) {
+    command_1.issue('echo', enabled ? 'on' : 'off');
+}
+exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
 // Results
 //-----------------------------------------------------------------------
@@ -1308,6 +1399,13 @@ exports.setFailed = setFailed;
 // Logging Commands
 //-----------------------------------------------------------------------
 /**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
+/**
  * Writes debug message to user log
  * @param message debug message
  */
@@ -1317,18 +1415,18 @@ function debug(message) {
 exports.debug = debug;
 /**
  * Adds an error issue
- * @param message error issue message
+ * @param message error issue message. Errors will be converted to string via toString()
  */
 function error(message) {
-    command_1.issue('error', message);
+    command_1.issue('error', message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
  * Adds an warning issue
- * @param message warning issue message
+ * @param message warning issue message. Errors will be converted to string via toString()
  */
 function warning(message) {
-    command_1.issue('warning', message);
+    command_1.issue('warning', message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -1386,8 +1484,9 @@ exports.group = group;
  * Saves state for current action, the state can only be retrieved by this action's post job execution.
  *
  * @param     name     name of the state to store
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
     command_1.issueCommand('save-state', { name }, value);
 }
@@ -2905,6 +3004,32 @@ exports.getLatestGcloudSDKVersion = getLatestGcloudSDKVersion;
 
 /***/ }),
 
+/***/ 82:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -2913,18 +3038,18 @@ module.exports = __webpack_require__(87);
 /***/ }),
 
 /***/ 93:
-/***/ (function(module, __unusedexports, __nested_webpack_require_47523__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_48211__) {
 
 module.exports = minimatch
 minimatch.Minimatch = Minimatch
 
 var path = { sep: '/' }
 try {
-  path = __nested_webpack_require_47523__(622)
+  path = __nested_webpack_require_48211__(622)
 } catch (er) {}
 
 var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {}
-var expand = __nested_webpack_require_47523__(306)
+var expand = __nested_webpack_require_48211__(306)
 
 var plTypes = {
   '!': { open: '(?:(?!(?:', close: '))[^/]*?)'},
@@ -3842,8 +3967,44 @@ function regExpEscape (s) {
 
 /***/ }),
 
+/***/ 102:
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_73654__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__nested_webpack_require_73654__(747));
+const os = __importStar(__nested_webpack_require_73654__(87));
+const utils_1 = __nested_webpack_require_73654__(82);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
+
+/***/ }),
+
 /***/ 117:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_72966__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_74890__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -3866,9 +4027,9 @@ function regExpEscape (s) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var pathModule = __nested_webpack_require_72966__(622);
+var pathModule = __nested_webpack_require_74890__(622);
 var isWindows = process.platform === 'win32';
-var fs = __nested_webpack_require_72966__(747);
+var fs = __nested_webpack_require_74890__(747);
 
 // JavaScript implementation of realpath, ported from node pre-v6
 
@@ -4160,12 +4321,12 @@ module.exports = __webpack_require__(129);
 /***/ }),
 
 /***/ 139:
-/***/ (function(module, __unusedexports, __nested_webpack_require_81710__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_83634__) {
 
 // Unique ID creation requires a high quality random # generator.  In node.js
 // this is pretty straight-forward - we use the crypto API.
 
-var crypto = __nested_webpack_require_81710__(417);
+var crypto = __nested_webpack_require_83634__(417);
 
 module.exports = function nodeRNG() {
   return crypto.randomBytes(16);
@@ -4175,18 +4336,18 @@ module.exports = function nodeRNG() {
 /***/ }),
 
 /***/ 141:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_82052__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_83976__) {
 
 "use strict";
 
 
-var net = __nested_webpack_require_82052__(631);
-var tls = __nested_webpack_require_82052__(16);
-var http = __nested_webpack_require_82052__(605);
-var https = __nested_webpack_require_82052__(211);
-var events = __nested_webpack_require_82052__(614);
-var assert = __nested_webpack_require_82052__(357);
-var util = __nested_webpack_require_82052__(669);
+var net = __nested_webpack_require_83976__(631);
+var tls = __nested_webpack_require_83976__(16);
+var http = __nested_webpack_require_83976__(605);
+var https = __nested_webpack_require_83976__(211);
+var events = __nested_webpack_require_83976__(614);
+var assert = __nested_webpack_require_83976__(357);
+var util = __nested_webpack_require_83976__(669);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -4447,7 +4608,7 @@ exports.debug = debug; // for test
 /***/ }),
 
 /***/ 150:
-/***/ (function(module, __unusedexports, __nested_webpack_require_89829__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_91753__) {
 
 /*!
  * Tmp
@@ -4460,14 +4621,14 @@ exports.debug = debug; // for test
 /*
  * Module dependencies.
  */
-const fs = __nested_webpack_require_89829__(747);
-const os = __nested_webpack_require_89829__(87);
-const path = __nested_webpack_require_89829__(622);
-const crypto = __nested_webpack_require_89829__(417);
+const fs = __nested_webpack_require_91753__(747);
+const os = __nested_webpack_require_91753__(87);
+const path = __nested_webpack_require_91753__(622);
+const crypto = __nested_webpack_require_91753__(417);
 const _c = fs.constants && os.constants ?
   { fs: fs.constants, os: os.constants } :
   process.binding('constants');
-const rimraf = __nested_webpack_require_89829__(569);
+const rimraf = __nested_webpack_require_91753__(569);
 
 /*
  * The working inner variables.
@@ -5223,21 +5384,21 @@ module.exports = __webpack_require__(211);
 /***/ }),
 
 /***/ 245:
-/***/ (function(module, __unusedexports, __nested_webpack_require_109664__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_111588__) {
 
 module.exports = globSync
 globSync.GlobSync = GlobSync
 
-var fs = __nested_webpack_require_109664__(747)
-var rp = __nested_webpack_require_109664__(302)
-var minimatch = __nested_webpack_require_109664__(93)
+var fs = __nested_webpack_require_111588__(747)
+var rp = __nested_webpack_require_111588__(302)
+var minimatch = __nested_webpack_require_111588__(93)
 var Minimatch = minimatch.Minimatch
-var Glob = __nested_webpack_require_109664__(402).Glob
-var util = __nested_webpack_require_109664__(669)
-var path = __nested_webpack_require_109664__(622)
-var assert = __nested_webpack_require_109664__(357)
-var isAbsolute = __nested_webpack_require_109664__(681)
-var common = __nested_webpack_require_109664__(856)
+var Glob = __nested_webpack_require_111588__(402).Glob
+var util = __nested_webpack_require_111588__(669)
+var path = __nested_webpack_require_111588__(622)
+var assert = __nested_webpack_require_111588__(357)
+var isAbsolute = __nested_webpack_require_111588__(681)
+var common = __nested_webpack_require_111588__(856)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
@@ -7319,7 +7480,7 @@ function coerce (version, options) {
 /***/ }),
 
 /***/ 302:
-/***/ (function(module, __unusedexports, __nested_webpack_require_163989__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_165913__) {
 
 module.exports = realpath
 realpath.realpath = realpath
@@ -7328,13 +7489,13 @@ realpath.realpathSync = realpathSync
 realpath.monkeypatch = monkeypatch
 realpath.unmonkeypatch = unmonkeypatch
 
-var fs = __nested_webpack_require_163989__(747)
+var fs = __nested_webpack_require_165913__(747)
 var origRealpath = fs.realpath
 var origRealpathSync = fs.realpathSync
 
 var version = process.version
 var ok = /^v[0-5]\./.test(version)
-var old = __nested_webpack_require_163989__(117)
+var old = __nested_webpack_require_165913__(117)
 
 function newError (er) {
   return er && er.syscall === 'realpath' && (
@@ -7392,10 +7553,10 @@ function unmonkeypatch () {
 /***/ }),
 
 /***/ 306:
-/***/ (function(module, __unusedexports, __nested_webpack_require_165402__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_167326__) {
 
-var concatMap = __nested_webpack_require_165402__(896);
-var balanced = __nested_webpack_require_165402__(621);
+var concatMap = __nested_webpack_require_167326__(896);
+var balanced = __nested_webpack_require_167326__(621);
 
 module.exports = expandTop;
 
@@ -7634,7 +7795,7 @@ if (typeof Object.create === 'function') {
 /***/ }),
 
 /***/ 325:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_171089__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_173013__) {
 
 "use strict";
 
@@ -7670,14 +7831,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const exec = __importStar(__nested_webpack_require_171089__(986));
-const toolCache = __importStar(__nested_webpack_require_171089__(533));
-const os = __importStar(__nested_webpack_require_171089__(87));
-const tmp = __importStar(__nested_webpack_require_171089__(150));
-const format_url_1 = __nested_webpack_require_171089__(8);
-const downloadUtil = __importStar(__nested_webpack_require_171089__(339));
-const installUtil = __importStar(__nested_webpack_require_171089__(962));
-const version_util_1 = __nested_webpack_require_171089__(71);
+const exec = __importStar(__nested_webpack_require_173013__(986));
+const toolCache = __importStar(__nested_webpack_require_173013__(533));
+const os = __importStar(__nested_webpack_require_173013__(87));
+const tmp = __importStar(__nested_webpack_require_173013__(150));
+const format_url_1 = __nested_webpack_require_173013__(8);
+const downloadUtil = __importStar(__nested_webpack_require_173013__(339));
+const installUtil = __importStar(__nested_webpack_require_173013__(962));
+const version_util_1 = __nested_webpack_require_173013__(71);
 exports.getLatestGcloudSDKVersion = version_util_1.getLatestGcloudSDKVersion;
 /**
  * Checks if gcloud is installed.
@@ -7863,7 +8024,7 @@ exports.setProjectWithKey = setProjectWithKey;
 /***/ }),
 
 /***/ 339:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_179112__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_181036__) {
 
 "use strict";
 
@@ -7902,8 +8063,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains download utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_179112__(533));
-const attempt_1 = __nested_webpack_require_179112__(503);
+const toolCache = __importStar(__nested_webpack_require_181036__(533));
+const attempt_1 = __nested_webpack_require_181036__(503);
 /**
  * Downloads and extracts the tool at the specified URL.
  *
@@ -7946,14 +8107,14 @@ module.exports = __webpack_require__(357);
 /***/ }),
 
 /***/ 386:
-/***/ (function(module, __unusedexports, __nested_webpack_require_182187__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_184111__) {
 
 "use strict";
 
 
-var stringify = __nested_webpack_require_182187__(897);
-var parse = __nested_webpack_require_182187__(755);
-var formats = __nested_webpack_require_182187__(13);
+var stringify = __nested_webpack_require_184111__(897);
+var parse = __nested_webpack_require_184111__(755);
+var formats = __nested_webpack_require_184111__(13);
 
 module.exports = {
     formats: formats,
@@ -7965,7 +8126,7 @@ module.exports = {
 /***/ }),
 
 /***/ 402:
-/***/ (function(module, __unusedexports, __nested_webpack_require_182499__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_184423__) {
 
 // Approach:
 //
@@ -8009,27 +8170,27 @@ module.exports = {
 
 module.exports = glob
 
-var fs = __nested_webpack_require_182499__(747)
-var rp = __nested_webpack_require_182499__(302)
-var minimatch = __nested_webpack_require_182499__(93)
+var fs = __nested_webpack_require_184423__(747)
+var rp = __nested_webpack_require_184423__(302)
+var minimatch = __nested_webpack_require_184423__(93)
 var Minimatch = minimatch.Minimatch
-var inherits = __nested_webpack_require_182499__(689)
-var EE = __nested_webpack_require_182499__(614).EventEmitter
-var path = __nested_webpack_require_182499__(622)
-var assert = __nested_webpack_require_182499__(357)
-var isAbsolute = __nested_webpack_require_182499__(681)
-var globSync = __nested_webpack_require_182499__(245)
-var common = __nested_webpack_require_182499__(856)
+var inherits = __nested_webpack_require_184423__(689)
+var EE = __nested_webpack_require_184423__(614).EventEmitter
+var path = __nested_webpack_require_184423__(622)
+var assert = __nested_webpack_require_184423__(357)
+var isAbsolute = __nested_webpack_require_184423__(681)
+var globSync = __nested_webpack_require_184423__(245)
+var common = __nested_webpack_require_184423__(856)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
 var ownProp = common.ownProp
-var inflight = __nested_webpack_require_182499__(674)
-var util = __nested_webpack_require_182499__(669)
+var inflight = __nested_webpack_require_184423__(674)
+var util = __nested_webpack_require_184423__(669)
 var childrenIgnored = common.childrenIgnored
 var isIgnored = common.isIgnored
 
-var once = __nested_webpack_require_182499__(49)
+var once = __nested_webpack_require_184423__(49)
 
 function glob (pattern, options, cb) {
   if (typeof options === 'function') cb = options, options = {}
@@ -8762,9 +8923,9 @@ Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
 /***/ }),
 
 /***/ 413:
-/***/ (function(module, __unusedexports, __nested_webpack_require_202090__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_204014__) {
 
-module.exports = __nested_webpack_require_202090__(141);
+module.exports = __nested_webpack_require_204014__(141);
 
 
 /***/ }),
@@ -8777,7 +8938,7 @@ module.exports = __webpack_require__(417);
 /***/ }),
 
 /***/ 431:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_202308__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_204232__) {
 
 "use strict";
 
@@ -8789,7 +8950,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__nested_webpack_require_202308__(87));
+const os = __importStar(__nested_webpack_require_204232__(87));
+const utils_1 = __nested_webpack_require_204232__(82);
 /**
  * Commands
  *
@@ -8844,13 +9006,13 @@ class Command {
     }
 }
 function escapeData(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -8862,7 +9024,7 @@ function escapeProperty(s) {
 /***/ }),
 
 /***/ 470:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_204755__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_206752__) {
 
 "use strict";
 
@@ -8883,9 +9045,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __nested_webpack_require_204755__(431);
-const os = __importStar(__nested_webpack_require_204755__(87));
-const path = __importStar(__nested_webpack_require_204755__(622));
+const command_1 = __nested_webpack_require_206752__(431);
+const file_command_1 = __nested_webpack_require_206752__(102);
+const utils_1 = __nested_webpack_require_206752__(82);
+const os = __importStar(__nested_webpack_require_206752__(87));
+const path = __importStar(__nested_webpack_require_206752__(622));
 /**
  * The code to exit an action
  */
@@ -8906,11 +9070,21 @@ var ExitCode;
 /**
  * Sets env variable for this action and future actions in the job
  * @param name the name of the variable to set
- * @param val the value of the variable
+ * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
+    const convertedVal = utils_1.toCommandValue(val);
+    process.env[name] = convertedVal;
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -8926,7 +9100,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -8949,12 +9129,22 @@ exports.getInput = getInput;
  * Sets the value of an output.
  *
  * @param     name     name of the output to set
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
+/**
+ * Enables or disables the echoing of commands into stdout for the rest of the step.
+ * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
+ *
+ */
+function setCommandEcho(enabled) {
+    command_1.issue('echo', enabled ? 'on' : 'off');
+}
+exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
 // Results
 //-----------------------------------------------------------------------
@@ -8988,18 +9178,18 @@ function debug(message) {
 exports.debug = debug;
 /**
  * Adds an error issue
- * @param message error issue message
+ * @param message error issue message. Errors will be converted to string via toString()
  */
 function error(message) {
-    command_1.issue('error', message);
+    command_1.issue('error', message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
  * Adds an warning issue
- * @param message warning issue message
+ * @param message warning issue message. Errors will be converted to string via toString()
  */
 function warning(message) {
-    command_1.issue('warning', message);
+    command_1.issue('warning', message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -9057,8 +9247,9 @@ exports.group = group;
  * Saves state for current action, the state can only be retrieved by this action's post job execution.
  *
  * @param     name     name of the state to store
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
     command_1.issueCommand('save-state', { name }, value);
 }
@@ -9230,7 +9421,7 @@ exports.retry = retry;
 /***/ }),
 
 /***/ 533:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_216825__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_220351__) {
 
 "use strict";
 
@@ -9254,19 +9445,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_216825__(470));
-const io = __importStar(__nested_webpack_require_216825__(1));
-const fs = __importStar(__nested_webpack_require_216825__(747));
-const os = __importStar(__nested_webpack_require_216825__(87));
-const path = __importStar(__nested_webpack_require_216825__(622));
-const httpm = __importStar(__nested_webpack_require_216825__(539));
-const semver = __importStar(__nested_webpack_require_216825__(280));
-const stream = __importStar(__nested_webpack_require_216825__(794));
-const util = __importStar(__nested_webpack_require_216825__(669));
-const v4_1 = __importDefault(__nested_webpack_require_216825__(826));
-const exec_1 = __nested_webpack_require_216825__(986);
-const assert_1 = __nested_webpack_require_216825__(357);
-const retry_helper_1 = __nested_webpack_require_216825__(979);
+const core = __importStar(__nested_webpack_require_220351__(470));
+const io = __importStar(__nested_webpack_require_220351__(1));
+const fs = __importStar(__nested_webpack_require_220351__(747));
+const os = __importStar(__nested_webpack_require_220351__(87));
+const path = __importStar(__nested_webpack_require_220351__(622));
+const httpm = __importStar(__nested_webpack_require_220351__(539));
+const semver = __importStar(__nested_webpack_require_220351__(280));
+const stream = __importStar(__nested_webpack_require_220351__(794));
+const util = __importStar(__nested_webpack_require_220351__(669));
+const v4_1 = __importDefault(__nested_webpack_require_220351__(826));
+const exec_1 = __nested_webpack_require_220351__(986);
+const assert_1 = __nested_webpack_require_220351__(357);
+const retry_helper_1 = __nested_webpack_require_220351__(979);
 class HTTPError extends Error {
     constructor(httpStatusCode) {
         super(`Unexpected HTTP response: ${httpStatusCode}`);
@@ -9737,15 +9928,15 @@ function _getGlobal(key, defaultValue) {
 /***/ }),
 
 /***/ 539:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_236540__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_240066__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_236540__(835);
-const http = __nested_webpack_require_236540__(605);
-const https = __nested_webpack_require_236540__(211);
-const pm = __nested_webpack_require_236540__(950);
+const url = __nested_webpack_require_240066__(835);
+const http = __nested_webpack_require_240066__(605);
+const https = __nested_webpack_require_240066__(211);
+const pm = __nested_webpack_require_240066__(950);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -10155,7 +10346,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_236540__(413);
+                tunnel = __nested_webpack_require_240066__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -10276,17 +10467,17 @@ exports.HttpClient = HttpClient;
 /***/ }),
 
 /***/ 569:
-/***/ (function(module, __unusedexports, __nested_webpack_require_259230__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_262756__) {
 
 module.exports = rimraf
 rimraf.sync = rimrafSync
 
-var assert = __nested_webpack_require_259230__(357)
-var path = __nested_webpack_require_259230__(622)
-var fs = __nested_webpack_require_259230__(747)
+var assert = __nested_webpack_require_262756__(357)
+var path = __nested_webpack_require_262756__(622)
+var fs = __nested_webpack_require_262756__(747)
 var glob = undefined
 try {
-  glob = __nested_webpack_require_259230__(402)
+  glob = __nested_webpack_require_262756__(402)
 } catch (_err) {
   // treat glob as optional.
 }
@@ -11001,7 +11192,7 @@ module.exports = __webpack_require__(669);
 /***/ }),
 
 /***/ 672:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_276648__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_280174__) {
 
 "use strict";
 
@@ -11016,9 +11207,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const assert_1 = __nested_webpack_require_276648__(357);
-const fs = __nested_webpack_require_276648__(747);
-const path = __nested_webpack_require_276648__(622);
+const assert_1 = __nested_webpack_require_280174__(357);
+const fs = __nested_webpack_require_280174__(747);
+const path = __nested_webpack_require_280174__(622);
 _a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
 exports.IS_WINDOWS = process.platform === 'win32';
 function exists(fsPath) {
@@ -11203,11 +11394,11 @@ function isUnixExecutable(stats) {
 /***/ }),
 
 /***/ 674:
-/***/ (function(module, __unusedexports, __nested_webpack_require_284325__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_287851__) {
 
-var wrappy = __nested_webpack_require_284325__(11)
+var wrappy = __nested_webpack_require_287851__(11)
 var reqs = Object.create(null)
-var once = __nested_webpack_require_284325__(49)
+var once = __nested_webpack_require_287851__(49)
 
 module.exports = wrappy(inflight)
 
@@ -11292,16 +11483,16 @@ module.exports.win32 = win32;
 /***/ }),
 
 /***/ 689:
-/***/ (function(module, __unusedexports, __nested_webpack_require_286456__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_289982__) {
 
 try {
-  var util = __nested_webpack_require_286456__(669);
+  var util = __nested_webpack_require_289982__(669);
   /* istanbul ignore next */
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __nested_webpack_require_286456__(315);
+  module.exports = __nested_webpack_require_289982__(315);
 }
 
 
@@ -11341,7 +11532,7 @@ module.exports = bytesToUuid;
 /***/ }),
 
 /***/ 729:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_287622__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_291148__) {
 
 "use strict";
 
@@ -11356,10 +11547,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const qs = __nested_webpack_require_287622__(386);
-const url = __nested_webpack_require_287622__(835);
-const path = __nested_webpack_require_287622__(622);
-const zlib = __nested_webpack_require_287622__(761);
+const qs = __nested_webpack_require_291148__(386);
+const url = __nested_webpack_require_291148__(835);
+const path = __nested_webpack_require_291148__(622);
+const zlib = __nested_webpack_require_291148__(761);
 /**
  * creates an url from a request url and optional base url (http://server:8080)
  * @param {string} resource - a fully qualified url or relative path
@@ -11475,12 +11666,12 @@ module.exports = __webpack_require__(747);
 /***/ }),
 
 /***/ 755:
-/***/ (function(module, __unusedexports, __nested_webpack_require_293163__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_296689__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_293163__(581);
+var utils = __nested_webpack_require_296689__(581);
 
 var has = Object.prototype.hasOwnProperty;
 var isArray = Array.isArray;
@@ -11765,10 +11956,10 @@ module.exports = __webpack_require__(413);
 /***/ }),
 
 /***/ 826:
-/***/ (function(module, __unusedexports, __nested_webpack_require_302857__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_306383__) {
 
-var rng = __nested_webpack_require_302857__(139);
-var bytesToUuid = __nested_webpack_require_302857__(722);
+var rng = __nested_webpack_require_306383__(139);
+var bytesToUuid = __nested_webpack_require_306383__(722);
 
 function v4(options, buf, offset) {
   var i = buf && offset || 0;
@@ -11808,7 +11999,7 @@ module.exports = __webpack_require__(835);
 /***/ }),
 
 /***/ 856:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_303709__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_307235__) {
 
 exports.alphasort = alphasort
 exports.alphasorti = alphasorti
@@ -11824,9 +12015,9 @@ function ownProp (obj, field) {
   return Object.prototype.hasOwnProperty.call(obj, field)
 }
 
-var path = __nested_webpack_require_303709__(622)
-var minimatch = __nested_webpack_require_303709__(93)
-var isAbsolute = __nested_webpack_require_303709__(681)
+var path = __nested_webpack_require_307235__(622)
+var minimatch = __nested_webpack_require_307235__(93)
+var isAbsolute = __nested_webpack_require_307235__(681)
 var Minimatch = minimatch.Minimatch
 
 function alphasorti (a, b) {
@@ -12055,7 +12246,7 @@ function childrenIgnored (self, path) {
 /***/ }),
 
 /***/ 874:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_309974__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_313500__) {
 
 "use strict";
 
@@ -12070,10 +12261,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_309974__(835);
-const http = __nested_webpack_require_309974__(605);
-const https = __nested_webpack_require_309974__(211);
-const util = __nested_webpack_require_309974__(729);
+const url = __nested_webpack_require_313500__(835);
+const http = __nested_webpack_require_313500__(605);
+const https = __nested_webpack_require_313500__(211);
+const util = __nested_webpack_require_313500__(729);
 let fs;
 let tunnel;
 var HttpCodes;
@@ -12189,7 +12380,7 @@ class HttpClient {
             this._certConfig = requestOptions.cert;
             if (this._certConfig) {
                 // If using cert, need fs
-                fs = __nested_webpack_require_309974__(747);
+                fs = __nested_webpack_require_313500__(747);
                 // cache the cert content into memory, so we don't have to read it from disk every time
                 if (this._certConfig.caFile && fs.existsSync(this._certConfig.caFile)) {
                     this._ca = fs.readFileSync(this._certConfig.caFile, 'utf8');
@@ -12454,7 +12645,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_309974__(413);
+                tunnel = __nested_webpack_require_313500__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -12571,13 +12762,13 @@ var isArray = Array.isArray || function (xs) {
 /***/ }),
 
 /***/ 897:
-/***/ (function(module, __unusedexports, __nested_webpack_require_332817__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_336343__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_332817__(581);
-var formats = __nested_webpack_require_332817__(13);
+var utils = __nested_webpack_require_336343__(581);
+var formats = __nested_webpack_require_336343__(13);
 var has = Object.prototype.hasOwnProperty;
 
 var arrayPrefixGenerators = {
@@ -12858,12 +13049,12 @@ module.exports = function (object, opts) {
 /***/ }),
 
 /***/ 950:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_341202__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_344728__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_341202__(835);
+const url = __nested_webpack_require_344728__(835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
     let proxyUrl;
@@ -12924,7 +13115,7 @@ exports.checkBypass = checkBypass;
 /***/ }),
 
 /***/ 962:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_342935__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_346461__) {
 
 "use strict";
 
@@ -12966,9 +13157,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains installation utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_342935__(533));
-const core = __importStar(__nested_webpack_require_342935__(470));
-const path_1 = __importDefault(__nested_webpack_require_342935__(622));
+const toolCache = __importStar(__nested_webpack_require_346461__(533));
+const core = __importStar(__nested_webpack_require_346461__(470));
+const path_1 = __importDefault(__nested_webpack_require_346461__(622));
 exports.GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 exports.GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 /**
@@ -12994,7 +13185,7 @@ exports.installGcloudSDK = installGcloudSDK;
 /***/ }),
 
 /***/ 979:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_345898__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_349424__) {
 
 "use strict";
 
@@ -13015,7 +13206,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_345898__(470));
+const core = __importStar(__nested_webpack_require_349424__(470));
 /**
  * Internal class for retries
  */
@@ -13071,7 +13262,7 @@ exports.RetryHelper = RetryHelper;
 /***/ }),
 
 /***/ 986:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_348825__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_352351__) {
 
 "use strict";
 
@@ -13092,7 +13283,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tr = __importStar(__nested_webpack_require_348825__(9));
+const tr = __importStar(__nested_webpack_require_352351__(9));
 /**
  * Exec a command.
  * Output will be streamed to the live console.

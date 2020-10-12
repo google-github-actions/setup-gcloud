@@ -167,10 +167,13 @@ export class CloudRun {
     const serviceList: run_v1.Schema$ListServicesResponse =
       serviceListResponse.data;
     let serviceNames: string[] = [];
-    if (serviceList.items !== undefined) {
-      serviceNames = serviceList.items!.map(
-        (service: run_v1.Schema$Service) => service.metadata!.name as string,
-      );
+    if (serviceList.items) {
+      serviceNames = serviceList.items.map((service: run_v1.Schema$Service) => {
+        if (service.metadata) {
+          return service.metadata.name as string;
+        }
+        return "";
+      });
     }
     return serviceNames;
   }
@@ -187,7 +190,9 @@ export class CloudRun {
     let serviceResponse: GaxiosResponse<run_v1.Schema$Service>;
     const methodOptions = this.methodOptions;
     methodOptions.userAgentDirectives = this.userAgentDirectives;
-    if (serviceNames!.includes(service.name)) {
+    if (serviceNames.includes(service.name)) {
+      const prevService = await this.getService(service.name);
+      service.merge(prevService);
       core.info('Creating a service revision...');
       // Replace service
       const createServiceRequest: run_v1.Params$Resource$Namespaces$Services$Replaceservice = {

@@ -32,6 +32,7 @@
     "fs": "0.0.1-security",
     "gaxios": "^3.0.3",
     "googleapis": "^49.0.0",
+    "lodash": "^4.17.20",
     "yaml": "^1.9.2"
   },
   "devDependencies": {

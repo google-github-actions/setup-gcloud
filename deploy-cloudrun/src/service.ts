@@ -15,13 +15,14 @@
  */
 
 import { run_v1 } from 'googleapis';
+import { get, values } from 'lodash';
 import fs from 'fs';
 import YAML from 'yaml';
 
-export type EnvVar = {
-  name: string;
-  value: string;
-};
+// export type EnvVar = {
+//   name: string;
+//   value: string;
+// };
 
 /**
  * Available options to create the Service.
@@ -82,11 +83,11 @@ export class Service {
       }
     }
 
-    // If image is provided, set or override
+    // If image is provided, set or override YAML
     if (opts.image) {
       const container: run_v1.Schema$Container = { image: opts.image };
-      if (request.spec?.template) {
-        request.spec.template!.spec!.containers = [container];
+      if (get(request, 'spec.template.spec')) {
+        request.spec!.template!.spec!.containers = [container];
       } else {
         request.spec = {
           template: {
@@ -98,10 +99,12 @@ export class Service {
       }
     }
 
-    // If Env Vars are provided, set or override
+    if (!get(request, 'spec.template.spec.containers')) throw new Error('No container defined. Set image as an input or in YAML config.');
+
+    // If Env Vars are provided, set or override YAML
     if (envVars) {
-      if (request.spec?.template?.spec?.containers) {
-        request.spec!.template!.spec!.containers[0]!.env = envVars;
+      if (get(request, 'spec.template.spec.containers[0]')) {
+        request.spec!.template!.spec!.containers![0].env = envVars;
       }
     }
 
@@ -110,12 +113,53 @@ export class Service {
   }
 
   /**
+   * Merges old revision with new service.
+   *
+   * @param prevService the previous Cloud Run service revision
+   */
+  public merge(prevService: run_v1.Schema$Service) {
+    // Merge Revision Metadata
+    const labels = {...prevService.spec?.template?.metadata?.labels, ...this.request.spec?.template?.metadata?.labels}
+    const annotations = {...prevService.spec?.template?.metadata?.annotations, ...this.request.spec?.template?.metadata?.annotations}
+    this.request.spec!.template!.metadata = {
+      annotations,
+      labels
+    }
+
+    // Merge Revision Spec
+    const prevContainer = prevService.spec!.template!.spec!.containers![0];
+    const currentContainer = this.request.spec!.template!.spec!.containers![0];
+    // Merge Container spec
+    const container = {...prevContainer, ...currentContainer};
+    // Merge Spec
+    const spec = {...prevService.spec?.template?.spec, ...this.request.spec!.template!.spec};
+    if (!currentContainer.command) { // Remove entrypoint cmd and arguments if not specified
+      delete container.command;
+      delete container.args;
+    }
+    // Merge Env vars
+    let env: run_v1.Schema$EnvVar[] = [];
+    if (currentContainer.env) {
+      env = currentContainer.env.map(envVar => envVar as run_v1.Schema$EnvVar)
+    }
+    const keys = env?.map(envVar => envVar.name);
+    prevContainer.env?.forEach((envVar) => {
+      if (!keys.includes(envVar.name)) {
+        return env.push(envVar);
+      }
+    })
+    container.env = env;
+    spec.containers = [container];
+    this.request.spec!.template!.spec = spec;
+  }
+
+  /**
    * Parses a string of the format `KEY1=VALUE1`.
    *
    * @param envVarInput Env var string to parse.
    * @returns EnvVar[].
    */
-  protected parseEnvVars(envVarInput: string): EnvVar[] {
+  protected parseEnvVars(envVarInput: string): run_v1.Schema$EnvVar[] {
     const envVarList = envVarInput.split(',');
     const envVars = envVarList.map((envVar) => {
       if (!envVar.includes('=')) {

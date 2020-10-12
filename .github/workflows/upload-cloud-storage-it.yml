@@ -12,7 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./setup-gcloud
+      - id: build
+        name: Build dist
+        working-directory: upload-cloud-storage
+        run: |-
+          npm install
+          npm run build
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           service_account_email: ${{ secrets.UPLOAD_CLOUD_STORAGE_GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.UPLOAD_CLOUD_STORAGE_GCP_SA_KEY_B64 }}
@@ -35,6 +41,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - id: build
+        name: Build dist
+        working-directory: upload-cloud-storage
+        run: |-
+          npm install
+          npm run build
       - name: make temp folder and files
         run: |
           mkdir -p test
@@ -55,6 +67,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - id: build
+        name: Build dist
+        working-directory: upload-cloud-storage
+        run: |-
+          npm install
+          npm run build
       - name: make temp folder and files
         run: |
           mkdir -p test
@@ -75,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./setup-gcloud
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           service_account_email: ${{ secrets.UPLOAD_CLOUD_STORAGE_GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.UPLOAD_CLOUD_STORAGE_GCP_SA_KEY_B64 }}

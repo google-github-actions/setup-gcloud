@@ -30,7 +30,7 @@ jobs:
       run: npm run lint
       working-directory: ./deploy-cloudrun
 
-    - uses: ./setup-gcloud
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         service_account_email: ${{ secrets.DEPLOY_CLOUDRUN_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}

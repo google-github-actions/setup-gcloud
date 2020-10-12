@@ -9,11 +9,6 @@
     "format": "prettier --write **/*.ts",
     "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build && git add dist/"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/GoogleCloudPlatform/github-actions"

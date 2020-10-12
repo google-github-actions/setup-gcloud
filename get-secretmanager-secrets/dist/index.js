@@ -1627,6 +1627,32 @@ formatters.O = function (v) {
 
 /***/ }),
 
+/***/ 82:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -1635,239 +1661,38 @@ module.exports = require("os");
 /***/ }),
 
 /***/ 102:
-/***/ (function(module, __unusedexports, __webpack_require__) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
-/**
- * Cipher base API.
- *
- * @author Dave Longley
- *
- * Copyright (c) 2010-2014 Digital Bazaar, Inc.
- */
-var forge = __webpack_require__(239);
-__webpack_require__(152);
+"use strict";
 
-module.exports = forge.cipher = forge.cipher || {};
-
-// registered algorithms
-forge.cipher.algorithms = forge.cipher.algorithms || {};
-
-/**
- * Creates a cipher object that can be used to encrypt data using the given
- * algorithm and key. The algorithm may be provided as a string value for a
- * previously registered algorithm or it may be given as a cipher algorithm
- * API object.
- *
- * @param algorithm the algorithm to use, either a string or an algorithm API
- *          object.
- * @param key the key to use, as a binary-encoded string of bytes or a
- *          byte buffer.
- *
- * @return the cipher.
- */
-forge.cipher.createCipher = function(algorithm, key) {
-  var api = algorithm;
-  if(typeof api === 'string') {
-    api = forge.cipher.getAlgorithm(api);
-    if(api) {
-      api = api();
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
     }
-  }
-  if(!api) {
-    throw new Error('Unsupported algorithm: ' + algorithm);
-  }
-
-  // assume block cipher
-  return new forge.cipher.BlockCipher({
-    algorithm: api,
-    key: key,
-    decrypt: false
-  });
-};
-
-/**
- * Creates a decipher object that can be used to decrypt data using the given
- * algorithm and key. The algorithm may be provided as a string value for a
- * previously registered algorithm or it may be given as a cipher algorithm
- * API object.
- *
- * @param algorithm the algorithm to use, either a string or an algorithm API
- *          object.
- * @param key the key to use, as a binary-encoded string of bytes or a
- *          byte buffer.
- *
- * @return the cipher.
- */
-forge.cipher.createDecipher = function(algorithm, key) {
-  var api = algorithm;
-  if(typeof api === 'string') {
-    api = forge.cipher.getAlgorithm(api);
-    if(api) {
-      api = api();
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
     }
-  }
-  if(!api) {
-    throw new Error('Unsupported algorithm: ' + algorithm);
-  }
-
-  // assume block cipher
-  return new forge.cipher.BlockCipher({
-    algorithm: api,
-    key: key,
-    decrypt: true
-  });
-};
-
-/**
- * Registers an algorithm by name. If the name was already registered, the
- * algorithm API object will be overwritten.
- *
- * @param name the name of the algorithm.
- * @param algorithm the algorithm API object.
- */
-forge.cipher.registerAlgorithm = function(name, algorithm) {
-  name = name.toUpperCase();
-  forge.cipher.algorithms[name] = algorithm;
-};
-
-/**
- * Gets a registered algorithm by name.
- *
- * @param name the name of the algorithm.
- *
- * @return the algorithm, if found, null if not.
- */
-forge.cipher.getAlgorithm = function(name) {
-  name = name.toUpperCase();
-  if(name in forge.cipher.algorithms) {
-    return forge.cipher.algorithms[name];
-  }
-  return null;
-};
-
-var BlockCipher = forge.cipher.BlockCipher = function(options) {
-  this.algorithm = options.algorithm;
-  this.mode = this.algorithm.mode;
-  this.blockSize = this.mode.blockSize;
-  this._finish = false;
-  this._input = null;
-  this.output = null;
-  this._op = options.decrypt ? this.mode.decrypt : this.mode.encrypt;
-  this._decrypt = options.decrypt;
-  this.algorithm.initialize(options);
-};
-
-/**
- * Starts or restarts the encryption or decryption process, whichever
- * was previously configured.
- *
- * For non-GCM mode, the IV may be a binary-encoded string of bytes, an array
- * of bytes, a byte buffer, or an array of 32-bit integers. If the IV is in
- * bytes, then it must be Nb (16) bytes in length. If the IV is given in as
- * 32-bit integers, then it must be 4 integers long.
- *
- * Note: an IV is not required or used in ECB mode.
- *
- * For GCM-mode, the IV must be given as a binary-encoded string of bytes or
- * a byte buffer. The number of bytes should be 12 (96 bits) as recommended
- * by NIST SP-800-38D but another length may be given.
- *
- * @param options the options to use:
- *          iv the initialization vector to use as a binary-encoded string of
- *            bytes, null to reuse the last ciphered block from a previous
- *            update() (this "residue" method is for legacy support only).
- *          additionalData additional authentication data as a binary-encoded
- *            string of bytes, for 'GCM' mode, (default: none).
- *          tagLength desired length of authentication tag, in bits, for
- *            'GCM' mode (0-128, default: 128).
- *          tag the authentication tag to check if decrypting, as a
- *             binary-encoded string of bytes.
- *          output the output the buffer to write to, null to create one.
- */
-BlockCipher.prototype.start = function(options) {
-  options = options || {};
-  var opts = {};
-  for(var key in options) {
-    opts[key] = options[key];
-  }
-  opts.decrypt = this._decrypt;
-  this._finish = false;
-  this._input = forge.util.createBuffer();
-  this.output = options.output || forge.util.createBuffer();
-  this.mode.start(opts);
-};
-
-/**
- * Updates the next block according to the cipher mode.
- *
- * @param input the buffer to read from.
- */
-BlockCipher.prototype.update = function(input) {
-  if(input) {
-    // input given, so empty it into the input buffer
-    this._input.putBuffer(input);
-  }
-
-  // do cipher operation until it needs more input and not finished
-  while(!this._op.call(this.mode, this._input, this.output, this._finish) &&
-    !this._finish) {}
-
-  // free consumed memory from input buffer
-  this._input.compact();
-};
-
-/**
- * Finishes encrypting or decrypting.
- *
- * @param pad a padding function to use in CBC mode, null for default,
- *          signature(blockSize, buffer, decrypt).
- *
- * @return true if successful, false on error.
- */
-BlockCipher.prototype.finish = function(pad) {
-  // backwards-compatibility w/deprecated padding API
-  // Note: will overwrite padding functions even after another start() call
-  if(pad && (this.mode.name === 'ECB' || this.mode.name === 'CBC')) {
-    this.mode.pad = function(input) {
-      return pad(this.blockSize, input, false);
-    };
-    this.mode.unpad = function(output) {
-      return pad(this.blockSize, output, true);
-    };
-  }
-
-  // build options for padding and afterFinish functions
-  var options = {};
-  options.decrypt = this._decrypt;
-
-  // get # of bytes that won't fill a block
-  options.overflow = this._input.length() % this.blockSize;
-
-  if(!this._decrypt && this.mode.pad) {
-    if(!this.mode.pad(this._input, options)) {
-      return false;
-    }
-  }
-
-  // do final update
-  this._finish = true;
-  this.update();
-
-  if(this._decrypt && this.mode.unpad) {
-    if(!this.mode.unpad(this.output, options)) {
-      return false;
-    }
-  }
-
-  if(this.mode.afterFinish) {
-    if(!this.mode.afterFinish(this.output, options)) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
 
 /***/ }),
 
@@ -8108,6 +7933,509 @@ function from64To32(num) {
 
 /***/ }),
 
+/***/ 167:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+/**
+ * DES (Data Encryption Standard) implementation.
+ *
+ * This implementation supports DES as well as 3DES-EDE in ECB and CBC mode.
+ * It is based on the BSD-licensed implementation by Paul Tero:
+ *
+ * Paul Tero, July 2001
+ * http://www.tero.co.uk/des/
+ *
+ * Optimised for performance with large blocks by
+ * Michael Hayworth, November 2001
+ * http://www.netdealing.com
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * @author Stefan Siegl
+ * @author Dave Longley
+ *
+ * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012-2014 Digital Bazaar, Inc.
+ */
+var forge = __webpack_require__(239);
+__webpack_require__(426);
+__webpack_require__(158);
+__webpack_require__(152);
+
+/* DES API */
+module.exports = forge.des = forge.des || {};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var cipher = forge.cipher.createCipher('DES-<mode>', key);
+ * cipher.start({iv: iv});
+ *
+ * Creates an DES cipher object to encrypt data using the given symmetric key.
+ * The output will be stored in the 'output' member of the returned cipher.
+ *
+ * The key and iv may be given as binary-encoded strings of bytes or
+ * byte buffers.
+ *
+ * @param key the symmetric key to use (64 or 192 bits).
+ * @param iv the initialization vector to use.
+ * @param output the buffer to write to, null to create one.
+ * @param mode the cipher mode to use (default: 'CBC' if IV is
+ *          given, 'ECB' if null).
+ *
+ * @return the cipher.
+ */
+forge.des.startEncrypting = function(key, iv, output, mode) {
+  var cipher = _createCipher({
+    key: key,
+    output: output,
+    decrypt: false,
+    mode: mode || (iv === null ? 'ECB' : 'CBC')
+  });
+  cipher.start(iv);
+  return cipher;
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var cipher = forge.cipher.createCipher('DES-<mode>', key);
+ *
+ * Creates an DES cipher object to encrypt data using the given symmetric key.
+ *
+ * The key may be given as a binary-encoded string of bytes or a byte buffer.
+ *
+ * @param key the symmetric key to use (64 or 192 bits).
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.des.createEncryptionCipher = function(key, mode) {
+  return _createCipher({
+    key: key,
+    output: null,
+    decrypt: false,
+    mode: mode
+  });
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var decipher = forge.cipher.createDecipher('DES-<mode>', key);
+ * decipher.start({iv: iv});
+ *
+ * Creates an DES cipher object to decrypt data using the given symmetric key.
+ * The output will be stored in the 'output' member of the returned cipher.
+ *
+ * The key and iv may be given as binary-encoded strings of bytes or
+ * byte buffers.
+ *
+ * @param key the symmetric key to use (64 or 192 bits).
+ * @param iv the initialization vector to use.
+ * @param output the buffer to write to, null to create one.
+ * @param mode the cipher mode to use (default: 'CBC' if IV is
+ *          given, 'ECB' if null).
+ *
+ * @return the cipher.
+ */
+forge.des.startDecrypting = function(key, iv, output, mode) {
+  var cipher = _createCipher({
+    key: key,
+    output: output,
+    decrypt: true,
+    mode: mode || (iv === null ? 'ECB' : 'CBC')
+  });
+  cipher.start(iv);
+  return cipher;
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var decipher = forge.cipher.createDecipher('DES-<mode>', key);
+ *
+ * Creates an DES cipher object to decrypt data using the given symmetric key.
+ *
+ * The key may be given as a binary-encoded string of bytes or a byte buffer.
+ *
+ * @param key the symmetric key to use (64 or 192 bits).
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.des.createDecryptionCipher = function(key, mode) {
+  return _createCipher({
+    key: key,
+    output: null,
+    decrypt: true,
+    mode: mode
+  });
+};
+
+/**
+ * Creates a new DES cipher algorithm object.
+ *
+ * @param name the name of the algorithm.
+ * @param mode the mode factory function.
+ *
+ * @return the DES algorithm object.
+ */
+forge.des.Algorithm = function(name, mode) {
+  var self = this;
+  self.name = name;
+  self.mode = new mode({
+    blockSize: 8,
+    cipher: {
+      encrypt: function(inBlock, outBlock) {
+        return _updateBlock(self._keys, inBlock, outBlock, false);
+      },
+      decrypt: function(inBlock, outBlock) {
+        return _updateBlock(self._keys, inBlock, outBlock, true);
+      }
+    }
+  });
+  self._init = false;
+};
+
+/**
+ * Initializes this DES algorithm by expanding its key.
+ *
+ * @param options the options to use.
+ *          key the key to use with this algorithm.
+ *          decrypt true if the algorithm should be initialized for decryption,
+ *            false for encryption.
+ */
+forge.des.Algorithm.prototype.initialize = function(options) {
+  if(this._init) {
+    return;
+  }
+
+  var key = forge.util.createBuffer(options.key);
+  if(this.name.indexOf('3DES') === 0) {
+    if(key.length() !== 24) {
+      throw new Error('Invalid Triple-DES key size: ' + key.length() * 8);
+    }
+  }
+
+  // do key expansion to 16 or 48 subkeys (single or triple DES)
+  this._keys = _createKeys(key);
+  this._init = true;
+};
+
+/** Register DES algorithms **/
+
+registerAlgorithm('DES-ECB', forge.cipher.modes.ecb);
+registerAlgorithm('DES-CBC', forge.cipher.modes.cbc);
+registerAlgorithm('DES-CFB', forge.cipher.modes.cfb);
+registerAlgorithm('DES-OFB', forge.cipher.modes.ofb);
+registerAlgorithm('DES-CTR', forge.cipher.modes.ctr);
+
+registerAlgorithm('3DES-ECB', forge.cipher.modes.ecb);
+registerAlgorithm('3DES-CBC', forge.cipher.modes.cbc);
+registerAlgorithm('3DES-CFB', forge.cipher.modes.cfb);
+registerAlgorithm('3DES-OFB', forge.cipher.modes.ofb);
+registerAlgorithm('3DES-CTR', forge.cipher.modes.ctr);
+
+function registerAlgorithm(name, mode) {
+  var factory = function() {
+    return new forge.des.Algorithm(name, mode);
+  };
+  forge.cipher.registerAlgorithm(name, factory);
+}
+
+/** DES implementation **/
+
+var spfunction1 = [0x1010400,0,0x10000,0x1010404,0x1010004,0x10404,0x4,0x10000,0x400,0x1010400,0x1010404,0x400,0x1000404,0x1010004,0x1000000,0x4,0x404,0x1000400,0x1000400,0x10400,0x10400,0x1010000,0x1010000,0x1000404,0x10004,0x1000004,0x1000004,0x10004,0,0x404,0x10404,0x1000000,0x10000,0x1010404,0x4,0x1010000,0x1010400,0x1000000,0x1000000,0x400,0x1010004,0x10000,0x10400,0x1000004,0x400,0x4,0x1000404,0x10404,0x1010404,0x10004,0x1010000,0x1000404,0x1000004,0x404,0x10404,0x1010400,0x404,0x1000400,0x1000400,0,0x10004,0x10400,0,0x1010004];
+var spfunction2 = [-0x7fef7fe0,-0x7fff8000,0x8000,0x108020,0x100000,0x20,-0x7fefffe0,-0x7fff7fe0,-0x7fffffe0,-0x7fef7fe0,-0x7fef8000,-0x80000000,-0x7fff8000,0x100000,0x20,-0x7fefffe0,0x108000,0x100020,-0x7fff7fe0,0,-0x80000000,0x8000,0x108020,-0x7ff00000,0x100020,-0x7fffffe0,0,0x108000,0x8020,-0x7fef8000,-0x7ff00000,0x8020,0,0x108020,-0x7fefffe0,0x100000,-0x7fff7fe0,-0x7ff00000,-0x7fef8000,0x8000,-0x7ff00000,-0x7fff8000,0x20,-0x7fef7fe0,0x108020,0x20,0x8000,-0x80000000,0x8020,-0x7fef8000,0x100000,-0x7fffffe0,0x100020,-0x7fff7fe0,-0x7fffffe0,0x100020,0x108000,0,-0x7fff8000,0x8020,-0x80000000,-0x7fefffe0,-0x7fef7fe0,0x108000];
+var spfunction3 = [0x208,0x8020200,0,0x8020008,0x8000200,0,0x20208,0x8000200,0x20008,0x8000008,0x8000008,0x20000,0x8020208,0x20008,0x8020000,0x208,0x8000000,0x8,0x8020200,0x200,0x20200,0x8020000,0x8020008,0x20208,0x8000208,0x20200,0x20000,0x8000208,0x8,0x8020208,0x200,0x8000000,0x8020200,0x8000000,0x20008,0x208,0x20000,0x8020200,0x8000200,0,0x200,0x20008,0x8020208,0x8000200,0x8000008,0x200,0,0x8020008,0x8000208,0x20000,0x8000000,0x8020208,0x8,0x20208,0x20200,0x8000008,0x8020000,0x8000208,0x208,0x8020000,0x20208,0x8,0x8020008,0x20200];
+var spfunction4 = [0x802001,0x2081,0x2081,0x80,0x802080,0x800081,0x800001,0x2001,0,0x802000,0x802000,0x802081,0x81,0,0x800080,0x800001,0x1,0x2000,0x800000,0x802001,0x80,0x800000,0x2001,0x2080,0x800081,0x1,0x2080,0x800080,0x2000,0x802080,0x802081,0x81,0x800080,0x800001,0x802000,0x802081,0x81,0,0,0x802000,0x2080,0x800080,0x800081,0x1,0x802001,0x2081,0x2081,0x80,0x802081,0x81,0x1,0x2000,0x800001,0x2001,0x802080,0x800081,0x2001,0x2080,0x800000,0x802001,0x80,0x800000,0x2000,0x802080];
+var spfunction5 = [0x100,0x2080100,0x2080000,0x42000100,0x80000,0x100,0x40000000,0x2080000,0x40080100,0x80000,0x2000100,0x40080100,0x42000100,0x42080000,0x80100,0x40000000,0x2000000,0x40080000,0x40080000,0,0x40000100,0x42080100,0x42080100,0x2000100,0x42080000,0x40000100,0,0x42000000,0x2080100,0x2000000,0x42000000,0x80100,0x80000,0x42000100,0x100,0x2000000,0x40000000,0x2080000,0x42000100,0x40080100,0x2000100,0x40000000,0x42080000,0x2080100,0x40080100,0x100,0x2000000,0x42080000,0x42080100,0x80100,0x42000000,0x42080100,0x2080000,0,0x40080000,0x42000000,0x80100,0x2000100,0x40000100,0x80000,0,0x40080000,0x2080100,0x40000100];
+var spfunction6 = [0x20000010,0x20400000,0x4000,0x20404010,0x20400000,0x10,0x20404010,0x400000,0x20004000,0x404010,0x400000,0x20000010,0x400010,0x20004000,0x20000000,0x4010,0,0x400010,0x20004010,0x4000,0x404000,0x20004010,0x10,0x20400010,0x20400010,0,0x404010,0x20404000,0x4010,0x404000,0x20404000,0x20000000,0x20004000,0x10,0x20400010,0x404000,0x20404010,0x400000,0x4010,0x20000010,0x400000,0x20004000,0x20000000,0x4010,0x20000010,0x20404010,0x404000,0x20400000,0x404010,0x20404000,0,0x20400010,0x10,0x4000,0x20400000,0x404010,0x4000,0x400010,0x20004010,0,0x20404000,0x20000000,0x400010,0x20004010];
+var spfunction7 = [0x200000,0x4200002,0x4000802,0,0x800,0x4000802,0x200802,0x4200800,0x4200802,0x200000,0,0x4000002,0x2,0x4000000,0x4200002,0x802,0x4000800,0x200802,0x200002,0x4000800,0x4000002,0x4200000,0x4200800,0x200002,0x4200000,0x800,0x802,0x4200802,0x200800,0x2,0x4000000,0x200800,0x4000000,0x200800,0x200000,0x4000802,0x4000802,0x4200002,0x4200002,0x2,0x200002,0x4000000,0x4000800,0x200000,0x4200800,0x802,0x200802,0x4200800,0x802,0x4000002,0x4200802,0x4200000,0x200800,0,0x2,0x4200802,0,0x200802,0x4200000,0x800,0x4000002,0x4000800,0x800,0x200002];
+var spfunction8 = [0x10001040,0x1000,0x40000,0x10041040,0x10000000,0x10001040,0x40,0x10000000,0x40040,0x10040000,0x10041040,0x41000,0x10041000,0x41040,0x1000,0x40,0x10040000,0x10000040,0x10001000,0x1040,0x41000,0x40040,0x10040040,0x10041000,0x1040,0,0,0x10040040,0x10000040,0x10001000,0x41040,0x40000,0x41040,0x40000,0x10041000,0x1000,0x40,0x10040040,0x1000,0x41040,0x10001000,0x40,0x10000040,0x10040000,0x10040040,0x10000000,0x40000,0x10001040,0,0x10041040,0x40040,0x10000040,0x10040000,0x10001000,0x10001040,0,0x10041040,0x41000,0x41000,0x1040,0x1040,0x40040,0x10000000,0x10041000];
+
+/**
+ * Create necessary sub keys.
+ *
+ * @param key the 64-bit or 192-bit key.
+ *
+ * @return the expanded keys.
+ */
+function _createKeys(key) {
+  var pc2bytes0  = [0,0x4,0x20000000,0x20000004,0x10000,0x10004,0x20010000,0x20010004,0x200,0x204,0x20000200,0x20000204,0x10200,0x10204,0x20010200,0x20010204],
+      pc2bytes1  = [0,0x1,0x100000,0x100001,0x4000000,0x4000001,0x4100000,0x4100001,0x100,0x101,0x100100,0x100101,0x4000100,0x4000101,0x4100100,0x4100101],
+      pc2bytes2  = [0,0x8,0x800,0x808,0x1000000,0x1000008,0x1000800,0x1000808,0,0x8,0x800,0x808,0x1000000,0x1000008,0x1000800,0x1000808],
+      pc2bytes3  = [0,0x200000,0x8000000,0x8200000,0x2000,0x202000,0x8002000,0x8202000,0x20000,0x220000,0x8020000,0x8220000,0x22000,0x222000,0x8022000,0x8222000],
+      pc2bytes4  = [0,0x40000,0x10,0x40010,0,0x40000,0x10,0x40010,0x1000,0x41000,0x1010,0x41010,0x1000,0x41000,0x1010,0x41010],
+      pc2bytes5  = [0,0x400,0x20,0x420,0,0x400,0x20,0x420,0x2000000,0x2000400,0x2000020,0x2000420,0x2000000,0x2000400,0x2000020,0x2000420],
+      pc2bytes6  = [0,0x10000000,0x80000,0x10080000,0x2,0x10000002,0x80002,0x10080002,0,0x10000000,0x80000,0x10080000,0x2,0x10000002,0x80002,0x10080002],
+      pc2bytes7  = [0,0x10000,0x800,0x10800,0x20000000,0x20010000,0x20000800,0x20010800,0x20000,0x30000,0x20800,0x30800,0x20020000,0x20030000,0x20020800,0x20030800],
+      pc2bytes8  = [0,0x40000,0,0x40000,0x2,0x40002,0x2,0x40002,0x2000000,0x2040000,0x2000000,0x2040000,0x2000002,0x2040002,0x2000002,0x2040002],
+      pc2bytes9  = [0,0x10000000,0x8,0x10000008,0,0x10000000,0x8,0x10000008,0x400,0x10000400,0x408,0x10000408,0x400,0x10000400,0x408,0x10000408],
+      pc2bytes10 = [0,0x20,0,0x20,0x100000,0x100020,0x100000,0x100020,0x2000,0x2020,0x2000,0x2020,0x102000,0x102020,0x102000,0x102020],
+      pc2bytes11 = [0,0x1000000,0x200,0x1000200,0x200000,0x1200000,0x200200,0x1200200,0x4000000,0x5000000,0x4000200,0x5000200,0x4200000,0x5200000,0x4200200,0x5200200],
+      pc2bytes12 = [0,0x1000,0x8000000,0x8001000,0x80000,0x81000,0x8080000,0x8081000,0x10,0x1010,0x8000010,0x8001010,0x80010,0x81010,0x8080010,0x8081010],
+      pc2bytes13 = [0,0x4,0x100,0x104,0,0x4,0x100,0x104,0x1,0x5,0x101,0x105,0x1,0x5,0x101,0x105];
+
+  // how many iterations (1 for des, 3 for triple des)
+  // changed by Paul 16/6/2007 to use Triple DES for 9+ byte keys
+  var iterations = key.length() > 8 ? 3 : 1;
+
+  // stores the return keys
+  var keys = [];
+
+  // now define the left shifts which need to be done
+  var shifts = [0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0];
+
+  var n = 0, tmp;
+  for(var j = 0; j < iterations; j++) {
+    var left = key.getInt32();
+    var right = key.getInt32();
+
+    tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
+    right ^= tmp;
+    left ^= (tmp << 4);
+
+    tmp = ((right >>> -16) ^ left) & 0x0000ffff;
+    left ^= tmp;
+    right ^= (tmp << -16);
+
+    tmp = ((left >>> 2) ^ right) & 0x33333333;
+    right ^= tmp;
+    left ^= (tmp << 2);
+
+    tmp = ((right >>> -16) ^ left) & 0x0000ffff;
+    left ^= tmp;
+    right ^= (tmp << -16);
+
+    tmp = ((left >>> 1) ^ right) & 0x55555555;
+    right ^= tmp;
+    left ^= (tmp << 1);
+
+    tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
+    left ^= tmp;
+    right ^= (tmp << 8);
+
+    tmp = ((left >>> 1) ^ right) & 0x55555555;
+    right ^= tmp;
+    left ^= (tmp << 1);
+
+    // right needs to be shifted and OR'd with last four bits of left
+    tmp = (left << 8) | ((right >>> 20) & 0x000000f0);
+
+    // left needs to be put upside down
+    left = ((right << 24) | ((right << 8) & 0xff0000) |
+      ((right >>> 8) & 0xff00) | ((right >>> 24) & 0xf0));
+    right = tmp;
+
+    // now go through and perform these shifts on the left and right keys
+    for(var i = 0; i < shifts.length; ++i) {
+      //shift the keys either one or two bits to the left
+      if(shifts[i]) {
+        left = (left << 2) | (left >>> 26);
+        right = (right << 2) | (right >>> 26);
+      } else {
+        left = (left << 1) | (left >>> 27);
+        right = (right << 1) | (right >>> 27);
+      }
+      left &= -0xf;
+      right &= -0xf;
+
+      // now apply PC-2, in such a way that E is easier when encrypting or
+      // decrypting this conversion will look like PC-2 except only the last 6
+      // bits of each byte are used rather than 48 consecutive bits and the
+      // order of lines will be according to how the S selection functions will
+      // be applied: S2, S4, S6, S8, S1, S3, S5, S7
+      var lefttmp = (
+        pc2bytes0[left >>> 28] | pc2bytes1[(left >>> 24) & 0xf] |
+        pc2bytes2[(left >>> 20) & 0xf] | pc2bytes3[(left >>> 16) & 0xf] |
+        pc2bytes4[(left >>> 12) & 0xf] | pc2bytes5[(left >>> 8) & 0xf] |
+        pc2bytes6[(left >>> 4) & 0xf]);
+      var righttmp = (
+        pc2bytes7[right >>> 28] | pc2bytes8[(right >>> 24) & 0xf] |
+        pc2bytes9[(right >>> 20) & 0xf] | pc2bytes10[(right >>> 16) & 0xf] |
+        pc2bytes11[(right >>> 12) & 0xf] | pc2bytes12[(right >>> 8) & 0xf] |
+        pc2bytes13[(right >>> 4) & 0xf]);
+      tmp = ((righttmp >>> 16) ^ lefttmp) & 0x0000ffff;
+      keys[n++] = lefttmp ^ tmp;
+      keys[n++] = righttmp ^ (tmp << 16);
+    }
+  }
+
+  return keys;
+}
+
+/**
+ * Updates a single block (1 byte) using DES. The update will either
+ * encrypt or decrypt the block.
+ *
+ * @param keys the expanded keys.
+ * @param input the input block (an array of 32-bit words).
+ * @param output the updated output block.
+ * @param decrypt true to decrypt the block, false to encrypt it.
+ */
+function _updateBlock(keys, input, output, decrypt) {
+  // set up loops for single or triple DES
+  var iterations = keys.length === 32 ? 3 : 9;
+  var looping;
+  if(iterations === 3) {
+    looping = decrypt ? [30, -2, -2] : [0, 32, 2];
+  } else {
+    looping = (decrypt ?
+      [94, 62, -2, 32, 64, 2, 30, -2, -2] :
+      [0, 32, 2, 62, 30, -2, 64, 96, 2]);
+  }
+
+  var tmp;
+
+  var left = input[0];
+  var right = input[1];
+
+  // first each 64 bit chunk of the message must be permuted according to IP
+  tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
+  right ^= tmp;
+  left ^= (tmp << 4);
+
+  tmp = ((left >>> 16) ^ right) & 0x0000ffff;
+  right ^= tmp;
+  left ^= (tmp << 16);
+
+  tmp = ((right >>> 2) ^ left) & 0x33333333;
+  left ^= tmp;
+  right ^= (tmp << 2);
+
+  tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
+  left ^= tmp;
+  right ^= (tmp << 8);
+
+  tmp = ((left >>> 1) ^ right) & 0x55555555;
+  right ^= tmp;
+  left ^= (tmp << 1);
+
+  // rotate left 1 bit
+  left = ((left << 1) | (left >>> 31));
+  right = ((right << 1) | (right >>> 31));
+
+  for(var j = 0; j < iterations; j += 3) {
+    var endloop = looping[j + 1];
+    var loopinc = looping[j + 2];
+
+    // now go through and perform the encryption or decryption
+    for(var i = looping[j]; i != endloop; i += loopinc) {
+      var right1 = right ^ keys[i];
+      var right2 = ((right >>> 4) | (right << 28)) ^ keys[i + 1];
+
+      // passing these bytes through the S selection functions
+      tmp = left;
+      left = right;
+      right = tmp ^ (
+        spfunction2[(right1 >>> 24) & 0x3f] |
+        spfunction4[(right1 >>> 16) & 0x3f] |
+        spfunction6[(right1 >>>  8) & 0x3f] |
+        spfunction8[right1 & 0x3f] |
+        spfunction1[(right2 >>> 24) & 0x3f] |
+        spfunction3[(right2 >>> 16) & 0x3f] |
+        spfunction5[(right2 >>>  8) & 0x3f] |
+        spfunction7[right2 & 0x3f]);
+    }
+    // unreverse left and right
+    tmp = left;
+    left = right;
+    right = tmp;
+  }
+
+  // rotate right 1 bit
+  left = ((left >>> 1) | (left << 31));
+  right = ((right >>> 1) | (right << 31));
+
+  // now perform IP-1, which is IP in the opposite direction
+  tmp = ((left >>> 1) ^ right) & 0x55555555;
+  right ^= tmp;
+  left ^= (tmp << 1);
+
+  tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
+  left ^= tmp;
+  right ^= (tmp << 8);
+
+  tmp = ((right >>> 2) ^ left) & 0x33333333;
+  left ^= tmp;
+  right ^= (tmp << 2);
+
+  tmp = ((left >>> 16) ^ right) & 0x0000ffff;
+  right ^= tmp;
+  left ^= (tmp << 16);
+
+  tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
+  right ^= tmp;
+  left ^= (tmp << 4);
+
+  output[0] = left;
+  output[1] = right;
+}
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * forge.cipher.createCipher('DES-<mode>', key);
+ * forge.cipher.createDecipher('DES-<mode>', key);
+ *
+ * Creates a deprecated DES cipher object. This object's mode will default to
+ * CBC (cipher-block-chaining).
+ *
+ * The key may be given as a binary-encoded string of bytes or a byte buffer.
+ *
+ * @param options the options to use.
+ *          key the symmetric key to use (64 or 192 bits).
+ *          output the buffer to write to.
+ *          decrypt true for decryption, false for encryption.
+ *          mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+function _createCipher(options) {
+  options = options || {};
+  var mode = (options.mode || 'CBC').toUpperCase();
+  var algorithm = 'DES-' + mode;
+
+  var cipher;
+  if(options.decrypt) {
+    cipher = forge.cipher.createDecipher(algorithm, options.key);
+  } else {
+    cipher = forge.cipher.createCipher(algorithm, options.key);
+  }
+
+  // backwards compatible start API
+  var start = cipher.start;
+  cipher.start = function(iv, options) {
+    // backwards compatibility: support second arg as output buffer
+    var output = null;
+    if(options instanceof forge.util.ByteBuffer) {
+      output = options;
+      options = {};
+    }
+    options = options || {};
+    options.output = output;
+    options.iv = iv;
+    start.call(cipher, options);
+  };
+
+  return cipher;
+}
+
+
+/***/ }),
+
 /***/ 171:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -13409,7 +13737,7 @@ module.exports = {
 var forge = __webpack_require__(239);
 __webpack_require__(828);
 __webpack_require__(757);
-__webpack_require__(426);
+__webpack_require__(167);
 __webpack_require__(220);
 __webpack_require__(185);
 __webpack_require__(988);
@@ -17070,9 +17398,9 @@ module.exports = __webpack_require__(239);
 __webpack_require__(828);
 __webpack_require__(994);
 __webpack_require__(757);
-__webpack_require__(102);
-__webpack_require__(117);
 __webpack_require__(426);
+__webpack_require__(117);
+__webpack_require__(167);
 __webpack_require__(125);
 __webpack_require__(0);
 __webpack_require__(143);
@@ -23574,501 +23902,235 @@ module.exports = require("crypto");
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 /**
- * DES (Data Encryption Standard) implementation.
+ * Cipher base API.
  *
- * This implementation supports DES as well as 3DES-EDE in ECB and CBC mode.
- * It is based on the BSD-licensed implementation by Paul Tero:
- *
- * Paul Tero, July 2001
- * http://www.tero.co.uk/des/
- *
- * Optimised for performance with large blocks by
- * Michael Hayworth, November 2001
- * http://www.netdealing.com
- *
- * THIS SOFTWARE IS PROVIDED "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * @author Stefan Siegl
  * @author Dave Longley
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2012-2014 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(239);
-__webpack_require__(102);
-__webpack_require__(158);
 __webpack_require__(152);
 
-/* DES API */
-module.exports = forge.des = forge.des || {};
+module.exports = forge.cipher = forge.cipher || {};
+
+// registered algorithms
+forge.cipher.algorithms = forge.cipher.algorithms || {};
 
 /**
- * Deprecated. Instead, use:
+ * Creates a cipher object that can be used to encrypt data using the given
+ * algorithm and key. The algorithm may be provided as a string value for a
+ * previously registered algorithm or it may be given as a cipher algorithm
+ * API object.
  *
- * var cipher = forge.cipher.createCipher('DES-<mode>', key);
- * cipher.start({iv: iv});
- *
- * Creates an DES cipher object to encrypt data using the given symmetric key.
- * The output will be stored in the 'output' member of the returned cipher.
- *
- * The key and iv may be given as binary-encoded strings of bytes or
- * byte buffers.
- *
- * @param key the symmetric key to use (64 or 192 bits).
- * @param iv the initialization vector to use.
- * @param output the buffer to write to, null to create one.
- * @param mode the cipher mode to use (default: 'CBC' if IV is
- *          given, 'ECB' if null).
+ * @param algorithm the algorithm to use, either a string or an algorithm API
+ *          object.
+ * @param key the key to use, as a binary-encoded string of bytes or a
+ *          byte buffer.
  *
  * @return the cipher.
  */
-forge.des.startEncrypting = function(key, iv, output, mode) {
-  var cipher = _createCipher({
-    key: key,
-    output: output,
-    decrypt: false,
-    mode: mode || (iv === null ? 'ECB' : 'CBC')
-  });
-  cipher.start(iv);
-  return cipher;
-};
+forge.cipher.createCipher = function(algorithm, key) {
+  var api = algorithm;
+  if(typeof api === 'string') {
+    api = forge.cipher.getAlgorithm(api);
+    if(api) {
+      api = api();
+    }
+  }
+  if(!api) {
+    throw new Error('Unsupported algorithm: ' + algorithm);
+  }
 
-/**
- * Deprecated. Instead, use:
- *
- * var cipher = forge.cipher.createCipher('DES-<mode>', key);
- *
- * Creates an DES cipher object to encrypt data using the given symmetric key.
- *
- * The key may be given as a binary-encoded string of bytes or a byte buffer.
- *
- * @param key the symmetric key to use (64 or 192 bits).
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.des.createEncryptionCipher = function(key, mode) {
-  return _createCipher({
+  // assume block cipher
+  return new forge.cipher.BlockCipher({
+    algorithm: api,
     key: key,
-    output: null,
-    decrypt: false,
-    mode: mode
+    decrypt: false
   });
 };
 
 /**
- * Deprecated. Instead, use:
+ * Creates a decipher object that can be used to decrypt data using the given
+ * algorithm and key. The algorithm may be provided as a string value for a
+ * previously registered algorithm or it may be given as a cipher algorithm
+ * API object.
  *
- * var decipher = forge.cipher.createDecipher('DES-<mode>', key);
- * decipher.start({iv: iv});
- *
- * Creates an DES cipher object to decrypt data using the given symmetric key.
- * The output will be stored in the 'output' member of the returned cipher.
- *
- * The key and iv may be given as binary-encoded strings of bytes or
- * byte buffers.
- *
- * @param key the symmetric key to use (64 or 192 bits).
- * @param iv the initialization vector to use.
- * @param output the buffer to write to, null to create one.
- * @param mode the cipher mode to use (default: 'CBC' if IV is
- *          given, 'ECB' if null).
+ * @param algorithm the algorithm to use, either a string or an algorithm API
+ *          object.
+ * @param key the key to use, as a binary-encoded string of bytes or a
+ *          byte buffer.
  *
  * @return the cipher.
  */
-forge.des.startDecrypting = function(key, iv, output, mode) {
-  var cipher = _createCipher({
-    key: key,
-    output: output,
-    decrypt: true,
-    mode: mode || (iv === null ? 'ECB' : 'CBC')
-  });
-  cipher.start(iv);
-  return cipher;
-};
+forge.cipher.createDecipher = function(algorithm, key) {
+  var api = algorithm;
+  if(typeof api === 'string') {
+    api = forge.cipher.getAlgorithm(api);
+    if(api) {
+      api = api();
+    }
+  }
+  if(!api) {
+    throw new Error('Unsupported algorithm: ' + algorithm);
+  }
 
-/**
- * Deprecated. Instead, use:
- *
- * var decipher = forge.cipher.createDecipher('DES-<mode>', key);
- *
- * Creates an DES cipher object to decrypt data using the given symmetric key.
- *
- * The key may be given as a binary-encoded string of bytes or a byte buffer.
- *
- * @param key the symmetric key to use (64 or 192 bits).
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.des.createDecryptionCipher = function(key, mode) {
-  return _createCipher({
+  // assume block cipher
+  return new forge.cipher.BlockCipher({
+    algorithm: api,
     key: key,
-    output: null,
-    decrypt: true,
-    mode: mode
+    decrypt: true
   });
 };
 
 /**
- * Creates a new DES cipher algorithm object.
+ * Registers an algorithm by name. If the name was already registered, the
+ * algorithm API object will be overwritten.
  *
  * @param name the name of the algorithm.
- * @param mode the mode factory function.
- *
- * @return the DES algorithm object.
+ * @param algorithm the algorithm API object.
  */
-forge.des.Algorithm = function(name, mode) {
-  var self = this;
-  self.name = name;
-  self.mode = new mode({
-    blockSize: 8,
-    cipher: {
-      encrypt: function(inBlock, outBlock) {
-        return _updateBlock(self._keys, inBlock, outBlock, false);
-      },
-      decrypt: function(inBlock, outBlock) {
-        return _updateBlock(self._keys, inBlock, outBlock, true);
-      }
-    }
-  });
-  self._init = false;
+forge.cipher.registerAlgorithm = function(name, algorithm) {
+  name = name.toUpperCase();
+  forge.cipher.algorithms[name] = algorithm;
 };
 
 /**
- * Initializes this DES algorithm by expanding its key.
+ * Gets a registered algorithm by name.
  *
- * @param options the options to use.
- *          key the key to use with this algorithm.
- *          decrypt true if the algorithm should be initialized for decryption,
- *            false for encryption.
+ * @param name the name of the algorithm.
+ *
+ * @return the algorithm, if found, null if not.
  */
-forge.des.Algorithm.prototype.initialize = function(options) {
-  if(this._init) {
-    return;
+forge.cipher.getAlgorithm = function(name) {
+  name = name.toUpperCase();
+  if(name in forge.cipher.algorithms) {
+    return forge.cipher.algorithms[name];
   }
-
-  var key = forge.util.createBuffer(options.key);
-  if(this.name.indexOf('3DES') === 0) {
-    if(key.length() !== 24) {
-      throw new Error('Invalid Triple-DES key size: ' + key.length() * 8);
-    }
-  }
-
-  // do key expansion to 16 or 48 subkeys (single or triple DES)
-  this._keys = _createKeys(key);
-  this._init = true;
+  return null;
 };
 
-/** Register DES algorithms **/
-
-registerAlgorithm('DES-ECB', forge.cipher.modes.ecb);
-registerAlgorithm('DES-CBC', forge.cipher.modes.cbc);
-registerAlgorithm('DES-CFB', forge.cipher.modes.cfb);
-registerAlgorithm('DES-OFB', forge.cipher.modes.ofb);
-registerAlgorithm('DES-CTR', forge.cipher.modes.ctr);
-
-registerAlgorithm('3DES-ECB', forge.cipher.modes.ecb);
-registerAlgorithm('3DES-CBC', forge.cipher.modes.cbc);
-registerAlgorithm('3DES-CFB', forge.cipher.modes.cfb);
-registerAlgorithm('3DES-OFB', forge.cipher.modes.ofb);
-registerAlgorithm('3DES-CTR', forge.cipher.modes.ctr);
-
-function registerAlgorithm(name, mode) {
-  var factory = function() {
-    return new forge.des.Algorithm(name, mode);
-  };
-  forge.cipher.registerAlgorithm(name, factory);
-}
-
-/** DES implementation **/
-
-var spfunction1 = [0x1010400,0,0x10000,0x1010404,0x1010004,0x10404,0x4,0x10000,0x400,0x1010400,0x1010404,0x400,0x1000404,0x1010004,0x1000000,0x4,0x404,0x1000400,0x1000400,0x10400,0x10400,0x1010000,0x1010000,0x1000404,0x10004,0x1000004,0x1000004,0x10004,0,0x404,0x10404,0x1000000,0x10000,0x1010404,0x4,0x1010000,0x1010400,0x1000000,0x1000000,0x400,0x1010004,0x10000,0x10400,0x1000004,0x400,0x4,0x1000404,0x10404,0x1010404,0x10004,0x1010000,0x1000404,0x1000004,0x404,0x10404,0x1010400,0x404,0x1000400,0x1000400,0,0x10004,0x10400,0,0x1010004];
-var spfunction2 = [-0x7fef7fe0,-0x7fff8000,0x8000,0x108020,0x100000,0x20,-0x7fefffe0,-0x7fff7fe0,-0x7fffffe0,-0x7fef7fe0,-0x7fef8000,-0x80000000,-0x7fff8000,0x100000,0x20,-0x7fefffe0,0x108000,0x100020,-0x7fff7fe0,0,-0x80000000,0x8000,0x108020,-0x7ff00000,0x100020,-0x7fffffe0,0,0x108000,0x8020,-0x7fef8000,-0x7ff00000,0x8020,0,0x108020,-0x7fefffe0,0x100000,-0x7fff7fe0,-0x7ff00000,-0x7fef8000,0x8000,-0x7ff00000,-0x7fff8000,0x20,-0x7fef7fe0,0x108020,0x20,0x8000,-0x80000000,0x8020,-0x7fef8000,0x100000,-0x7fffffe0,0x100020,-0x7fff7fe0,-0x7fffffe0,0x100020,0x108000,0,-0x7fff8000,0x8020,-0x80000000,-0x7fefffe0,-0x7fef7fe0,0x108000];
-var spfunction3 = [0x208,0x8020200,0,0x8020008,0x8000200,0,0x20208,0x8000200,0x20008,0x8000008,0x8000008,0x20000,0x8020208,0x20008,0x8020000,0x208,0x8000000,0x8,0x8020200,0x200,0x20200,0x8020000,0x8020008,0x20208,0x8000208,0x20200,0x20000,0x8000208,0x8,0x8020208,0x200,0x8000000,0x8020200,0x8000000,0x20008,0x208,0x20000,0x8020200,0x8000200,0,0x200,0x20008,0x8020208,0x8000200,0x8000008,0x200,0,0x8020008,0x8000208,0x20000,0x8000000,0x8020208,0x8,0x20208,0x20200,0x8000008,0x8020000,0x8000208,0x208,0x8020000,0x20208,0x8,0x8020008,0x20200];
-var spfunction4 = [0x802001,0x2081,0x2081,0x80,0x802080,0x800081,0x800001,0x2001,0,0x802000,0x802000,0x802081,0x81,0,0x800080,0x800001,0x1,0x2000,0x800000,0x802001,0x80,0x800000,0x2001,0x2080,0x800081,0x1,0x2080,0x800080,0x2000,0x802080,0x802081,0x81,0x800080,0x800001,0x802000,0x802081,0x81,0,0,0x802000,0x2080,0x800080,0x800081,0x1,0x802001,0x2081,0x2081,0x80,0x802081,0x81,0x1,0x2000,0x800001,0x2001,0x802080,0x800081,0x2001,0x2080,0x800000,0x802001,0x80,0x800000,0x2000,0x802080];
-var spfunction5 = [0x100,0x2080100,0x2080000,0x42000100,0x80000,0x100,0x40000000,0x2080000,0x40080100,0x80000,0x2000100,0x40080100,0x42000100,0x42080000,0x80100,0x40000000,0x2000000,0x40080000,0x40080000,0,0x40000100,0x42080100,0x42080100,0x2000100,0x42080000,0x40000100,0,0x42000000,0x2080100,0x2000000,0x42000000,0x80100,0x80000,0x42000100,0x100,0x2000000,0x40000000,0x2080000,0x42000100,0x40080100,0x2000100,0x40000000,0x42080000,0x2080100,0x40080100,0x100,0x2000000,0x42080000,0x42080100,0x80100,0x42000000,0x42080100,0x2080000,0,0x40080000,0x42000000,0x80100,0x2000100,0x40000100,0x80000,0,0x40080000,0x2080100,0x40000100];
-var spfunction6 = [0x20000010,0x20400000,0x4000,0x20404010,0x20400000,0x10,0x20404010,0x400000,0x20004000,0x404010,0x400000,0x20000010,0x400010,0x20004000,0x20000000,0x4010,0,0x400010,0x20004010,0x4000,0x404000,0x20004010,0x10,0x20400010,0x20400010,0,0x404010,0x20404000,0x4010,0x404000,0x20404000,0x20000000,0x20004000,0x10,0x20400010,0x404000,0x20404010,0x400000,0x4010,0x20000010,0x400000,0x20004000,0x20000000,0x4010,0x20000010,0x20404010,0x404000,0x20400000,0x404010,0x20404000,0,0x20400010,0x10,0x4000,0x20400000,0x404010,0x4000,0x400010,0x20004010,0,0x20404000,0x20000000,0x400010,0x20004010];
-var spfunction7 = [0x200000,0x4200002,0x4000802,0,0x800,0x4000802,0x200802,0x4200800,0x4200802,0x200000,0,0x4000002,0x2,0x4000000,0x4200002,0x802,0x4000800,0x200802,0x200002,0x4000800,0x4000002,0x4200000,0x4200800,0x200002,0x4200000,0x800,0x802,0x4200802,0x200800,0x2,0x4000000,0x200800,0x4000000,0x200800,0x200000,0x4000802,0x4000802,0x4200002,0x4200002,0x2,0x200002,0x4000000,0x4000800,0x200000,0x4200800,0x802,0x200802,0x4200800,0x802,0x4000002,0x4200802,0x4200000,0x200800,0,0x2,0x4200802,0,0x200802,0x4200000,0x800,0x4000002,0x4000800,0x800,0x200002];
-var spfunction8 = [0x10001040,0x1000,0x40000,0x10041040,0x10000000,0x10001040,0x40,0x10000000,0x40040,0x10040000,0x10041040,0x41000,0x10041000,0x41040,0x1000,0x40,0x10040000,0x10000040,0x10001000,0x1040,0x41000,0x40040,0x10040040,0x10041000,0x1040,0,0,0x10040040,0x10000040,0x10001000,0x41040,0x40000,0x41040,0x40000,0x10041000,0x1000,0x40,0x10040040,0x1000,0x41040,0x10001000,0x40,0x10000040,0x10040000,0x10040040,0x10000000,0x40000,0x10001040,0,0x10041040,0x40040,0x10000040,0x10040000,0x10001000,0x10001040,0,0x10041040,0x41000,0x41000,0x1040,0x1040,0x40040,0x10000000,0x10041000];
+var BlockCipher = forge.cipher.BlockCipher = function(options) {
+  this.algorithm = options.algorithm;
+  this.mode = this.algorithm.mode;
+  this.blockSize = this.mode.blockSize;
+  this._finish = false;
+  this._input = null;
+  this.output = null;
+  this._op = options.decrypt ? this.mode.decrypt : this.mode.encrypt;
+  this._decrypt = options.decrypt;
+  this.algorithm.initialize(options);
+};
 
 /**
- * Create necessary sub keys.
+ * Starts or restarts the encryption or decryption process, whichever
+ * was previously configured.
  *
- * @param key the 64-bit or 192-bit key.
+ * For non-GCM mode, the IV may be a binary-encoded string of bytes, an array
+ * of bytes, a byte buffer, or an array of 32-bit integers. If the IV is in
+ * bytes, then it must be Nb (16) bytes in length. If the IV is given in as
+ * 32-bit integers, then it must be 4 integers long.
  *
- * @return the expanded keys.
+ * Note: an IV is not required or used in ECB mode.
+ *
+ * For GCM-mode, the IV must be given as a binary-encoded string of bytes or
+ * a byte buffer. The number of bytes should be 12 (96 bits) as recommended
+ * by NIST SP-800-38D but another length may be given.
+ *
+ * @param options the options to use:
+ *          iv the initialization vector to use as a binary-encoded string of
+ *            bytes, null to reuse the last ciphered block from a previous
+ *            update() (this "residue" method is for legacy support only).
+ *          additionalData additional authentication data as a binary-encoded
+ *            string of bytes, for 'GCM' mode, (default: none).
+ *          tagLength desired length of authentication tag, in bits, for
+ *            'GCM' mode (0-128, default: 128).
+ *          tag the authentication tag to check if decrypting, as a
+ *             binary-encoded string of bytes.
+ *          output the output the buffer to write to, null to create one.
  */
-function _createKeys(key) {
-  var pc2bytes0  = [0,0x4,0x20000000,0x20000004,0x10000,0x10004,0x20010000,0x20010004,0x200,0x204,0x20000200,0x20000204,0x10200,0x10204,0x20010200,0x20010204],
-      pc2bytes1  = [0,0x1,0x100000,0x100001,0x4000000,0x4000001,0x4100000,0x4100001,0x100,0x101,0x100100,0x100101,0x4000100,0x4000101,0x4100100,0x4100101],
-      pc2bytes2  = [0,0x8,0x800,0x808,0x1000000,0x1000008,0x1000800,0x1000808,0,0x8,0x800,0x808,0x1000000,0x1000008,0x1000800,0x1000808],
-      pc2bytes3  = [0,0x200000,0x8000000,0x8200000,0x2000,0x202000,0x8002000,0x8202000,0x20000,0x220000,0x8020000,0x8220000,0x22000,0x222000,0x8022000,0x8222000],
-      pc2bytes4  = [0,0x40000,0x10,0x40010,0,0x40000,0x10,0x40010,0x1000,0x41000,0x1010,0x41010,0x1000,0x41000,0x1010,0x41010],
-      pc2bytes5  = [0,0x400,0x20,0x420,0,0x400,0x20,0x420,0x2000000,0x2000400,0x2000020,0x2000420,0x2000000,0x2000400,0x2000020,0x2000420],
-      pc2bytes6  = [0,0x10000000,0x80000,0x10080000,0x2,0x10000002,0x80002,0x10080002,0,0x10000000,0x80000,0x10080000,0x2,0x10000002,0x80002,0x10080002],
-      pc2bytes7  = [0,0x10000,0x800,0x10800,0x20000000,0x20010000,0x20000800,0x20010800,0x20000,0x30000,0x20800,0x30800,0x20020000,0x20030000,0x20020800,0x20030800],
-      pc2bytes8  = [0,0x40000,0,0x40000,0x2,0x40002,0x2,0x40002,0x2000000,0x2040000,0x2000000,0x2040000,0x2000002,0x2040002,0x2000002,0x2040002],
-      pc2bytes9  = [0,0x10000000,0x8,0x10000008,0,0x10000000,0x8,0x10000008,0x400,0x10000400,0x408,0x10000408,0x400,0x10000400,0x408,0x10000408],
-      pc2bytes10 = [0,0x20,0,0x20,0x100000,0x100020,0x100000,0x100020,0x2000,0x2020,0x2000,0x2020,0x102000,0x102020,0x102000,0x102020],
-      pc2bytes11 = [0,0x1000000,0x200,0x1000200,0x200000,0x1200000,0x200200,0x1200200,0x4000000,0x5000000,0x4000200,0x5000200,0x4200000,0x5200000,0x4200200,0x5200200],
-      pc2bytes12 = [0,0x1000,0x8000000,0x8001000,0x80000,0x81000,0x8080000,0x8081000,0x10,0x1010,0x8000010,0x8001010,0x80010,0x81010,0x8080010,0x8081010],
-      pc2bytes13 = [0,0x4,0x100,0x104,0,0x4,0x100,0x104,0x1,0x5,0x101,0x105,0x1,0x5,0x101,0x105];
-
-  // how many iterations (1 for des, 3 for triple des)
-  // changed by Paul 16/6/2007 to use Triple DES for 9+ byte keys
-  var iterations = key.length() > 8 ? 3 : 1;
-
-  // stores the return keys
-  var keys = [];
-
-  // now define the left shifts which need to be done
-  var shifts = [0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0];
-
-  var n = 0, tmp;
-  for(var j = 0; j < iterations; j++) {
-    var left = key.getInt32();
-    var right = key.getInt32();
-
-    tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
-    right ^= tmp;
-    left ^= (tmp << 4);
-
-    tmp = ((right >>> -16) ^ left) & 0x0000ffff;
-    left ^= tmp;
-    right ^= (tmp << -16);
-
-    tmp = ((left >>> 2) ^ right) & 0x33333333;
-    right ^= tmp;
-    left ^= (tmp << 2);
-
-    tmp = ((right >>> -16) ^ left) & 0x0000ffff;
-    left ^= tmp;
-    right ^= (tmp << -16);
-
-    tmp = ((left >>> 1) ^ right) & 0x55555555;
-    right ^= tmp;
-    left ^= (tmp << 1);
-
-    tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
-    left ^= tmp;
-    right ^= (tmp << 8);
-
-    tmp = ((left >>> 1) ^ right) & 0x55555555;
-    right ^= tmp;
-    left ^= (tmp << 1);
-
-    // right needs to be shifted and OR'd with last four bits of left
-    tmp = (left << 8) | ((right >>> 20) & 0x000000f0);
-
-    // left needs to be put upside down
-    left = ((right << 24) | ((right << 8) & 0xff0000) |
-      ((right >>> 8) & 0xff00) | ((right >>> 24) & 0xf0));
-    right = tmp;
-
-    // now go through and perform these shifts on the left and right keys
-    for(var i = 0; i < shifts.length; ++i) {
-      //shift the keys either one or two bits to the left
-      if(shifts[i]) {
-        left = (left << 2) | (left >>> 26);
-        right = (right << 2) | (right >>> 26);
-      } else {
-        left = (left << 1) | (left >>> 27);
-        right = (right << 1) | (right >>> 27);
-      }
-      left &= -0xf;
-      right &= -0xf;
-
-      // now apply PC-2, in such a way that E is easier when encrypting or
-      // decrypting this conversion will look like PC-2 except only the last 6
-      // bits of each byte are used rather than 48 consecutive bits and the
-      // order of lines will be according to how the S selection functions will
-      // be applied: S2, S4, S6, S8, S1, S3, S5, S7
-      var lefttmp = (
-        pc2bytes0[left >>> 28] | pc2bytes1[(left >>> 24) & 0xf] |
-        pc2bytes2[(left >>> 20) & 0xf] | pc2bytes3[(left >>> 16) & 0xf] |
-        pc2bytes4[(left >>> 12) & 0xf] | pc2bytes5[(left >>> 8) & 0xf] |
-        pc2bytes6[(left >>> 4) & 0xf]);
-      var righttmp = (
-        pc2bytes7[right >>> 28] | pc2bytes8[(right >>> 24) & 0xf] |
-        pc2bytes9[(right >>> 20) & 0xf] | pc2bytes10[(right >>> 16) & 0xf] |
-        pc2bytes11[(right >>> 12) & 0xf] | pc2bytes12[(right >>> 8) & 0xf] |
-        pc2bytes13[(right >>> 4) & 0xf]);
-      tmp = ((righttmp >>> 16) ^ lefttmp) & 0x0000ffff;
-      keys[n++] = lefttmp ^ tmp;
-      keys[n++] = righttmp ^ (tmp << 16);
-    }
-  }
-
-  return keys;
-}
-
-/**
- * Updates a single block (1 byte) using DES. The update will either
- * encrypt or decrypt the block.
- *
- * @param keys the expanded keys.
- * @param input the input block (an array of 32-bit words).
- * @param output the updated output block.
- * @param decrypt true to decrypt the block, false to encrypt it.
- */
-function _updateBlock(keys, input, output, decrypt) {
-  // set up loops for single or triple DES
-  var iterations = keys.length === 32 ? 3 : 9;
-  var looping;
-  if(iterations === 3) {
-    looping = decrypt ? [30, -2, -2] : [0, 32, 2];
-  } else {
-    looping = (decrypt ?
-      [94, 62, -2, 32, 64, 2, 30, -2, -2] :
-      [0, 32, 2, 62, 30, -2, 64, 96, 2]);
-  }
-
-  var tmp;
-
-  var left = input[0];
-  var right = input[1];
-
-  // first each 64 bit chunk of the message must be permuted according to IP
-  tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
-  right ^= tmp;
-  left ^= (tmp << 4);
-
-  tmp = ((left >>> 16) ^ right) & 0x0000ffff;
-  right ^= tmp;
-  left ^= (tmp << 16);
-
-  tmp = ((right >>> 2) ^ left) & 0x33333333;
-  left ^= tmp;
-  right ^= (tmp << 2);
-
-  tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
-  left ^= tmp;
-  right ^= (tmp << 8);
-
-  tmp = ((left >>> 1) ^ right) & 0x55555555;
-  right ^= tmp;
-  left ^= (tmp << 1);
-
-  // rotate left 1 bit
-  left = ((left << 1) | (left >>> 31));
-  right = ((right << 1) | (right >>> 31));
-
-  for(var j = 0; j < iterations; j += 3) {
-    var endloop = looping[j + 1];
-    var loopinc = looping[j + 2];
-
-    // now go through and perform the encryption or decryption
-    for(var i = looping[j]; i != endloop; i += loopinc) {
-      var right1 = right ^ keys[i];
-      var right2 = ((right >>> 4) | (right << 28)) ^ keys[i + 1];
-
-      // passing these bytes through the S selection functions
-      tmp = left;
-      left = right;
-      right = tmp ^ (
-        spfunction2[(right1 >>> 24) & 0x3f] |
-        spfunction4[(right1 >>> 16) & 0x3f] |
-        spfunction6[(right1 >>>  8) & 0x3f] |
-        spfunction8[right1 & 0x3f] |
-        spfunction1[(right2 >>> 24) & 0x3f] |
-        spfunction3[(right2 >>> 16) & 0x3f] |
-        spfunction5[(right2 >>>  8) & 0x3f] |
-        spfunction7[right2 & 0x3f]);
-    }
-    // unreverse left and right
-    tmp = left;
-    left = right;
-    right = tmp;
-  }
-
-  // rotate right 1 bit
-  left = ((left >>> 1) | (left << 31));
-  right = ((right >>> 1) | (right << 31));
-
-  // now perform IP-1, which is IP in the opposite direction
-  tmp = ((left >>> 1) ^ right) & 0x55555555;
-  right ^= tmp;
-  left ^= (tmp << 1);
-
-  tmp = ((right >>> 8) ^ left) & 0x00ff00ff;
-  left ^= tmp;
-  right ^= (tmp << 8);
-
-  tmp = ((right >>> 2) ^ left) & 0x33333333;
-  left ^= tmp;
-  right ^= (tmp << 2);
-
-  tmp = ((left >>> 16) ^ right) & 0x0000ffff;
-  right ^= tmp;
-  left ^= (tmp << 16);
-
-  tmp = ((left >>> 4) ^ right) & 0x0f0f0f0f;
-  right ^= tmp;
-  left ^= (tmp << 4);
-
-  output[0] = left;
-  output[1] = right;
-}
-
-/**
- * Deprecated. Instead, use:
- *
- * forge.cipher.createCipher('DES-<mode>', key);
- * forge.cipher.createDecipher('DES-<mode>', key);
- *
- * Creates a deprecated DES cipher object. This object's mode will default to
- * CBC (cipher-block-chaining).
- *
- * The key may be given as a binary-encoded string of bytes or a byte buffer.
- *
- * @param options the options to use.
- *          key the symmetric key to use (64 or 192 bits).
- *          output the buffer to write to.
- *          decrypt true for decryption, false for encryption.
- *          mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-function _createCipher(options) {
+BlockCipher.prototype.start = function(options) {
   options = options || {};
-  var mode = (options.mode || 'CBC').toUpperCase();
-  var algorithm = 'DES-' + mode;
+  var opts = {};
+  for(var key in options) {
+    opts[key] = options[key];
+  }
+  opts.decrypt = this._decrypt;
+  this._finish = false;
+  this._input = forge.util.createBuffer();
+  this.output = options.output || forge.util.createBuffer();
+  this.mode.start(opts);
+};
 
-  var cipher;
-  if(options.decrypt) {
-    cipher = forge.cipher.createDecipher(algorithm, options.key);
-  } else {
-    cipher = forge.cipher.createCipher(algorithm, options.key);
+/**
+ * Updates the next block according to the cipher mode.
+ *
+ * @param input the buffer to read from.
+ */
+BlockCipher.prototype.update = function(input) {
+  if(input) {
+    // input given, so empty it into the input buffer
+    this._input.putBuffer(input);
   }
 
-  // backwards compatible start API
-  var start = cipher.start;
-  cipher.start = function(iv, options) {
-    // backwards compatibility: support second arg as output buffer
-    var output = null;
-    if(options instanceof forge.util.ByteBuffer) {
-      output = options;
-      options = {};
-    }
-    options = options || {};
-    options.output = output;
-    options.iv = iv;
-    start.call(cipher, options);
-  };
+  // do cipher operation until it needs more input and not finished
+  while(!this._op.call(this.mode, this._input, this.output, this._finish) &&
+    !this._finish) {}
 
-  return cipher;
-}
+  // free consumed memory from input buffer
+  this._input.compact();
+};
+
+/**
+ * Finishes encrypting or decrypting.
+ *
+ * @param pad a padding function to use in CBC mode, null for default,
+ *          signature(blockSize, buffer, decrypt).
+ *
+ * @return true if successful, false on error.
+ */
+BlockCipher.prototype.finish = function(pad) {
+  // backwards-compatibility w/deprecated padding API
+  // Note: will overwrite padding functions even after another start() call
+  if(pad && (this.mode.name === 'ECB' || this.mode.name === 'CBC')) {
+    this.mode.pad = function(input) {
+      return pad(this.blockSize, input, false);
+    };
+    this.mode.unpad = function(output) {
+      return pad(this.blockSize, output, true);
+    };
+  }
+
+  // build options for padding and afterFinish functions
+  var options = {};
+  options.decrypt = this._decrypt;
+
+  // get # of bytes that won't fill a block
+  options.overflow = this._input.length() % this.blockSize;
+
+  if(!this._decrypt && this.mode.pad) {
+    if(!this.mode.pad(this._input, options)) {
+      return false;
+    }
+  }
+
+  // do final update
+  this._finish = true;
+  this.update();
+
+  if(this._decrypt && this.mode.unpad) {
+    if(!this.mode.unpad(this.output, options)) {
+      return false;
+    }
+  }
+
+  if(this.mode.afterFinish) {
+    if(!this.mode.afterFinish(this.output, options)) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 
 /***/ }),
@@ -24160,6 +24222,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
 /**
  * Commands
  *
@@ -24214,13 +24277,13 @@ class Command {
     }
 }
 function escapeData(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return (s || '')
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -25166,7 +25229,7 @@ OAuth2Client.ISSUERS_ = [
 var forge = __webpack_require__(239);
 __webpack_require__(828);
 __webpack_require__(757);
-__webpack_require__(426);
+__webpack_require__(167);
 __webpack_require__(220);
 __webpack_require__(988);
 __webpack_require__(575);
@@ -27960,6 +28023,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
+const file_command_1 = __webpack_require__(102);
+const utils_1 = __webpack_require__(82);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -27982,11 +28047,21 @@ var ExitCode;
 /**
  * Sets env variable for this action and future actions in the job
  * @param name the name of the variable to set
- * @param val the value of the variable
+ * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
+    const convertedVal = utils_1.toCommandValue(val);
+    process.env[name] = convertedVal;
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -28002,7 +28077,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -28025,12 +28106,22 @@ exports.getInput = getInput;
  * Sets the value of an output.
  *
  * @param     name     name of the output to set
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
+/**
+ * Enables or disables the echoing of commands into stdout for the rest of the step.
+ * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
+ *
+ */
+function setCommandEcho(enabled) {
+    command_1.issue('echo', enabled ? 'on' : 'off');
+}
+exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
 // Results
 //-----------------------------------------------------------------------
@@ -28064,18 +28155,18 @@ function debug(message) {
 exports.debug = debug;
 /**
  * Adds an error issue
- * @param message error issue message
+ * @param message error issue message. Errors will be converted to string via toString()
  */
 function error(message) {
-    command_1.issue('error', message);
+    command_1.issue('error', message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
  * Adds an warning issue
- * @param message warning issue message
+ * @param message warning issue message. Errors will be converted to string via toString()
  */
 function warning(message) {
-    command_1.issue('warning', message);
+    command_1.issue('warning', message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -28133,8 +28224,9 @@ exports.group = group;
  * Saves state for current action, the state can only be retrieved by this action's post job execution.
  *
  * @param     name     name of the state to store
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
     command_1.issueCommand('save-state', { name }, value);
 }
@@ -36155,7 +36247,7 @@ module.exports = {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(239);
-__webpack_require__(102);
+__webpack_require__(426);
 __webpack_require__(158);
 __webpack_require__(152);
 
@@ -39482,7 +39574,7 @@ function convertToPem(p12base64) {
 /***/ 947:
 /***/ (function(module) {
 
-module.exports = {"_from":"google-auth-library@5.10.1","_id":"google-auth-library@5.10.1","_inBundle":false,"_integrity":"sha512-rOlaok5vlpV9rSiUu5EpR0vVpc+PhN62oF4RyX/6++DG1VsaulAFEMlDYBLjJDDPI6OcNOCGAKy9UVB/3NIDXg==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.10.1","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.10.1","saveSpec":null,"fetchSpec":"5.10.1"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.10.1.tgz","_shasum":"504ec75487ad140e68dd577c21affa363c87ddff","_spec":"google-auth-library@5.10.1","_where":"/home/craigbarber/Coding/github/craigdbarber/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"bundleDependencies":false,"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","ecdsa-sig-formatter":"^1.0.11","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.4.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"deprecated":false,"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^7.0.0","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^2.0.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^12.0.0","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^9.0.0","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prelint":"cd samples; npm link ../; npm i","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.10.1"};
+module.exports = {"_args":[["google-auth-library@5.10.1","/home/runner/work/github-actions/github-actions/get-secretmanager-secrets"]],"_from":"google-auth-library@5.10.1","_id":"google-auth-library@5.10.1","_inBundle":false,"_integrity":"sha512-rOlaok5vlpV9rSiUu5EpR0vVpc+PhN62oF4RyX/6++DG1VsaulAFEMlDYBLjJDDPI6OcNOCGAKy9UVB/3NIDXg==","_location":"/google-auth-library","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"google-auth-library@5.10.1","name":"google-auth-library","escapedName":"google-auth-library","rawSpec":"5.10.1","saveSpec":null,"fetchSpec":"5.10.1"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/google-auth-library/-/google-auth-library-5.10.1.tgz","_spec":"5.10.1","_where":"/home/runner/work/github-actions/github-actions/get-secretmanager-secrets","author":{"name":"Google Inc."},"bugs":{"url":"https://github.com/googleapis/google-auth-library-nodejs/issues"},"dependencies":{"arrify":"^2.0.0","base64-js":"^1.3.0","ecdsa-sig-formatter":"^1.0.11","fast-text-encoding":"^1.0.0","gaxios":"^2.1.0","gcp-metadata":"^3.4.0","gtoken":"^4.1.0","jws":"^4.0.0","lru-cache":"^5.0.0"},"description":"Google APIs Authentication Client Library for Node.js","devDependencies":{"@compodoc/compodoc":"^1.1.7","@types/base64-js":"^1.2.5","@types/chai":"^4.1.7","@types/jws":"^3.1.0","@types/lru-cache":"^5.0.0","@types/mocha":"^7.0.0","@types/mv":"^2.1.0","@types/ncp":"^2.0.1","@types/node":"^10.5.1","@types/sinon":"^7.0.0","@types/tmp":"^0.1.0","assert-rejects":"^1.0.0","c8":"^7.0.0","chai":"^4.2.0","codecov":"^3.0.2","eslint":"^6.0.0","eslint-config-prettier":"^6.0.0","eslint-plugin-node":"^11.0.0","eslint-plugin-prettier":"^3.0.0","execa":"^4.0.0","gts":"^1.1.2","is-docker":"^2.0.0","js-green-licenses":"^1.0.0","karma":"^4.0.0","karma-chrome-launcher":"^3.0.0","karma-coverage":"^2.0.0","karma-firefox-launcher":"^1.1.0","karma-mocha":"^1.3.0","karma-remap-coverage":"^0.1.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^4.0.0","keypair":"^1.0.1","linkinator":"^2.0.0","mocha":"^7.0.0","mv":"^2.1.1","ncp":"^2.0.0","nock":"^12.0.0","null-loader":"^3.0.0","prettier":"^1.13.4","puppeteer":"^2.0.0","sinon":"^9.0.0","tmp":"^0.1.0","ts-loader":"^6.0.0","typescript":"3.6.4","webpack":"^4.20.2","webpack-cli":"^3.1.1"},"engines":{"node":">=8.10.0"},"files":["build/src","!build/src/**/*.map"],"homepage":"https://github.com/googleapis/google-auth-library-nodejs#readme","keywords":["google","api","google apis","client","client library"],"license":"Apache-2.0","main":"./build/src/index.js","name":"google-auth-library","repository":{"type":"git","url":"git+https://github.com/googleapis/google-auth-library-nodejs.git"},"scripts":{"browser-test":"karma start","clean":"gts clean","compile":"tsc -p .","docs":"compodoc src/","docs-test":"linkinator docs","fix":"gts fix && eslint --fix '**/*.js'","license-check":"jsgl --local .","lint":"gts check && eslint '**/*.js' && jsgl --local .","predocs-test":"npm run docs","prelint":"cd samples; npm link ../; npm i","prepare":"npm run compile","presystem-test":"npm run compile","pretest":"npm run compile","samples-test":"cd samples/ && npm link ../ && npm test && cd ../","system-test":"mocha build/system-test --timeout 60000","test":"c8 mocha build/test","webpack":"webpack"},"types":"./build/src/index.d.ts","version":"5.10.1"};
 
 /***/ }),
 
@@ -40115,7 +40207,7 @@ GoogleAuth.DefaultTransporter = transporters_1.DefaultTransporter;
 var forge = __webpack_require__(239);
 __webpack_require__(828);
 __webpack_require__(757);
-__webpack_require__(426);
+__webpack_require__(167);
 __webpack_require__(988);
 __webpack_require__(76);
 __webpack_require__(638);

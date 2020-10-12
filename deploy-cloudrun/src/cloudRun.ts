@@ -24,6 +24,7 @@ import {
   UserRefreshClient,
 } from 'google-auth-library';
 import { Service } from './service';
+import { MethodOptions } from 'googleapis-common';
 
 /**
  * Available options to create the client.
@@ -44,19 +45,21 @@ type ClientOptions = {
  * @returns CloudRun client.
  */
 export class CloudRun {
-  readonly methodOptions = {
-    userAgentDirectives: [
-      {
-        product: 'github-actions-deploy-cloudrun',
-        version: '0.1.0',
-      },
-    ],
-  };
+  private methodOptions: MethodOptions;
+
+  private userAgentDirectives = [
+    {
+      product: 'github-actions-deploy-cloudrun',
+      version: '0.1.0',
+    },
+  ];
 
   private run = google.run('v1');
-  readonly auth: GoogleAuth;
+  private auth: GoogleAuth;
+  private authClient: JWT | Compute | UserRefreshClient | undefined;
   readonly parent: string;
-  authClient: any;
+  readonly endpoint: string;
+  
 
   constructor(region: string, opts?: ClientOptions) {
     let projectId = opts?.projectId;
@@ -93,10 +96,13 @@ export class CloudRun {
       projectId = process.env.GCLOUD_PROJECT;
       core.info('Setting project Id from $GCLOUD_PROJECT');
     } else if (!projectId) {
-      throw new Error('No project Id found. Set project Id in this action.');
+      throw new Error('No project Id found. Set "project_id" input.');
     }
 
-    this.parent = `projects/${projectId}/locations/${region}`;
+    // this.parent = `projects/${projectId}/locations/${region}`;
+    this.parent = `namespaces/${projectId}`;
+    this.endpoint = `https://${region}-run.googleapis.com`;
+    this.methodOptions = {rootUrl: this.endpoint};
   }
 
   /**
@@ -104,9 +110,13 @@ export class CloudRun {
    *
    * @returns JWT | Compute | UserRefreshClient.
    */
-  async getAuthClient(): Promise<JWT | Compute | UserRefreshClient> {
+  async getAuthClient(): Promise<JWT | Compute | UserRefreshClient | undefined> {
     if (!this.authClient) {
-      this.authClient = await this.auth.getClient();
+      try {
+        this.authClient = await this.auth.getClient();
+      } catch (err) {
+        core.error(`Unable to retrieve authenticated client: ${err}`);
+      }
     }
     return this.authClient;
   }
@@ -114,11 +124,11 @@ export class CloudRun {
   /**
    * Generates full resource name.
    *
-   * @param service Service object.
+   * @param serviceName name of Cloud Run service.
    * @returns full resource name.
    */
-  getResource(service: Service): string {
-    return `${this.parent}/services/${service.name}`;
+  getResource(serviceName: String): string {
+    return `${this.parent}/services/${serviceName}`;
   }
 
   /**
@@ -126,13 +136,13 @@ export class CloudRun {
    *
    * @returns a Cloud Run service.
    */
-  async getService(service: Service): Promise<run_v1.Schema$Service> {
+  async getService(serviceName: String): Promise<run_v1.Schema$Service> {
     const authClient = await this.getAuthClient();
-    const getRequest: run_v1.Params$Resource$Projects$Locations$Services$Get = {
-      name: this.getResource(service),
+    const getRequest: run_v1.Params$Resource$Namespaces$Services$Get = {
+      name: this.getResource(serviceName),
       auth: authClient,
     };
-    const serviceResponse: GaxiosResponse<run_v1.Schema$Service> = await this.run.projects.locations.services.get(
+    const serviceResponse: GaxiosResponse<run_v1.Schema$Service> = await this.run.namespaces.services.get(
       getRequest,
       this.methodOptions,
     );
@@ -146,11 +156,11 @@ export class CloudRun {
    */
   async listServices(): Promise<string[]> {
     const authClient = await this.getAuthClient();
-    const listRequest: run_v1.Params$Resource$Projects$Locations$Services$List = {
+    const listRequest: run_v1.Params$Resource$Namespaces$Services$List = {
       parent: this.parent,
       auth: authClient,
     };
-    const serviceListResponse: GaxiosResponse<run_v1.Schema$ListServicesResponse> = await this.run.projects.locations.services.list(
+    const serviceListResponse: GaxiosResponse<run_v1.Schema$ListServicesResponse> = await this.run.namespaces.services.list(
       listRequest,
       this.methodOptions,
     );
@@ -175,27 +185,29 @@ export class CloudRun {
     const authClient = await this.getAuthClient();
     const serviceNames = await this.listServices();
     let serviceResponse: GaxiosResponse<run_v1.Schema$Service>;
+    const methodOptions = this.methodOptions;
+    methodOptions.userAgentDirectives = this.userAgentDirectives;
     if (serviceNames!.includes(service.name)) {
       core.info('Creating a service revision...');
       // Replace service
-      const createServiceRequest: run_v1.Params$Resource$Projects$Locations$Services$Replaceservice = {
-        name: this.getResource(service),
+      const createServiceRequest: run_v1.Params$Resource$Namespaces$Services$Replaceservice = {
+        name: this.getResource(service.name),
         auth: authClient,
         requestBody: service.request,
       };
-      serviceResponse = await this.run.projects.locations.services.replaceService(
+      serviceResponse = await this.run.namespaces.services.replaceService(
         createServiceRequest,
         this.methodOptions,
       );
     } else {
       core.info('Creating a new service...');
       // Create service
-      const createServiceRequest: run_v1.Params$Resource$Projects$Locations$Services$Create = {
+      const createServiceRequest: run_v1.Params$Resource$Namespaces$Services$Create = {
         parent: this.parent,
         auth: authClient,
         requestBody: service.request,
       };
-      serviceResponse = await this.run.projects.locations.services.create(
+      serviceResponse = await this.run.namespaces.services.create(
         createServiceRequest,
         this.methodOptions,
       );
@@ -212,11 +224,11 @@ export class CloudRun {
   async delete(service: Service): Promise<void> {
     const authClient = await this.getAuthClient();
     try {
-      const deleteServiceRequest: run_v1.Params$Resource$Projects$Locations$Services$Delete = {
-        name: this.getResource(service),
+      const deleteServiceRequest: run_v1.Params$Resource$Namespaces$Services$Delete = {
+        name: this.getResource(service.name),
         auth: authClient,
       };
-      await this.run.projects.locations.services.delete(
+      await this.run.namespaces.services.delete(
         deleteServiceRequest,
         this.methodOptions,
       );
@@ -245,7 +257,7 @@ export class CloudRun {
       },
     };
     const setIamPolicyRequest: run_v1.Params$Resource$Projects$Locations$Services$Setiampolicy = {
-      resource: this.getResource(service),
+      resource: this.getResource(service.name),
       auth: authClient,
       requestBody: iamPolicy,
     };

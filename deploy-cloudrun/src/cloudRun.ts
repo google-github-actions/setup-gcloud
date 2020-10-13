@@ -59,7 +59,6 @@ export class CloudRun {
   private authClient: JWT | Compute | UserRefreshClient | undefined;
   readonly parent: string;
   readonly endpoint: string;
-  
 
   constructor(region: string, opts?: ClientOptions) {
     let projectId = opts?.projectId;
@@ -102,7 +101,7 @@ export class CloudRun {
     // this.parent = `projects/${projectId}/locations/${region}`;
     this.parent = `namespaces/${projectId}`;
     this.endpoint = `https://${region}-run.googleapis.com`;
-    this.methodOptions = {rootUrl: this.endpoint};
+    this.methodOptions = { rootUrl: this.endpoint };
   }
 
   /**
@@ -110,7 +109,9 @@ export class CloudRun {
    *
    * @returns JWT | Compute | UserRefreshClient.
    */
-  async getAuthClient(): Promise<JWT | Compute | UserRefreshClient | undefined> {
+  async getAuthClient(): Promise<
+    JWT | Compute | UserRefreshClient | undefined
+  > {
     if (!this.authClient) {
       try {
         this.authClient = await this.auth.getClient();
@@ -127,7 +128,7 @@ export class CloudRun {
    * @param serviceName name of Cloud Run service.
    * @returns full resource name.
    */
-  getResource(serviceName: String): string {
+  getResource(serviceName: string): string {
     return `${this.parent}/services/${serviceName}`;
   }
 
@@ -136,7 +137,7 @@ export class CloudRun {
    *
    * @returns a Cloud Run service.
    */
-  async getService(serviceName: String): Promise<run_v1.Schema$Service> {
+  async getService(serviceName: string): Promise<run_v1.Schema$Service> {
     const authClient = await this.getAuthClient();
     const getRequest: run_v1.Params$Resource$Namespaces$Services$Get = {
       name: this.getResource(serviceName),
@@ -172,7 +173,7 @@ export class CloudRun {
         if (service.metadata) {
           return service.metadata.name as string;
         }
-        return "";
+        return '';
       });
     }
     return serviceNames;

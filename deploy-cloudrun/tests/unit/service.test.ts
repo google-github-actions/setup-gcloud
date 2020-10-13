@@ -55,7 +55,7 @@ describe('Service', function() {
   it('throws error with bad env vars', function() {
     const envVars = 'KEY1,VALUE1';
     expect(function() {
-      const service = new Service({ image, name, envVars });
+      new Service({ image, name, envVars });
     }).to.throw(
       'Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received KEY1',
     );

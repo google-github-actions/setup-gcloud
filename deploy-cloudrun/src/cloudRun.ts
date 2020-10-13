@@ -55,7 +55,7 @@ export class CloudRun {
   ];
 
   private run = google.run('v1');
-  private auth: GoogleAuth;
+  readonly auth: GoogleAuth;
   private authClient: JWT | Compute | UserRefreshClient | undefined;
   readonly parent: string;
   readonly endpoint: string;

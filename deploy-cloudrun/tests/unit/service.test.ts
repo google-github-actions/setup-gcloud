@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import { run_v1 } from 'googleapis';
 import { expect } from 'chai';
 import { get } from 'lodash';
 import 'mocha';
 
-import { Service, EnvVar } from '../../src/service';
+import { Service } from '../../src/service';
 
 const image = 'gcr.io/projectId/image';
 const name = 'serviceName';
@@ -36,7 +37,7 @@ describe('Service', function() {
     const service = new Service({ image, name, envVars });
     const containers = get(service, 'request.spec.template.spec.containers');
     const actual = containers[0]?.env[0];
-    const expected: EnvVar = {
+    const expected: run_v1.Schema$EnvVar = {
       name: 'KEY1',
       value: 'VALUE1',
     };

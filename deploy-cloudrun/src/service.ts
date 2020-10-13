@@ -19,11 +19,6 @@ import { get } from 'lodash';
 import fs from 'fs';
 import YAML from 'yaml';
 
-// export type EnvVar = {
-//   name: string;
-//   value: string;
-// };
-
 /**
  * Available options to create the Service.
  *

@@ -35,6 +35,26 @@ export type ServiceOptions = {
 };
 
 /**
+ * Parses a string of the format `KEY1=VALUE1`.
+ *
+ * @param envVarInput Env var string to parse.
+ * @returns EnvVar[].
+ */
+export function parseEnvVars(envVarInput: string): run_v1.Schema$EnvVar[] {
+  const envVarList = envVarInput.split(',');
+  const envVars = envVarList.map((envVar) => {
+    if (!envVar.includes('=')) {
+      throw new TypeError(
+        `Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received ${envVar}`,
+      );
+    }
+    const keyValue = envVar.split('=');
+    return { name: keyValue[0], value: keyValue[1] };
+  });
+  return envVars;
+}
+
+/**
  * Construct a Cloud Run Service.
  *
  * @param opts ServiceOptions.
@@ -59,7 +79,7 @@ export class Service {
     // Parse Env Vars
     let envVars;
     if (opts?.envVars) {
-      envVars = this.parseEnvVars(opts.envVars);
+      envVars = parseEnvVars(opts.envVars);
     }
 
     // Parse YAML
@@ -161,25 +181,5 @@ export class Service {
     container.env = env;
     spec.containers = [container];
     this.request.spec!.template!.spec = spec;
-  }
-
-  /**
-   * Parses a string of the format `KEY1=VALUE1`.
-   *
-   * @param envVarInput Env var string to parse.
-   * @returns EnvVar[].
-   */
-  protected parseEnvVars(envVarInput: string): run_v1.Schema$EnvVar[] {
-    const envVarList = envVarInput.split(',');
-    const envVars = envVarList.map((envVar) => {
-      if (!envVar.includes('=')) {
-        throw new TypeError(
-          `Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received ${envVar}`,
-        );
-      }
-      const keyValue = envVar.split('=');
-      return { name: keyValue[0], value: keyValue[1] };
-    });
-    return envVars;
   }
 }

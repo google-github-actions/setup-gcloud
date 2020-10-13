@@ -28,7 +28,7 @@ jobs:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
         service: test-envvars
-        env_vars:
+        env_vars: TEST_ENV=TEST_VAR
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
@@ -43,7 +43,21 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
+        ENV: TEST_ENV=TEST_VAR
+    - id: deploy2
+      uses: ./deploy-cloudrun
+      with:
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
+        image: gcr.io/cloudrun/hello
+        service: test-envvars
+        env_vars: TEST_ENV2=TEST_VAR2
+    - name: integration tests
+      run: npm run e2e-tests
+      working-directory: ./deploy-cloudrun
+      env:
+        URL: ${{ steps.deploy2.outputs.url }}
+        SERVICE: test-envvars
+        ENV: TEST_ENV=TEST_VAR,TEST_ENV2=TEST_VAR2
 
   yaml:
     name: with YAML metadata
@@ -75,7 +89,6 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
 
   metadata:
     name: with full YAML metada
@@ -107,4 +120,21 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
-        GCLOUD_PROJECT: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
+        PARAMS: {"cpu": 2," memory": 1Gi, "containerConcurrency": 20}
+        ANNOTATIONS: {"run.googleapis.com/cloudsql-instances": "1:2:3"}
+        LABELS: {"test_label": "test_value"}
+    - id: deploy2
+      uses: ./deploy-cloudrun
+      with:
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
+        image: gcr.io/cloudrun/hello
+        service: test-full-yaml
+    - name: integration tests
+      run: npm run e2e-tests
+      working-directory: ./deploy-cloudrun
+      env:
+        URL: ${{ steps.deploy2.outputs.url }}
+        SERVICE: test-full-yaml
+        PARAMS: {"cpu": 2," memory": 1Gi, "containerConcurrency": 20}
+        ANNOTATIONS: {"run.googleapis.com/cloudsql-instances": "1:2:3"}
+        LABELS: {"test_label": "test_value"}

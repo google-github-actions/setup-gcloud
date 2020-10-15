@@ -57,7 +57,7 @@ jobs:
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
-        URL: ${{ steps.deploy2.outputs.url }}
+        URL: ${{ steps.deploy_2.outputs.url }}
         SERVICE: ${{ steps.service.outputs.service }}
         ENV: TEST_ENV=TEST_VAR,TEST_ENV2=TEST_VAR2
 
@@ -140,7 +140,7 @@ jobs:
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
-        URL: ${{ steps.deploy2.outputs.url }}
+        URL: ${{ steps.deploy_2.outputs.url }}
         SERVICE: ${{ steps.service.outputs.service }}
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
@@ -159,6 +159,6 @@ jobs:
       run: |-
         gcloud config set run/platform managed
         gcloud config set run/region us-central1
-        gcloud run services delete run-full-yaml-$GITHUB_SHA
-        gcloud run services delete run-yaml-$GITHUB_SHA
-        gcloud run services delete run-envvars-$GITHUB_SHA
+        gcloud run services delete run-full-yaml-$GITHUB_SHA --quiet
+        gcloud run services delete run-yaml-$GITHUB_SHA --quiet
+        gcloud run services delete run-envvars-$GITHUB_SHA --quiet

@@ -80,7 +80,7 @@ describe('E2E tests', function() {
       }
       const actualResources = actual.containers[0].resources;
       if (expected.cpu) {
-        expect(actualResources.limits.cpu).to.equal(expected.cpu);
+        expect(actualResources.limits.cpu).to.equal(expected.cpu.toString());
       }
       if (expected.memory) {
         expect(actualResources.limits.memory).to.equal(expected.memory);

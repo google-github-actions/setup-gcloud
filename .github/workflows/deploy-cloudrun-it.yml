@@ -138,3 +138,5 @@ jobs:
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
+    - name: clean up
+      run: gcloud run services delete test-full-yaml --platform managed --region us-central1

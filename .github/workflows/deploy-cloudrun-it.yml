@@ -14,77 +14,81 @@ jobs:
   envVars:
     name: with Env Vars
     runs-on: ubuntu-latest
+    env:
+        SERVICE: run-envvars-$GITHUB_SHA
     steps:
     - uses: actions/checkout@v2
-    - id: build
-      name: Build dist
-      working-directory: deploy-cloudrun
-      run: |-
-        npm install
-        npm run build
-    - id: deploy
-      uses: ./deploy-cloudrun
-      with:
-        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        image: gcr.io/cloudrun/hello
-        service: test-envvars
-        env_vars: TEST_ENV=TEST_VAR
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
-    - run: npm install
+    - name: Build Javascript
       working-directory: ./deploy-cloudrun
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
-      with:
-        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
-        export_default_credentials: true
-    - name: integration tests
-      run: npm run e2e-tests
-      working-directory: ./deploy-cloudrun
-      env:
-        URL: ${{ steps.deploy.outputs.url }}
-        ENV: TEST_ENV=TEST_VAR
-    - id: deploy2
+      run: |-
+        npm install
+        npm run build
+    - name: Deploy Service
+      id: deploy_1
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: test-envvars
+        service: $SERVICE
+        env_vars: TEST_ENV=TEST_VAR
+    - name: Setup Authentication with gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        export_default_credentials: true
+    - name: Integration Tests
+      run: npm run e2e-tests
+      working-directory: ./deploy-cloudrun
+      env:
+        URL: ${{ steps.deploy_1.outputs.url }}
+        SERVICE: $SERVICE
+        ENV: TEST_ENV=TEST_VAR
+    - id: deploy_2
+      uses: ./deploy-cloudrun
+      with:
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
+        image: gcr.io/cloudrun/hello
+        service: $SERVICE
         env_vars: TEST_ENV2=TEST_VAR2
-    - name: integration tests
+    - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy2.outputs.url }}
-        SERVICE: test-envvars
+        SERVICE: $SERVICE
         ENV: TEST_ENV=TEST_VAR,TEST_ENV2=TEST_VAR2
 
   yaml:
     name: with YAML metadata
     runs-on: ubuntu-latest
+    env:
+        SERVICE: run-yaml-$GITHUB_SHA
     steps:
     - uses: actions/checkout@v2
-    - id: build
-      name: Build dist
-      working-directory: deploy-cloudrun
-      run: |-
-        npm install
-        npm run build
-    - id: deploy
-      uses: ./deploy-cloudrun
-      with:
-        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        metadata: ./deploy-cloudrun/tests/unit/service.basic.yaml
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
-    - run: npm install
+    - name: Build Javascript
       working-directory: ./deploy-cloudrun
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
+      run: |-
+        npm install
+        npm run build
+    - name: Deploy Service
+      id: deploy
+      uses: ./deploy-cloudrun
+      with:
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
+        service: $SERVICE
+        metadata: ./deploy-cloudrun/tests/unit/service.basic.yaml
+    - name: Setup Authentication with gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
         export_default_credentials: true
-    - name: integration tests
+    - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
@@ -93,50 +97,55 @@ jobs:
   metadata:
     name: with full YAML metada
     runs-on: ubuntu-latest
+    env:
+        SERVICE: run-full-yaml-$GITHUB_SHA
     steps:
     - uses: actions/checkout@v2
-    - id: build
-      name: Build dist
-      working-directory: deploy-cloudrun
-      run: |-
-        npm install
-        npm run build
-    - id: deploy
-      uses: ./deploy-cloudrun
-      with:
-        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        metadata: ./deploy-cloudrun/tests/unit/service.full.yaml
     - uses: actions/setup-node@master
       with:
         node-version: 12.x
-    - run: npm install
+    - name: Build Javascript
       working-directory: ./deploy-cloudrun
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # Set up ADC to make authenticated request to service
+      run: |-
+        npm install
+        npm run build
+    - name: First Deployment Test
+      id: deploy_1
+      uses: ./deploy-cloudrun
+      with:
+        credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
+        service: $SERVICE
+        metadata: ./deploy-cloudrun/tests/unit/service.full.yaml
+    - name: Setup Authentication with gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
         export_default_credentials: true
-    - name: integration tests
+    - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
-        URL: ${{ steps.deploy.outputs.url }}
+        URL: ${{ steps.deploy_1.outputs.url }}
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
-    - id: deploy2
+    - name: Redeploy Service
+      id: deploy_2
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: test-full-yaml
-    - name: integration tests
+        service: $SERVICE
+    - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy2.outputs.url }}
-        SERVICE: test-full-yaml
+        SERVICE: $SERVICE
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
-    - name: clean up
-      run: gcloud run services delete test-full-yaml --platform managed --region us-central1
+    - name: Clean Up
+      run: |-
+        gcloud run services delete test-full-yaml --project ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }} \
+        --platform managed --region us-central1

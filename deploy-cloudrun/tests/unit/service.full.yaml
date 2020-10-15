@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: test-full-yaml
+  name: run-full-yaml
 spec:
   template:
     metadata:

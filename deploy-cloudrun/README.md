@@ -59,11 +59,11 @@ steps:
   `setup-gcloud` action with exported credentials.
 
 - `env_vars`: List of key-value pairs to set as environment variables in the format:
-  KEY1=VALUE1,KEY2=VALUE2. All existing environment variables will be
-  removed first.
+  KEY1=VALUE1,KEY2=VALUE2. **All existing environment variables will be retained**.
 
 - `metadata`: YAML serivce description for the Cloud Run service. See
-  [Metadata customizations](#metadata-customizations) for more information.
+  [Metadata customizations](#metadata-customizations) for more information. 
+  **Existing configuration will be retained besides container entrypoint and arguments**.
 
 - `project_id`: (Optional) ID of the Google Cloud project. If provided, this
   will override the project configured by gcloud.
@@ -179,4 +179,4 @@ Credentials.
 [sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
 [gh-runners]: https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
 [gh-secret]: https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
-[setup-gcloud]: .GoogleCloudPlatform/github-actions/setup-gcloud@master
+[setup-gcloud]: ./setup-gcloud

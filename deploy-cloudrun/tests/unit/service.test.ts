@@ -92,7 +92,7 @@ describe('Service', function() {
   it('sets args from yaml', function() {
     const yaml = './tests/unit/service.full.yaml';
     const service = new Service({ yaml });
-    expect(service.request.metadata!.name!).equal('test-full-yaml');
+    expect(service.request.metadata!.name!).equal('run-full-yaml');
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers[0]?.resources?.limits?.cpu).equal('2');
     expect(containers[0]?.resources?.limits?.memory).equal('1Gi');

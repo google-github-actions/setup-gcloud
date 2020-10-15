@@ -93,6 +93,10 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
+    - name: Clean Up
+      run: |-
+        gcloud run services delete $SERVICE --project ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }} \
+        --platform managed --region us-central1
 
   metadata:
     name: with full YAML metada
@@ -145,7 +149,19 @@ jobs:
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
-    - name: Clean Up
+
+  cleanup:
+    name: Clean Up
+    runs-on: ubuntu-latest
+    needs: [envvars, metadata, yaml]
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_B64 }}
+        project_id: ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }}
+    - name: Delete services
       run: |-
-        gcloud run services delete test-full-yaml --project ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }} \
-        --platform managed --region us-central1
+        gcloud config set run/platform managed
+        gcloud config set run/region us-central1
+        gcloud run services delete run-full-yaml-$GITHUB_SHA
+        gcloud run services delete run-yaml-$GITHUB_SHA
+        gcloud run services delete run-envvars-$GITHUB_SHA

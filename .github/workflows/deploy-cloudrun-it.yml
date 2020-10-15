@@ -121,7 +121,7 @@ jobs:
       env:
         URL: ${{ steps.deploy.outputs.url }}
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
-        ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances": \"1:2:3\"}"
+        ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
     - id: deploy2
       uses: ./deploy-cloudrun
@@ -136,5 +136,5 @@ jobs:
         URL: ${{ steps.deploy2.outputs.url }}
         SERVICE: test-full-yaml
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
-        ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances": \"1:2:3\"}"
+        ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"

@@ -14,9 +14,9 @@ jobs:
   envvars:
     name: with Env Vars
     runs-on: ubuntu-latest
-    env:
-        SERVICE: run-envvars-$GITHUB_SHA
     steps:
+    - id: service
+      run: echo ::set-output name=service::run-envvars-$GITHUB_SHA
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
       with:
@@ -32,7 +32,7 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: $SERVICE
+        service: ${{ steps.service.outputs.service }}
         env_vars: TEST_ENV=TEST_VAR
     - name: Setup Authentication with gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -44,29 +44,29 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy_1.outputs.url }}
-        SERVICE: $SERVICE
+        SERVICE: ${{ steps.service.outputs.service }}
         ENV: TEST_ENV=TEST_VAR
     - id: deploy_2
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: $SERVICE
+        service: ${{ steps.service.outputs.service }}
         env_vars: TEST_ENV2=TEST_VAR2
     - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy2.outputs.url }}
-        SERVICE: $SERVICE
+        SERVICE: ${{ steps.service.outputs.service }}
         ENV: TEST_ENV=TEST_VAR,TEST_ENV2=TEST_VAR2
 
   yaml:
     name: with YAML metadata
     runs-on: ubuntu-latest
-    env:
-        SERVICE: run-yaml-$GITHUB_SHA
     steps:
+    - id: service
+      run: echo ::set-output name=service::run-yaml-$GITHUB_SHA
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
       with:
@@ -81,7 +81,7 @@ jobs:
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        service: $SERVICE
+        service: ${{ steps.service.outputs.service }}
         metadata: ./deploy-cloudrun/tests/unit/service.basic.yaml
     - name: Setup Authentication with gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -93,17 +93,13 @@ jobs:
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy.outputs.url }}
-    - name: Clean Up
-      run: |-
-        gcloud run services delete $SERVICE --project ${{ secrets.DEPLOY_CLOUDRUN_PROJECT_ID }} \
-        --platform managed --region us-central1
 
   metadata:
     name: with full YAML metada
     runs-on: ubuntu-latest
-    env:
-        SERVICE: run-full-yaml-$GITHUB_SHA
     steps:
+    - id: service
+      run: echo ::set-output name=service::run-full-yaml-$GITHUB_SHA
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
       with:
@@ -118,7 +114,7 @@ jobs:
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
-        service: $SERVICE
+        service: ${{ steps.service.outputs.service }}
         metadata: ./deploy-cloudrun/tests/unit/service.full.yaml
     - name: Setup Authentication with gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -139,13 +135,13 @@ jobs:
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
-        service: $SERVICE
+        service: ${{ steps.service.outputs.service }}
     - name: Integration Tests
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
         URL: ${{ steps.deploy2.outputs.url }}
-        SERVICE: $SERVICE
+        SERVICE: ${{ steps.service.outputs.service }}
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"

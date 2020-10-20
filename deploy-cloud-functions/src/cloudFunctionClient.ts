@@ -264,7 +264,9 @@ export class CloudFunctionClient {
    * @param functionPath Cloud Function name.
    * @returns CloudFunction delete response.
    */
-  async delete(functionPath: string): Promise<cloudfunctions_v1.Schema$Operation> {
+  async delete(
+    functionPath: string,
+  ): Promise<cloudfunctions_v1.Schema$Operation> {
     const authClient = await this.getAuthClient();
     const deleteFunctionRequest: cloudfunctions_v1.Params$Resource$Projects$Locations$Functions$Delete = {
       name: functionPath,

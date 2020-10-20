@@ -58,7 +58,7 @@ describe('CloudFunction', function () {
     expect(result).to.not.have.property('error');
     expect(result.response?.httpsTrigger.url).to.not.be.null;
     // expect function to be deleted without error
-    const deleteFunc = await client.delete(newHttpFunc.fqn);
+    const deleteFunc = await client.delete(newHttpFunc.functionPath);
     expect(deleteFunc.done).to.eq(true);
   });
 
@@ -91,7 +91,7 @@ describe('CloudFunction', function () {
     expect(result.response?.eventTrigger.eventType).to.eq(eventTriggerType);
     expect(result.response?.eventTrigger.resource).to.eq(pubsubTopicFQN);
     // expect function to be deleted without error
-    const deleteFunc = await client.delete(newEventFunc.fqn);
+    const deleteFunc = await client.delete(newEventFunc.functionPath);
     expect(deleteFunc.done).to.eq(true);
   });
 
@@ -131,7 +131,7 @@ describe('CloudFunction', function () {
     // expect to have the correct update
     expect(result.response?.environmentVariables.KEY3).to.eq('VALUE3');
     // expect function to be deleted without error
-    const deleteFunc = await client.delete(updatedHttpFunc.fqn);
+    const deleteFunc = await client.delete(updatedHttpFunc.functionPath);
     expect(deleteFunc.done).to.eq(true);
   });
 });

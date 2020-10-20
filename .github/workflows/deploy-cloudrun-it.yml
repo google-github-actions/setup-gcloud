@@ -26,7 +26,7 @@ jobs:
       run: |-
         npm install
         npm run build
-    - name: Deploy Service
+    - name: Create Service with one env var
       id: deploy_1
       uses: ./deploy-cloudrun
       with:
@@ -46,14 +46,15 @@ jobs:
         URL: ${{ steps.deploy_1.outputs.url }}
         SERVICE: ${{ steps.service.outputs.service }}
         ENV: TEST_ENV=TEST_VAR
-    - id: deploy_2
+    - name: Update Service with second env var
+      id: deploy_2
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
         service: ${{ steps.service.outputs.service }}
         env_vars: TEST_ENV2=TEST_VAR2
-    - name: Integration Tests
+    - name: Integration Tests # Check that config isn't overwritten
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:
@@ -109,7 +110,7 @@ jobs:
       run: |-
         npm install
         npm run build
-    - name: First Deployment Test
+    - name: Create service from metadata yaml
       id: deploy_1
       uses: ./deploy-cloudrun
       with:
@@ -129,14 +130,14 @@ jobs:
         PARAMS: "{\"cpu\": 2,\"memory\": \"1Gi\", \"containerConcurrency\": 20}"
         ANNOTATIONS: "{\"run.googleapis.com/cloudsql-instances\": \"1:2:3\"}"
         LABELS: "{\"test_label\": \"test_value\"}"
-    - name: Redeploy Service
+    - name: Update service with new image
       id: deploy_2
       uses: ./deploy-cloudrun
       with:
         credentials: ${{ secrets.DEPLOY_CLOUDRUN_SA_KEY_JSON }}
         image: gcr.io/cloudrun/hello
         service: ${{ steps.service.outputs.service }}
-    - name: Integration Tests
+    - name: Integration Tests # Check that config isn't overwritten
       run: npm run e2e-tests
       working-directory: ./deploy-cloudrun
       env:

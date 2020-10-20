@@ -123,15 +123,15 @@ export class CloudFunctionClient {
   /**
    * Retrieves a Cloud Function.
    *
-   * @param fqn Cloud Function name
+   * @param functionPath Cloud Function name
    * @returns a Cloud Function object.
    */
   async getFunction(
-    fqn: string,
+    functionPath: string,
   ): Promise<cloudfunctions_v1.Schema$CloudFunction> {
     const authClient = await this.getAuthClient();
     const getRequest: cloudfunctions_v1.Params$Resource$Projects$Locations$Functions$Get = {
-      name: fqn,
+      name: functionPath,
       auth: authClient,
     };
     const currentFunctionResponse: GaxiosResponse<cloudfunctions_v1.Schema$CloudFunction> = await this.gcf.projects.locations.functions.get(
@@ -207,7 +207,7 @@ export class CloudFunctionClient {
     await deleteZipFile(zipPath);
     cf.setSourceUrl(uploadUrl.uploadUrl);
     // If CF already exists, create a revision else create new deployment
-    if (deployedFunctions.includes(cf.fqn)) {
+    if (deployedFunctions.includes(cf.functionPath)) {
       core.info('Creating a function revision');
       // fieldMasks are used if we are overwriting only specific fields of the resource
       // In the case we assume we will always need to replace sourceUploadUrl due to code change and along with it updates any inputs if changed
@@ -227,7 +227,7 @@ export class CloudFunctionClient {
       ];
       const updateFunctionRequest: cloudfunctions_v1.Params$Resource$Projects$Locations$Functions$Patch = {
         updateMask: updateMasks.join(','),
-        name: cf.fqn,
+        name: cf.functionPath,
         auth: authClient,
         requestBody: cf.request,
       };
@@ -261,13 +261,13 @@ export class CloudFunctionClient {
   /**
    * Delete a Cloud Function.
    *
-   * @param fqn Cloud Function name.
+   * @param functionPath Cloud Function name.
    * @returns CloudFunction delete response.
    */
-  async delete(fqn: string): Promise<cloudfunctions_v1.Schema$Operation> {
+  async delete(functionPath: string): Promise<cloudfunctions_v1.Schema$Operation> {
     const authClient = await this.getAuthClient();
     const deleteFunctionRequest: cloudfunctions_v1.Params$Resource$Projects$Locations$Functions$Delete = {
-      name: fqn,
+      name: functionPath,
       auth: authClient,
     };
     const deleteFunctionResponse = await this.gcf.projects.locations.functions.delete(

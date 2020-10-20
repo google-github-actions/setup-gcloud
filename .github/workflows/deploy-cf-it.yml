@@ -21,6 +21,12 @@ jobs:
         service_account_email: ${{ secrets.DEPLOY_CF_SA_EMAIL }}
         service_account_key: ${{ secrets.DEPLOY_CF_SA_KEY_JSON }}
         export_default_credentials: true
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloud-functions
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloud-functions
       with:
@@ -50,6 +56,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloud-functions
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloud-functions
       with:
@@ -85,6 +97,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - id: build
+      name: Build dist
+      working-directory: deploy-cloud-functions
+      run: |-
+        npm install
+        npm run build
     - id: deploy
       uses: ./deploy-cloud-functions
       with:

@@ -44,17 +44,17 @@ async function run(): Promise<void> {
     const newFunc = new CloudFunction({
       name: name,
       parent: client.parent,
-      sourceDir: sourceDir,
-      runtime: runtime,
-      entryPoint: entryPoint,
-      envVars: envVars,
-      timeout: timeout,
+      sourceDir,
+      runtime,
+      entryPoint,
+      envVars,
+      timeout,
       maxInstances: +maxInstances,
-      eventTriggerType: eventTriggerType,
-      eventTriggerResource: eventTriggerResource,
-      eventTriggerService: eventTriggerService,
-      vpcConnector: vpcConnector,
-      serviceAccountEmail: serviceAccountEmail,
+      eventTriggerType,
+      eventTriggerResource,
+      eventTriggerService,
+      vpcConnector,
+      serviceAccountEmail,
     });
 
     // Deploy function

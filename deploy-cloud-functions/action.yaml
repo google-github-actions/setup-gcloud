@@ -22,7 +22,7 @@ author: GoogleCloudPlatform
 inputs:
   credentials:
     description: |-
-      Optional service account key to use for authentication to GCS. This should be the JSON
+      Optional service account key to use for authentication to GCP. This should be the JSON
       formatted private key which can be exported from the Cloud Console. The
       value can be raw or base64-encoded.
     required: false
@@ -34,7 +34,7 @@ inputs:
 
   description:
     description: |-
-      Description for the CF.
+      Description for the Cloud Function.
     required: false
 
   project_id:

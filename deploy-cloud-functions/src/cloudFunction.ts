@@ -24,7 +24,7 @@ export type EnvVar = {
  * Available options to create the cloudFunction.
  *
  * @param name Name of the Cloud Function.
- * @param description Description for the CF.
+ * @param description Description for the Cloud Function.
  * @param sourceDir Path to function deployment directory within the source repo.
  * @param envVars List of key-value pairs to set as environment variables.
  * @param entryPoint Name of function to execute.
@@ -66,12 +66,12 @@ export class CloudFunction {
   readonly request: cloudfunctions_v1.Schema$CloudFunction;
   readonly name: string;
   readonly sourceDir: string;
-  readonly fqn: string;
+  readonly functionPath: string;
   constructor(opts: CloudFunctionOptions) {
-    this.fqn = `${opts.parent}/functions/${opts.name}`;
+    this.functionPath = `${opts.parent}/functions/${opts.name}`;
 
     const request: cloudfunctions_v1.Schema$CloudFunction = {
-      name: this.fqn,
+      name: this.functionPath,
       description: opts.description,
       entryPoint: opts.entryPoint,
       runtime: opts.runtime,

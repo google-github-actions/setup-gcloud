@@ -67,7 +67,7 @@ steps:
 - `project_id`: (Optional) ID of the Google Cloud project. If provided, this
   will override the project configured by gcloud.
 
-- `description`: (Optional) Description for the CF.
+- `description`: (Optional) Description for the Cloud Function.
 
 - `vpc_connector`: (Optional) The VPC Access connector that the function can connect to..
 

@@ -239,6 +239,7 @@ export class CloudFunctionClient {
         updateFunctionResponse.data,
         'Updating function deployment',
       );
+      core.info('Function deployment updated');
       return awaitUpdate;
     } else {
       core.info('Creating a new function deployment');
@@ -255,6 +256,7 @@ export class CloudFunctionClient {
         createFunctionResponse.data,
         'Creating function deployment',
       );
+      core.info('Function deployment created');
       return awaitCreate;
     }
   }

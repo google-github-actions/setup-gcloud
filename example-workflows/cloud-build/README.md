@@ -46,7 +46,7 @@ For pushes to the `master` branch, this workflow will:
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
-    - [`Cloud Build Service Account`](https://cloud.google.com/cloud-build/docs/cloud-build-service-account) - allows for execute builds on your behalf
+    - [`Cloud Build Service Account`](https://cloud.google.com/cloud-build/docs/cloud-build-service-account) - allows for execution of builds on your behalf
 
     - `Viewer` - allows for Cloud Build log storage
 

@@ -16327,7 +16327,7 @@ function run() {
                 version = yield setupGcloud.getLatestGcloudSDKVersion();
             }
             // Install the gcloud if not already present
-            if (!setupGcloud.isInstalled()) {
+            if (!setupGcloud.isInstalled(version)) {
                 yield setupGcloud.installGcloudSDK(version);
             }
             else {

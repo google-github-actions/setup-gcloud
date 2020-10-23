@@ -33,3 +33,7 @@ jobs:
     - name: Lint
       working-directory: ./setup-gcloud
       run: npm run lint
+
+    - name: Test
+      working-directory: ./setup-gcloud
+      run: npm test

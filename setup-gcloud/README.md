@@ -63,6 +63,7 @@ steps:
     project_id: ${{ secrets.GCP_PROJECT_ID }}
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
+    credentials_file_path: '/tmp/gcloud-credentials'
 - run: gcloud info
 ```
 
@@ -75,6 +76,8 @@ steps:
 * `service_account_key`: (Optional) The service account key which will be used for authentication. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string (eg. `cat my-key.json | base64` on macOS) or as JSON. 
 
 * `export_default_credentials`: (Optional) Export the provided credentials as [Google Default Application Credentials][dac]. This will make the credentials available to later steps. Future steps that consume Default Application Credentials will automatically detect and use these credentials.
+
+* `credentials_file_path`: (Optional) Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. If not provided, `GITHUB_WORKSPACE` is used.
 
 * `project_id`: (Optional) ID of the Google Cloud project. If provided, this will configure gcloud to use this project ID by default for commands. Individual commands can still override the project using the --project flag which takes precedence.
 

@@ -16,8 +16,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
-    - id: build dependency
-      name: Build dependency
+    - name: Build dependency
       working-directory: setupGcloudSDK
       run: |-
         npm install
@@ -47,8 +46,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
-      - id: build dependency
-        name: Build dependency
+      - name: Build dependency
         working-directory: setupGcloudSDK
         run: |-
           npm install
@@ -78,8 +76,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
-      - id: build dependency
-        name: Build dependency
+      - name: Build dependency
         working-directory: setupGcloudSDK
         run: |-
           npm install
@@ -110,8 +107,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
-      - id: build dependency
-        name: Build dependency
+      - name: Build dependency
         working-directory: setupGcloudSDK
         run: |-
           npm install
@@ -142,8 +138,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
-      - id: build dependency
-        name: Build dependency
+      - name: Build dependency
         working-directory: setupGcloudSDK
         run: |-
           npm install

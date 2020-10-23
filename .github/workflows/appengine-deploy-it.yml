@@ -32,8 +32,7 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
-    - id: build dependency
-      name: Build dependency
+    - name: Build dependency
       working-directory: setupGcloudSDK
       run: |-
         npm install
@@ -82,8 +81,7 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
-    - id: build dependency
-      name: Build dependency
+    - name: Build dependency
       working-directory: setupGcloudSDK
       run: |-
         npm install
@@ -135,8 +133,7 @@ jobs:
         });
         server.listen(process.env.PORT || 8080);
         EOF
-    - id: build dependency
-      name: Build dependency
+    - name: Build dependency
       working-directory: setupGcloudSDK
       run: |-
         npm install

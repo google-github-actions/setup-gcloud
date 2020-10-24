@@ -5,10 +5,6 @@ on:
     paths:
     - 'deploy-cloudrun/**'
     - '.github/workflows/deploy-cloudrun-it.yml'
-  pull_request:
-    paths:
-    - 'deploy-cloudrun/**'
-    - '.github/workflows/deploy-cloudrun-it.yml'
 
 jobs:
   envvars:

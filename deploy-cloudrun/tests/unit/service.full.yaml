@@ -1,9 +1,14 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: test-full-yaml
+  name: run-full-yaml
 spec:
   template:
+    metadata:
+      labels:
+        test_label: test_value
+      annotations:
+        run.googleapis.com/cloudsql-instances: '1:2:3'
     spec:
       containerConcurrency: 20
       containers:
@@ -15,6 +20,3 @@ spec:
             cpu: '2'
             memory: 1Gi
       timeoutSeconds: 300
-  traffic:
-  - latestRevision: true
-    percent: 100

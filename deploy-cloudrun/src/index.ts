@@ -17,6 +17,7 @@
 import * as core from '@actions/core';
 import { CloudRun } from './cloudRun';
 import { Service } from './service';
+import { get } from 'lodash';
 
 /**
  * Executes the main action. It includes the main business logic and is the
@@ -41,11 +42,11 @@ async function run(): Promise<void> {
 
     // Deploy service
     let serviceResponse = await client.deploy(service);
-    while (!serviceResponse.status!.url) {
-      serviceResponse = await client.getService(service);
+    while (!get(serviceResponse, 'status.url')) {
+      serviceResponse = await client.getService(service.name);
     }
     // Set URL as output
-    core.setOutput('url', serviceResponse.status!.url);
+    core.setOutput('url', get(serviceResponse, 'status.url'));
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);

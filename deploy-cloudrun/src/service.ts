@@ -15,13 +15,9 @@
  */
 
 import { run_v1 } from 'googleapis';
+import { get } from 'lodash';
 import fs from 'fs';
 import YAML from 'yaml';
-
-export type EnvVar = {
-  name: string;
-  value: string;
-};
 
 /**
  * Available options to create the Service.
@@ -37,6 +33,26 @@ export type ServiceOptions = {
   envVars?: string;
   yaml?: string;
 };
+
+/**
+ * Parses a string of the format `KEY1=VALUE1`.
+ *
+ * @param envVarInput Env var string to parse.
+ * @returns EnvVar[].
+ */
+export function parseEnvVars(envVarInput: string): run_v1.Schema$EnvVar[] {
+  const envVarList = envVarInput.split(',');
+  const envVars = envVarList.map((envVar) => {
+    if (!envVar.includes('=')) {
+      throw new TypeError(
+        `Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received ${envVar}`,
+      );
+    }
+    const keyValue = envVar.split('=');
+    return { name: keyValue[0], value: keyValue[1] };
+  });
+  return envVars;
+}
 
 /**
  * Construct a Cloud Run Service.
@@ -63,7 +79,7 @@ export class Service {
     // Parse Env Vars
     let envVars;
     if (opts?.envVars) {
-      envVars = this.parseEnvVars(opts.envVars);
+      envVars = parseEnvVars(opts.envVars);
     }
 
     // Parse YAML
@@ -82,11 +98,11 @@ export class Service {
       }
     }
 
-    // If image is provided, set or override
+    // If image is provided, set or override YAML
     if (opts.image) {
       const container: run_v1.Schema$Container = { image: opts.image };
-      if (request.spec?.template) {
-        request.spec.template!.spec!.containers = [container];
+      if (get(request, 'spec.template.spec')) {
+        request.spec!.template!.spec!.containers = [container];
       } else {
         request.spec = {
           template: {
@@ -98,10 +114,15 @@ export class Service {
       }
     }
 
-    // If Env Vars are provided, set or override
+    if (!get(request, 'spec.template.spec.containers'))
+      throw new Error(
+        'No container defined. Set image as an input or in YAML config.',
+      );
+
+    // If Env Vars are provided, set or override YAML
     if (envVars) {
-      if (request.spec?.template?.spec?.containers) {
-        request.spec!.template!.spec!.containers[0]!.env = envVars;
+      if (get(request, 'spec.template.spec.containers[0]')) {
+        request.spec!.template!.spec!.containers![0].env = envVars;
       }
     }
 
@@ -110,22 +131,55 @@ export class Service {
   }
 
   /**
-   * Parses a string of the format `KEY1=VALUE1`.
+   * Merges old revision with new service.
    *
-   * @param envVarInput Env var string to parse.
-   * @returns EnvVar[].
+   * @param prevService the previous Cloud Run service revision
    */
-  protected parseEnvVars(envVarInput: string): EnvVar[] {
-    const envVarList = envVarInput.split(',');
-    const envVars = envVarList.map((envVar) => {
-      if (!envVar.includes('=')) {
-        throw new TypeError(
-          `Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received ${envVar}`,
-        );
+  public merge(prevService: run_v1.Schema$Service): void {
+    // Merge Revision Metadata
+    const labels = {
+      ...prevService.spec?.template?.metadata?.labels,
+      ...this.request.spec?.template?.metadata?.labels,
+    };
+    const annotations = {
+      ...prevService.spec?.template?.metadata?.annotations,
+      ...this.request.spec?.template?.metadata?.annotations,
+    };
+    this.request.spec!.template!.metadata = {
+      annotations,
+      labels,
+    };
+
+    // Merge Revision Spec
+    const prevContainer = prevService.spec!.template!.spec!.containers![0];
+    const currentContainer = this.request.spec!.template!.spec!.containers![0];
+    // Merge Container spec
+    const container = { ...prevContainer, ...currentContainer };
+    // Merge Spec
+    const spec = {
+      ...prevService.spec?.template?.spec,
+      ...this.request.spec!.template!.spec,
+    };
+    if (!currentContainer.command) {
+      // Remove entrypoint cmd and arguments if not specified
+      delete container.command;
+      delete container.args;
+    }
+    // Merge Env vars
+    let env: run_v1.Schema$EnvVar[] = [];
+    if (currentContainer.env) {
+      env = currentContainer.env.map(
+        (envVar) => envVar as run_v1.Schema$EnvVar,
+      );
+    }
+    const keys = env?.map((envVar) => envVar.name);
+    prevContainer.env?.forEach((envVar) => {
+      if (!keys.includes(envVar.name)) {
+        return env.push(envVar);
       }
-      const keyValue = envVar.split('=');
-      return { name: keyValue[0], value: keyValue[1] };
     });
-    return envVars;
+    container.env = env;
+    spec.containers = [container];
+    this.request.spec!.template!.spec = spec;
   }
 }

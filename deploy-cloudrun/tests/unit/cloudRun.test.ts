@@ -54,7 +54,7 @@ describe('CloudRun', function() {
     });
     let result = await client.deploy(service);
     while (!result.status!.url) {
-      result = await client.getService(service);
+      result = await client.getService(name);
     }
     expect(result).to.not.eql(null);
     expect(result.status!.url).to.include('run.app');

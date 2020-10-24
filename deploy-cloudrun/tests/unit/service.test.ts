@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import { run_v1 } from 'googleapis';
 import { expect } from 'chai';
 import { get } from 'lodash';
 import 'mocha';
 
-import { Service, EnvVar } from '../../src/service';
+import { Service } from '../../src/service';
 
 const image = 'gcr.io/projectId/image';
 const name = 'serviceName';
@@ -36,7 +37,7 @@ describe('Service', function() {
     const service = new Service({ image, name, envVars });
     const containers = get(service, 'request.spec.template.spec.containers');
     const actual = containers[0]?.env[0];
-    const expected: EnvVar = {
+    const expected: run_v1.Schema$EnvVar = {
       name: 'KEY1',
       value: 'VALUE1',
     };
@@ -55,7 +56,7 @@ describe('Service', function() {
   it('throws error with bad env vars', function() {
     const envVars = 'KEY1,VALUE1';
     expect(function() {
-      const service = new Service({ image, name, envVars });
+      new Service({ image, name, envVars });
     }).to.throw(
       'Env Vars must be in "KEY1=VALUE1,KEY2=VALUE2" format, received KEY1',
     );
@@ -91,7 +92,7 @@ describe('Service', function() {
   it('sets args from yaml', function() {
     const yaml = './tests/unit/service.full.yaml';
     const service = new Service({ yaml });
-    expect(service.request.metadata!.name!).equal('test-full-yaml');
+    expect(service.request.metadata!.name!).equal('run-full-yaml');
     const containers = get(service, 'request.spec.template.spec.containers');
     expect(containers[0]?.resources?.limits?.cpu).equal('2');
     expect(containers[0]?.resources?.limits?.memory).equal('1Gi');

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
- import { run } from './setup-gcloud';
+import { run } from './setup-gcloud';
 
 run();

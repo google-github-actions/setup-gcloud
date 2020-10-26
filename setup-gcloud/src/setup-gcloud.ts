@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import * as setupGcloud from '../../setupGcloudSDK/dist/index';

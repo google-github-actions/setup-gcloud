@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ncc build src/index.ts",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'",
+    "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'",
     "format": "prettier --write **/*.ts"
   },
   "repository": {

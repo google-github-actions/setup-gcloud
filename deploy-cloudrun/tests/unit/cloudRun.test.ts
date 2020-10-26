@@ -38,7 +38,7 @@ describe('CloudRun', function() {
   });
 
   it('initializes with ADC', async function() {
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS || !process.env.GCLOUD_PROJECT) {
       this.skip();
     }
     const client = new CloudRun(region);

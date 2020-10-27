@@ -58,6 +58,14 @@ inputs:
       these credentials.
     default: false
     required: false
+  credentials_file_path:
+    description: |-
+      The path and name of the file to which to write the shared default
+      credentials. This option is only valid when
+      export_default_credentials=true. By default, the credentials will be
+      written to a new file in the root of GITHUB_WORKSPACE.
+    default: null
+    required: false
 
 runs:
   using: node12

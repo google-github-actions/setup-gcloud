@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import * as setupGcloud from '../../setupGcloudSDK/dist/index';
@@ -20,7 +21,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     let version = core.getInput('version');
     if (!version || version == 'latest') {
@@ -56,15 +57,23 @@ async function run(): Promise<void> {
     // all steps.
     const exportCreds = core.getInput('export_default_credentials');
     if (String(exportCreds).toLowerCase() === 'true') {
-      const workspace = process.env.GITHUB_WORKSPACE;
-      if (!workspace) {
-        throw new Error('Missing GITHUB_WORKSPACE!');
+      let credsPath = core.getInput('credentials_file_path');
+
+      if (!credsPath) {
+        const credsDir = process.env.GITHUB_WORKSPACE;
+        if (!credsDir) {
+          throw new Error(
+            'No path for credentials. Set credentials_file_path or process.env.GITHUB_WORKSPACE',
+          );
+        }
+
+        credsPath = path.join(credsDir, uuidv4());
       }
 
-      const credsPath = path.join(workspace, uuidv4());
       const serviceAccountKeyObj = setupGcloud.parseServiceAccountKey(
         serviceAccountKey,
       );
+
       await fs.writeFile(
         credsPath,
         JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
@@ -80,5 +89,3 @@ async function run(): Promise<void> {
     core.setFailed(error.message);
   }
 }
-
-run();

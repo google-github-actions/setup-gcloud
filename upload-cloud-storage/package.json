@@ -1,6 +1,6 @@
 {
   "name": "upload-cloud-storage",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Upload to Google Cloud Storage (GCS)",
   "main": "dist/index.js",
   "scripts": {

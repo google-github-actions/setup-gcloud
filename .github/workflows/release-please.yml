@@ -9,7 +9,7 @@ jobs:
     strategy:
         max-parallel: 1
         matrix: 
-          actions: ["setupGcloudSDK", "appengine-deploy","deploy-cloudrun", "setup-gcloud", "get-secretmanager-secrets", "upload-cloud-storage", "get-gke-credentials"]
+          actions: ["setupGcloudSDK", "appengine-deploy","deploy-cloudrun", "setup-gcloud", "get-secretmanager-secrets", "upload-cloud-storage", "get-gke-credentials", "deploy-cloud-functions"]
     steps:
       - uses: actions/checkout@v2
       - run: git pull

@@ -15,6 +15,17 @@ limitations under the License.
 -->
 # get-gke-credentials
 
+## **📢 DEPRECATION NOTICE**
+
+### **GoogleCloudPlatform/github-actions/get-gke-credentials has been deprecated. Please use google-github-actions/get-gke-credentials**
+
+```diff
+steps:
+ - id: get-credentials
+-  uses: GoogleCloudPlatform/github-actions/get-gke-credentials@master
++  uses: google-github-actions/get-gke-credentials@main
+```
+
 This action configures authentication to a [GKE cluster][gke] via a `kubeconfig` file that can be used with `kubectl` or other methods of interacting with the cluster.
 
 Authentication is performed by generating a [short-lived token][token] (default behaviour) or via the [GCP auth plugin][gcp-auth-plugin] present in `kubectl` which uses the service account keyfile path in [GOOGLE_APPLICATION_CREDENTIALS][gcp-gcloud-auth].

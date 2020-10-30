@@ -23,6 +23,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function run(): Promise<void> {
   try {
+    // Add notice
+    core.warning(
+      'Thank you for using setup-gcloud Action. GoogleCloudPlatform/github-actions/setup-gcloud has been deprecated, please switch to google-github-actions/setup-gcloud.',
+    );
     let version = core.getInput('version');
     if (!version || version == 'latest') {
       version = await setupGcloud.getLatestGcloudSDKVersion();

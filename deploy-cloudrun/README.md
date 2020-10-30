@@ -15,6 +15,17 @@ limitations under the License.
 -->
 # deploy-cloudrun
 
+## **📢 DEPRECATION NOTICE**
+
+### **GoogleCloudPlatform/github-actions/deploy-cloudrun has been deprecated. Please use google-github-actions/deploy-cloudrun**
+
+```diff
+steps:
+ - id: deploy
+-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
++  uses: google-github-actions/deploy-cloudrun@main
+```
+
 This action deploys your container image to [Cloud Run][cloud-run] and makes the URL
 available to later build steps via outputs.
 

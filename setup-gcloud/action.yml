@@ -69,4 +69,4 @@ inputs:
 
 runs:
   using: node12
-  main: dist/index.js
+  main: dist-frozen/index.js

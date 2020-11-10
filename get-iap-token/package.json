@@ -30,7 +30,7 @@
   "author": "fcoclavero",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.2.4",
+    "@actions/core": "^1.2.6",
     "gtoken": "^5.0.2"
   },
   "devDependencies": {
@@ -46,7 +46,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.2.5",
-    "mocha": "^8.0.1",
+    "mocha": "^8.2.1",
     "prettier": "^2.0.5",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6"

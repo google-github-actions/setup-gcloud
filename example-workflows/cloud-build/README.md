@@ -46,21 +46,9 @@ For pushes to the `master` branch, this workflow will:
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
-    - `Cloud Build Admin` - allows for the creation of new services
+    - [`Cloud Build Service Account`](https://cloud.google.com/cloud-build/docs/cloud-build-service-account) - allows for execution of builds on your behalf
 
-    - `Cloud Build Editor` - allows for deploying cloud builds
-
-    - `Cloud Build Service Account` - allows for deploying cloud builds
-
-    - `Viewer` - allows for viewing the project
-
-    - `Service Account User` -  required to deploy services to Cloud Build
-
-    Note: These permissions are overly broad to favor a quick start. They do not
-    represent best practices around the Principle of Least Privledge. To
-    properly restrict access, you should create a custom IAM role with the most
-    restrictive permissions.
-
+    - `Viewer` - allows for Cloud Build log storage
 
 1.  [Create a JSON service account key][create-key] for the service account.
 

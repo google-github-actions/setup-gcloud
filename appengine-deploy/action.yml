@@ -48,6 +48,13 @@ inputs:
     description: Promote the deployed version to receive all traffic.
     required: false
     default: true
+    
+  credentials:
+    description: |-
+      Service account key to use for authentication. This should be the JSON
+      formatted private key which can be exported from the Cloud Console. The
+      value can be raw or base64-encoded.
+    required: false
 
 outputs:
   url:

@@ -48,7 +48,7 @@ steps:
 - id: publish
   uses: foo/bar@master
   env:
-    TOKEN: ${{steps.secrets.outputs.token}}
+    TOKEN: ${{ steps.secrets.outputs.token }}
 ```
 
 
@@ -109,7 +109,7 @@ will be available in future steps as the output "token":
 - id: publish
   uses: foo/bar@master
   env:
-    TOKEN: ${{steps.secrets.outputs.token}}
+    TOKEN: ${{ steps.secrets.outputs.token }}
 ```
 
 

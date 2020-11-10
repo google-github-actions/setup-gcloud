@@ -9,11 +9,6 @@
     "format": "prettier --write **/*.ts",
     "test": "mocha -r ts-node/register -t 120s 'tests/*.test.ts'"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build && git add dist/"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/GoogleCloudPlatform/github-actions"
@@ -28,7 +23,7 @@
   "author": "GoogleCloudPlatform",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@google-cloud/storage": "^4.3.1"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@ available to later build steps via outputs. This allows you to parameterize your
 App Engine deployments.
 
 **Note:** This action will install [gcloud](https://cloud.google.com/sdk) in the
-background if not using in with the [`setup-gcloud` action](../setup-gclou/README.md).
+background if not using in with the [`setup-gcloud` action](../setup-gcloud/README.md).
 
 ## Prerequisites
 
@@ -50,9 +50,9 @@ steps:
   for the services or configurations you want to deploy. If not given, defaults
   to app.yaml in the current directory. If that is not found, attempts to
   automatically generate necessary configuration files (such as app.yaml) in
-  the current directory.
+  the current directory (example, `app.yaml cron.yaml`).
 
-- `image-url`: (Optional) Deploy with a specific container image. The image url
+- `image_url`: (Optional) Deploy with a specific container image. The image url
   must be from one of the valid GCR hostnames (example, `gcr.io/`).
 
 - `version`: (Optional) The version of the app that will be created or replaced

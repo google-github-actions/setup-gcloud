@@ -23,7 +23,7 @@ async function run(): Promise<void> {
     // Get action inputs.
     let projectId = core.getInput('project_id');
     const deliverables = core.getInput('deliverables');
-    const imageUrl = core.getInput('image-url');
+    const imageUrl = core.getInput('image_url');
     const version = core.getInput('version');
     const promote = core.getInput('promote');
     const serviceAccountKey = core.getInput('credentials');
@@ -56,7 +56,12 @@ async function run(): Promise<void> {
     const toolCommand = setupGcloud.getToolCommand();
 
     // Create app engine gcloud cmd.
-    const appDeployCmd = ['app', 'deploy', '--quiet', deliverables];
+    const appDeployCmd = [
+      'app',
+      'deploy',
+      '--quiet',
+      ...deliverables.split(' '),
+    ];
 
     // Add gcloud flags.
     if (projectId !== '') {

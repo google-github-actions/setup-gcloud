@@ -59,7 +59,7 @@ steps:
   by this deployment. If you do not specify a version, one will be generated for
   you.
 
-- `promote`: (Optional) Promote the deployed version to receive all traffic.
+- `promote`: (Optional). Possible values: ''|'true'|true|'false'|false Promote the deployed version to receive all traffic. If not specified behavior defaults to promote.
 
 ### app.yaml customizations
 

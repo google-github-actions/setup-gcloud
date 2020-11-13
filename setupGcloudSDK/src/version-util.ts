@@ -27,7 +27,9 @@ import { retry } from '@lifeomic/attempt';
 export async function getLatestGcloudSDKVersion(): Promise<string> {
   const queryUrl =
     'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
-  const client: httpm.HttpClient = new httpm.HttpClient('github-actions-setup-gcloud-sdk');
+  const client: httpm.HttpClient = new httpm.HttpClient(
+    'github-actions-setup-gcloud-sdk',
+  );
   return await retry(
     async () => {
       const res = await client.get(queryUrl);

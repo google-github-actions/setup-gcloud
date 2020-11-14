@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - notice-for-new-repo
+      - master
 name: build and release-please
 env:
   ACTION_NAME: setup-gcloud

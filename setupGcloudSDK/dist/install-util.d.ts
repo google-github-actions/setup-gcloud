@@ -1,5 +1,3 @@
-export declare const GCLOUD_METRICS_ENV_VAR = "CLOUDSDK_METRICS_ENVIRONMENT";
-export declare const GCLOUD_METRICS_LABEL = "github-actions-setup-gcloud";
 /**
  * Installs the gcloud SDK into the actions environment.
  *

@@ -941,6 +941,119 @@ module.exports = require("tls");
 
 /***/ }),
 
+/***/ 31:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const semver = __importStar(__webpack_require__(550));
+const core_1 = __webpack_require__(470);
+// needs to be require for core node modules to be mocked
+/* eslint @typescript-eslint/no-require-imports: 0 */
+const os = __webpack_require__(87);
+const cp = __webpack_require__(129);
+const fs = __webpack_require__(747);
+function _findMatch(versionSpec, stable, candidates, archFilter) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const platFilter = os.platform();
+        let result;
+        let match;
+        let file;
+        for (const candidate of candidates) {
+            const version = candidate.version;
+            core_1.debug(`check ${version} satisfies ${versionSpec}`);
+            if (semver.satisfies(version, versionSpec) &&
+                (!stable || candidate.stable === stable)) {
+                file = candidate.files.find(item => {
+                    core_1.debug(`${item.arch}===${archFilter} && ${item.platform}===${platFilter}`);
+                    let chk = item.arch === archFilter && item.platform === platFilter;
+                    if (chk && item.platform_version) {
+                        const osVersion = module.exports._getOsVersion();
+                        if (osVersion === item.platform_version) {
+                            chk = true;
+                        }
+                        else {
+                            chk = semver.satisfies(osVersion, item.platform_version);
+                        }
+                    }
+                    return chk;
+                });
+                if (file) {
+                    core_1.debug(`matched ${candidate.version}`);
+                    match = candidate;
+                    break;
+                }
+            }
+        }
+        if (match && file) {
+            // clone since we're mutating the file list to be only the file that matches
+            result = Object.assign({}, match);
+            result.files = [file];
+        }
+        return result;
+    });
+}
+exports._findMatch = _findMatch;
+function _getOsVersion() {
+    // TODO: add windows and other linux, arm variants
+    // right now filtering on version is only an ubuntu and macos scenario for tools we build for hosted (python)
+    const plat = os.platform();
+    let version = '';
+    if (plat === 'darwin') {
+        version = cp.execSync('sw_vers -productVersion').toString();
+    }
+    else if (plat === 'linux') {
+        // lsb_release process not in some containers, readfile
+        // Run cat /etc/lsb-release
+        // DISTRIB_ID=Ubuntu
+        // DISTRIB_RELEASE=18.04
+        // DISTRIB_CODENAME=bionic
+        // DISTRIB_DESCRIPTION="Ubuntu 18.04.4 LTS"
+        const lsbContents = module.exports._readLinuxVersionFile();
+        if (lsbContents) {
+            const lines = lsbContents.split('\n');
+            for (const line of lines) {
+                const parts = line.split('=');
+                if (parts.length === 2 && parts[0].trim() === 'DISTRIB_RELEASE') {
+                    version = parts[1].trim();
+                    break;
+                }
+            }
+        }
+    }
+    return version;
+}
+exports._getOsVersion = _getOsVersion;
+function _readLinuxVersionFile() {
+    const lsbFile = '/etc/lsb-release';
+    let contents = '';
+    if (fs.existsSync(lsbFile)) {
+        contents = fs.readFileSync(lsbFile).toString();
+    }
+    return contents;
+}
+exports._readLinuxVersionFile = _readLinuxVersionFile;
+//# sourceMappingURL=manifest.js.map
+
+/***/ }),
+
 /***/ 82:
 /***/ (function(__unusedmodule, exports) {
 
@@ -1835,6 +1948,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const io = __importStar(__webpack_require__(1));
 const fs = __importStar(__webpack_require__(747));
+const mm = __importStar(__webpack_require__(31));
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 const httpm = __importStar(__webpack_require__(539));
@@ -1854,15 +1968,17 @@ class HTTPError extends Error {
 }
 exports.HTTPError = HTTPError;
 const IS_WINDOWS = process.platform === 'win32';
+const IS_MAC = process.platform === 'darwin';
 const userAgent = 'actions/tool-cache';
 /**
  * Download a tool from an url and stream it into a file
  *
  * @param url       url of tool to download
  * @param dest      path to download tool
+ * @param auth      authorization header
  * @returns         path to downloaded tool
  */
-function downloadTool(url, dest) {
+function downloadTool(url, dest, auth) {
     return __awaiter(this, void 0, void 0, function* () {
         dest = dest || path.join(_getTempDirectory(), v4_1.default());
         yield io.mkdirP(path.dirname(dest));
@@ -1873,7 +1989,7 @@ function downloadTool(url, dest) {
         const maxSeconds = _getGlobal('TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS', 20);
         const retryHelper = new retry_helper_1.RetryHelper(maxAttempts, minSeconds, maxSeconds);
         return yield retryHelper.execute(() => __awaiter(this, void 0, void 0, function* () {
-            return yield downloadToolAttempt(url, dest || '');
+            return yield downloadToolAttempt(url, dest || '', auth);
         }), (err) => {
             if (err instanceof HTTPError && err.httpStatusCode) {
                 // Don't retry anything less than 500, except 408 Request Timeout and 429 Too Many Requests
@@ -1889,7 +2005,7 @@ function downloadTool(url, dest) {
     });
 }
 exports.downloadTool = downloadTool;
-function downloadToolAttempt(url, dest) {
+function downloadToolAttempt(url, dest, auth) {
     return __awaiter(this, void 0, void 0, function* () {
         if (fs.existsSync(dest)) {
             throw new Error(`Destination file path ${dest} already exists`);
@@ -1898,7 +2014,14 @@ function downloadToolAttempt(url, dest) {
         const http = new httpm.HttpClient(userAgent, [], {
             allowRetries: false
         });
-        const response = yield http.get(url);
+        let headers;
+        if (auth) {
+            core.debug('set auth');
+            headers = {
+                authorization: auth
+            };
+        }
+        const response = yield http.get(url, headers);
         if (response.message.statusCode !== 200) {
             const err = new HTTPError(response.message.statusCode);
             core.debug(`Failed to download from "${url}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
@@ -1953,9 +2076,10 @@ function extract7z(file, dest, _7zPath) {
         process.chdir(dest);
         if (_7zPath) {
             try {
+                const logLevel = core.isDebug() ? '-bb1' : '-bb0';
                 const args = [
                     'x',
-                    '-bb1',
+                    logLevel,
                     '-bd',
                     '-sccUTF-8',
                     file
@@ -2031,7 +2155,16 @@ function extractTar(file, dest, flags = 'xz') {
         core.debug(versionOutput.trim());
         const isGnuTar = versionOutput.toUpperCase().includes('GNU TAR');
         // Initialize args
-        const args = [flags];
+        let args;
+        if (flags instanceof Array) {
+            args = flags;
+        }
+        else {
+            args = [flags];
+        }
+        if (core.isDebug() && !flags.includes('v')) {
+            args.push('-v');
+        }
         let destArg = dest;
         let fileArg = file;
         if (IS_WINDOWS && isGnuTar) {
@@ -2051,6 +2184,36 @@ function extractTar(file, dest, flags = 'xz') {
     });
 }
 exports.extractTar = extractTar;
+/**
+ * Extract a xar compatible archive
+ *
+ * @param file     path to the archive
+ * @param dest     destination directory. Optional.
+ * @param flags    flags for the xar. Optional.
+ * @returns        path to the destination directory
+ */
+function extractXar(file, dest, flags = []) {
+    return __awaiter(this, void 0, void 0, function* () {
+        assert_1.ok(IS_MAC, 'extractXar() not supported on current OS');
+        assert_1.ok(file, 'parameter "file" is required');
+        dest = yield _createExtractFolder(dest);
+        let args;
+        if (flags instanceof Array) {
+            args = flags;
+        }
+        else {
+            args = [flags];
+        }
+        args.push('-x', '-C', dest, '-f', file);
+        if (core.isDebug()) {
+            args.push('-v');
+        }
+        const xarPath = yield io.which('xar', true);
+        yield exec_1.exec(`"${xarPath}"`, _unique(args));
+        return dest;
+    });
+}
+exports.extractXar = extractXar;
 /**
  * Extract a zip
  *
@@ -2081,7 +2244,7 @@ function extractZipWin(file, dest) {
         const escapedDest = dest.replace(/'/g, "''").replace(/"|\n|\r/g, '');
         const command = `$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ; [System.IO.Compression.ZipFile]::ExtractToDirectory('${escapedFile}', '${escapedDest}')`;
         // run powershell
-        const powershellPath = yield io.which('powershell');
+        const powershellPath = yield io.which('powershell', true);
         const args = [
             '-NoLogo',
             '-Sta',
@@ -2097,8 +2260,12 @@ function extractZipWin(file, dest) {
 }
 function extractZipNix(file, dest) {
     return __awaiter(this, void 0, void 0, function* () {
-        const unzipPath = yield io.which('unzip');
-        yield exec_1.exec(`"${unzipPath}"`, [file], { cwd: dest });
+        const unzipPath = yield io.which('unzip', true);
+        const args = [file];
+        if (!core.isDebug()) {
+            args.unshift('-q');
+        }
+        yield exec_1.exec(`"${unzipPath}"`, args, { cwd: dest });
     });
 }
 /**
@@ -2226,6 +2393,51 @@ function findAllVersions(toolName, arch) {
     return versions;
 }
 exports.findAllVersions = findAllVersions;
+function getManifestFromRepo(owner, repo, auth, branch = 'master') {
+    return __awaiter(this, void 0, void 0, function* () {
+        let releases = [];
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}`;
+        const http = new httpm.HttpClient('tool-cache');
+        const headers = {};
+        if (auth) {
+            core.debug('set auth');
+            headers.authorization = auth;
+        }
+        const response = yield http.getJson(treeUrl, headers);
+        if (!response.result) {
+            return releases;
+        }
+        let manifestUrl = '';
+        for (const item of response.result.tree) {
+            if (item.path === 'versions-manifest.json') {
+                manifestUrl = item.url;
+                break;
+            }
+        }
+        headers['accept'] = 'application/vnd.github.VERSION.raw';
+        let versionsRaw = yield (yield http.get(manifestUrl, headers)).readBody();
+        if (versionsRaw) {
+            // shouldn't be needed but protects against invalid json saved with BOM
+            versionsRaw = versionsRaw.replace(/^\uFEFF/, '');
+            try {
+                releases = JSON.parse(versionsRaw);
+            }
+            catch (_a) {
+                core.debug('Invalid json');
+            }
+        }
+        return releases;
+    });
+}
+exports.getManifestFromRepo = getManifestFromRepo;
+function findFromManifest(versionSpec, stable, manifest, archFilter = os.arch()) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // wrap the internal impl
+        const match = yield mm._findMatch(versionSpec, stable, manifest, archFilter);
+        return match;
+    });
+}
+exports.findFromManifest = findFromManifest;
 function _createExtractFolder(dest) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!dest) {
@@ -2310,6 +2522,13 @@ function _getGlobal(key, defaultValue) {
     /* eslint-enable @typescript-eslint/no-explicit-any */
     return value !== undefined ? value : defaultValue;
 }
+/**
+ * Returns an array of unique values.
+ * @param values Values to make unique.
+ */
+function _unique(values) {
+    return Array.from(new Set(values));
+}
 //# sourceMappingURL=tool-cache.js.map
 
 /***/ }),
@@ -2320,7 +2539,6 @@ function _getGlobal(key, defaultValue) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __webpack_require__(835);
 const http = __webpack_require__(605);
 const https = __webpack_require__(211);
 const pm = __webpack_require__(950);
@@ -2369,7 +2587,7 @@ var MediaTypes;
  * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
  */
 function getProxyUrl(serverUrl) {
-    let proxyUrl = pm.getProxyUrl(url.parse(serverUrl));
+    let proxyUrl = pm.getProxyUrl(new URL(serverUrl));
     return proxyUrl ? proxyUrl.href : '';
 }
 exports.getProxyUrl = getProxyUrl;
@@ -2388,6 +2606,15 @@ const HttpResponseRetryCodes = [
 const RetryableHttpVerbs = ['OPTIONS', 'GET', 'DELETE', 'HEAD'];
 const ExponentialBackoffCeiling = 10;
 const ExponentialBackoffTimeSlice = 5;
+class HttpClientError extends Error {
+    constructor(message, statusCode) {
+        super(message);
+        this.name = 'HttpClientError';
+        this.statusCode = statusCode;
+        Object.setPrototypeOf(this, HttpClientError.prototype);
+    }
+}
+exports.HttpClientError = HttpClientError;
 class HttpClientResponse {
     constructor(message) {
         this.message = message;
@@ -2406,7 +2633,7 @@ class HttpClientResponse {
 }
 exports.HttpClientResponse = HttpClientResponse;
 function isHttps(requestUrl) {
-    let parsedUrl = url.parse(requestUrl);
+    let parsedUrl = new URL(requestUrl);
     return parsedUrl.protocol === 'https:';
 }
 exports.isHttps = isHttps;
@@ -2511,7 +2738,7 @@ class HttpClient {
         if (this._disposed) {
             throw new Error('Client has already been disposed.');
         }
-        let parsedUrl = url.parse(requestUrl);
+        let parsedUrl = new URL(requestUrl);
         let info = this._prepareRequest(verb, parsedUrl, headers);
         // Only perform retries on reads since writes may not be idempotent.
         let maxTries = this._allowRetries && RetryableHttpVerbs.indexOf(verb) != -1
@@ -2550,7 +2777,7 @@ class HttpClient {
                     // if there's no location to redirect to, we won't
                     break;
                 }
-                let parsedRedirectUrl = url.parse(redirectUrl);
+                let parsedRedirectUrl = new URL(redirectUrl);
                 if (parsedUrl.protocol == 'https:' &&
                     parsedUrl.protocol != parsedRedirectUrl.protocol &&
                     !this._allowRedirectDowngrade) {
@@ -2666,7 +2893,7 @@ class HttpClient {
      * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
      */
     getAgent(serverUrl) {
-        let parsedUrl = url.parse(serverUrl);
+        let parsedUrl = new URL(serverUrl);
         return this._getAgent(parsedUrl);
     }
     _prepareRequest(method, requestUrl, headers) {
@@ -2739,7 +2966,7 @@ class HttpClient {
                 maxSockets: maxSockets,
                 keepAlive: this._keepAlive,
                 proxy: {
-                    proxyAuth: proxyUrl.auth,
+                    proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`,
                     host: proxyUrl.hostname,
                     port: proxyUrl.port
                 }
@@ -2834,12 +3061,8 @@ class HttpClient {
                 else {
                     msg = 'Failed request: (' + statusCode + ')';
                 }
-                let err = new Error(msg);
-                // attach statusCode and body obj (if available) to the error object
-                err['statusCode'] = statusCode;
-                if (response.result) {
-                    err['result'] = response.result;
-                }
+                let err = new HttpClientError(msg, statusCode);
+                err.result = response.result;
                 reject(err);
             }
             else {
@@ -5077,7 +5300,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const httpm = __importStar(__nested_webpack_require_13050__(874));
 const attempt_1 = __nested_webpack_require_13050__(503);
-const install_util_1 = __nested_webpack_require_13050__(962);
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
  *
@@ -5120,7 +5342,7 @@ function getReleaseURL(os, arch, version) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const url = formatReleaseURL(os, arch, version);
-            const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
+            const client = new httpm.HttpClient('github-actions-setup-gcloud-sdk');
             return attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
                 const res = yield client.head(url);
                 if (res.message.statusCode === 200) {
@@ -5146,7 +5368,7 @@ exports.getReleaseURL = getReleaseURL;
 /***/ }),
 
 /***/ 9:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_17245__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_17194__) {
 
 "use strict";
 
@@ -5167,12 +5389,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__nested_webpack_require_17245__(87));
-const events = __importStar(__nested_webpack_require_17245__(614));
-const child = __importStar(__nested_webpack_require_17245__(129));
-const path = __importStar(__nested_webpack_require_17245__(622));
-const io = __importStar(__nested_webpack_require_17245__(1));
-const ioUtil = __importStar(__nested_webpack_require_17245__(672));
+const os = __importStar(__nested_webpack_require_17194__(87));
+const events = __importStar(__nested_webpack_require_17194__(614));
+const child = __importStar(__nested_webpack_require_17194__(129));
+const path = __importStar(__nested_webpack_require_17194__(622));
+const io = __importStar(__nested_webpack_require_17194__(1));
+const ioUtil = __importStar(__nested_webpack_require_17194__(672));
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
 /*
@@ -5793,7 +6015,7 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 13:
-/***/ (function(module, __unusedexports, __nested_webpack_require_42639__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_42588__) {
 
 "use strict";
 
@@ -5801,7 +6023,7 @@ function wrappy (fn, cb) {
 var replace = String.prototype.replace;
 var percentTwenties = /%20/g;
 
-var util = __nested_webpack_require_42639__(581);
+var util = __nested_webpack_require_42588__(581);
 
 var Format = {
     RFC1738: 'RFC1738',
@@ -5833,10 +6055,123 @@ module.exports = __webpack_require__(16);
 
 /***/ }),
 
-/***/ 49:
-/***/ (function(module, __unusedexports, __nested_webpack_require_43337__) {
+/***/ 31:
+/***/ (function(module, exports, __nested_webpack_require_43278__) {
 
-var wrappy = __nested_webpack_require_43337__(11)
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const semver = __importStar(__nested_webpack_require_43278__(280));
+const core_1 = __nested_webpack_require_43278__(470);
+// needs to be require for core node modules to be mocked
+/* eslint @typescript-eslint/no-require-imports: 0 */
+const os = __nested_webpack_require_43278__(87);
+const cp = __nested_webpack_require_43278__(129);
+const fs = __nested_webpack_require_43278__(747);
+function _findMatch(versionSpec, stable, candidates, archFilter) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const platFilter = os.platform();
+        let result;
+        let match;
+        let file;
+        for (const candidate of candidates) {
+            const version = candidate.version;
+            core_1.debug(`check ${version} satisfies ${versionSpec}`);
+            if (semver.satisfies(version, versionSpec) &&
+                (!stable || candidate.stable === stable)) {
+                file = candidate.files.find(item => {
+                    core_1.debug(`${item.arch}===${archFilter} && ${item.platform}===${platFilter}`);
+                    let chk = item.arch === archFilter && item.platform === platFilter;
+                    if (chk && item.platform_version) {
+                        const osVersion = module.exports._getOsVersion();
+                        if (osVersion === item.platform_version) {
+                            chk = true;
+                        }
+                        else {
+                            chk = semver.satisfies(osVersion, item.platform_version);
+                        }
+                    }
+                    return chk;
+                });
+                if (file) {
+                    core_1.debug(`matched ${candidate.version}`);
+                    match = candidate;
+                    break;
+                }
+            }
+        }
+        if (match && file) {
+            // clone since we're mutating the file list to be only the file that matches
+            result = Object.assign({}, match);
+            result.files = [file];
+        }
+        return result;
+    });
+}
+exports._findMatch = _findMatch;
+function _getOsVersion() {
+    // TODO: add windows and other linux, arm variants
+    // right now filtering on version is only an ubuntu and macos scenario for tools we build for hosted (python)
+    const plat = os.platform();
+    let version = '';
+    if (plat === 'darwin') {
+        version = cp.execSync('sw_vers -productVersion').toString();
+    }
+    else if (plat === 'linux') {
+        // lsb_release process not in some containers, readfile
+        // Run cat /etc/lsb-release
+        // DISTRIB_ID=Ubuntu
+        // DISTRIB_RELEASE=18.04
+        // DISTRIB_CODENAME=bionic
+        // DISTRIB_DESCRIPTION="Ubuntu 18.04.4 LTS"
+        const lsbContents = module.exports._readLinuxVersionFile();
+        if (lsbContents) {
+            const lines = lsbContents.split('\n');
+            for (const line of lines) {
+                const parts = line.split('=');
+                if (parts.length === 2 && parts[0].trim() === 'DISTRIB_RELEASE') {
+                    version = parts[1].trim();
+                    break;
+                }
+            }
+        }
+    }
+    return version;
+}
+exports._getOsVersion = _getOsVersion;
+function _readLinuxVersionFile() {
+    const lsbFile = '/etc/lsb-release';
+    let contents = '';
+    if (fs.existsSync(lsbFile)) {
+        contents = fs.readFileSync(lsbFile).toString();
+    }
+    return contents;
+}
+exports._readLinuxVersionFile = _readLinuxVersionFile;
+//# sourceMappingURL=manifest.js.map
+
+/***/ }),
+
+/***/ 49:
+/***/ (function(module, __unusedexports, __nested_webpack_require_47876__) {
+
+var wrappy = __nested_webpack_require_47876__(11)
 module.exports = wrappy(once)
 module.exports.strict = wrappy(onceStrict)
 
@@ -5883,7 +6218,7 @@ function onceStrict (fn) {
 /***/ }),
 
 /***/ 71:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_44366__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_48905__) {
 
 "use strict";
 
@@ -5922,16 +6257,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains version utility functions.
  */
-const httpm = __importStar(__nested_webpack_require_44366__(874));
-const attempt_1 = __nested_webpack_require_44366__(503);
-const install_util_1 = __nested_webpack_require_44366__(962);
+const httpm = __importStar(__nested_webpack_require_48905__(874));
+const attempt_1 = __nested_webpack_require_48905__(503);
 /**
  * @returns The latest stable version of the gcloud SDK.
  */
 function getLatestGcloudSDKVersion() {
     return __awaiter(this, void 0, void 0, function* () {
         const queryUrl = 'https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json';
-        const client = new httpm.HttpClient(install_util_1.GCLOUD_METRICS_LABEL);
+        const client = new httpm.HttpClient('github-actions-setup-gcloud-sdk');
         return yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
             const res = yield client.get(queryUrl);
             if (res.message.statusCode != 200) {
@@ -5989,18 +6323,18 @@ module.exports = __webpack_require__(87);
 /***/ }),
 
 /***/ 93:
-/***/ (function(module, __unusedexports, __nested_webpack_require_48211__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_52699__) {
 
 module.exports = minimatch
 minimatch.Minimatch = Minimatch
 
 var path = { sep: '/' }
 try {
-  path = __nested_webpack_require_48211__(622)
+  path = __nested_webpack_require_52699__(622)
 } catch (er) {}
 
 var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {}
-var expand = __nested_webpack_require_48211__(306)
+var expand = __nested_webpack_require_52699__(306)
 
 var plTypes = {
   '!': { open: '(?:(?!(?:', close: '))[^/]*?)'},
@@ -6919,7 +7253,7 @@ function regExpEscape (s) {
 /***/ }),
 
 /***/ 102:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_73654__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_78142__) {
 
 "use strict";
 
@@ -6934,9 +7268,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nested_webpack_require_73654__(747));
-const os = __importStar(__nested_webpack_require_73654__(87));
-const utils_1 = __nested_webpack_require_73654__(82);
+const fs = __importStar(__nested_webpack_require_78142__(747));
+const os = __importStar(__nested_webpack_require_78142__(87));
+const utils_1 = __nested_webpack_require_78142__(82);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -6955,7 +7289,7 @@ exports.issueCommand = issueCommand;
 /***/ }),
 
 /***/ 117:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_74890__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_79378__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6978,9 +7312,9 @@ exports.issueCommand = issueCommand;
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var pathModule = __nested_webpack_require_74890__(622);
+var pathModule = __nested_webpack_require_79378__(622);
 var isWindows = process.platform === 'win32';
-var fs = __nested_webpack_require_74890__(747);
+var fs = __nested_webpack_require_79378__(747);
 
 // JavaScript implementation of realpath, ported from node pre-v6
 
@@ -7272,12 +7606,12 @@ module.exports = __webpack_require__(129);
 /***/ }),
 
 /***/ 139:
-/***/ (function(module, __unusedexports, __nested_webpack_require_83634__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_88122__) {
 
 // Unique ID creation requires a high quality random # generator.  In node.js
 // this is pretty straight-forward - we use the crypto API.
 
-var crypto = __nested_webpack_require_83634__(417);
+var crypto = __nested_webpack_require_88122__(417);
 
 module.exports = function nodeRNG() {
   return crypto.randomBytes(16);
@@ -7287,18 +7621,18 @@ module.exports = function nodeRNG() {
 /***/ }),
 
 /***/ 141:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_83976__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_88464__) {
 
 "use strict";
 
 
-var net = __nested_webpack_require_83976__(631);
-var tls = __nested_webpack_require_83976__(16);
-var http = __nested_webpack_require_83976__(605);
-var https = __nested_webpack_require_83976__(211);
-var events = __nested_webpack_require_83976__(614);
-var assert = __nested_webpack_require_83976__(357);
-var util = __nested_webpack_require_83976__(669);
+var net = __nested_webpack_require_88464__(631);
+var tls = __nested_webpack_require_88464__(16);
+var http = __nested_webpack_require_88464__(605);
+var https = __nested_webpack_require_88464__(211);
+var events = __nested_webpack_require_88464__(614);
+var assert = __nested_webpack_require_88464__(357);
+var util = __nested_webpack_require_88464__(669);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -7559,7 +7893,7 @@ exports.debug = debug; // for test
 /***/ }),
 
 /***/ 150:
-/***/ (function(module, __unusedexports, __nested_webpack_require_91753__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_96241__) {
 
 /*!
  * Tmp
@@ -7572,14 +7906,14 @@ exports.debug = debug; // for test
 /*
  * Module dependencies.
  */
-const fs = __nested_webpack_require_91753__(747);
-const os = __nested_webpack_require_91753__(87);
-const path = __nested_webpack_require_91753__(622);
-const crypto = __nested_webpack_require_91753__(417);
+const fs = __nested_webpack_require_96241__(747);
+const os = __nested_webpack_require_96241__(87);
+const path = __nested_webpack_require_96241__(622);
+const crypto = __nested_webpack_require_96241__(417);
 const _c = fs.constants && os.constants ?
   { fs: fs.constants, os: os.constants } :
   process.binding('constants');
-const rimraf = __nested_webpack_require_91753__(569);
+const rimraf = __nested_webpack_require_96241__(569);
 
 /*
  * The working inner variables.
@@ -8335,21 +8669,21 @@ module.exports = __webpack_require__(211);
 /***/ }),
 
 /***/ 245:
-/***/ (function(module, __unusedexports, __nested_webpack_require_111588__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_116076__) {
 
 module.exports = globSync
 globSync.GlobSync = GlobSync
 
-var fs = __nested_webpack_require_111588__(747)
-var rp = __nested_webpack_require_111588__(302)
-var minimatch = __nested_webpack_require_111588__(93)
+var fs = __nested_webpack_require_116076__(747)
+var rp = __nested_webpack_require_116076__(302)
+var minimatch = __nested_webpack_require_116076__(93)
 var Minimatch = minimatch.Minimatch
-var Glob = __nested_webpack_require_111588__(402).Glob
-var util = __nested_webpack_require_111588__(669)
-var path = __nested_webpack_require_111588__(622)
-var assert = __nested_webpack_require_111588__(357)
-var isAbsolute = __nested_webpack_require_111588__(681)
-var common = __nested_webpack_require_111588__(856)
+var Glob = __nested_webpack_require_116076__(402).Glob
+var util = __nested_webpack_require_116076__(669)
+var path = __nested_webpack_require_116076__(622)
+var assert = __nested_webpack_require_116076__(357)
+var isAbsolute = __nested_webpack_require_116076__(681)
+var common = __nested_webpack_require_116076__(856)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
@@ -10431,7 +10765,7 @@ function coerce (version, options) {
 /***/ }),
 
 /***/ 302:
-/***/ (function(module, __unusedexports, __nested_webpack_require_165913__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_170401__) {
 
 module.exports = realpath
 realpath.realpath = realpath
@@ -10440,13 +10774,13 @@ realpath.realpathSync = realpathSync
 realpath.monkeypatch = monkeypatch
 realpath.unmonkeypatch = unmonkeypatch
 
-var fs = __nested_webpack_require_165913__(747)
+var fs = __nested_webpack_require_170401__(747)
 var origRealpath = fs.realpath
 var origRealpathSync = fs.realpathSync
 
 var version = process.version
 var ok = /^v[0-5]\./.test(version)
-var old = __nested_webpack_require_165913__(117)
+var old = __nested_webpack_require_170401__(117)
 
 function newError (er) {
   return er && er.syscall === 'realpath' && (
@@ -10504,10 +10838,10 @@ function unmonkeypatch () {
 /***/ }),
 
 /***/ 306:
-/***/ (function(module, __unusedexports, __nested_webpack_require_167326__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_171814__) {
 
-var concatMap = __nested_webpack_require_167326__(896);
-var balanced = __nested_webpack_require_167326__(621);
+var concatMap = __nested_webpack_require_171814__(896);
+var balanced = __nested_webpack_require_171814__(621);
 
 module.exports = expandTop;
 
@@ -10746,7 +11080,7 @@ if (typeof Object.create === 'function') {
 /***/ }),
 
 /***/ 325:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_173013__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_177501__) {
 
 "use strict";
 
@@ -10782,14 +11116,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const exec = __importStar(__nested_webpack_require_173013__(986));
-const toolCache = __importStar(__nested_webpack_require_173013__(533));
-const os = __importStar(__nested_webpack_require_173013__(87));
-const tmp = __importStar(__nested_webpack_require_173013__(150));
-const format_url_1 = __nested_webpack_require_173013__(8);
-const downloadUtil = __importStar(__nested_webpack_require_173013__(339));
-const installUtil = __importStar(__nested_webpack_require_173013__(962));
-const version_util_1 = __nested_webpack_require_173013__(71);
+const exec = __importStar(__nested_webpack_require_177501__(986));
+const toolCache = __importStar(__nested_webpack_require_177501__(533));
+const os = __importStar(__nested_webpack_require_177501__(87));
+const tmp = __importStar(__nested_webpack_require_177501__(150));
+const format_url_1 = __nested_webpack_require_177501__(8);
+const downloadUtil = __importStar(__nested_webpack_require_177501__(339));
+const installUtil = __importStar(__nested_webpack_require_177501__(962));
+const version_util_1 = __nested_webpack_require_177501__(71);
 exports.getLatestGcloudSDKVersion = version_util_1.getLatestGcloudSDKVersion;
 /**
  * Checks if gcloud is installed.
@@ -10975,7 +11309,7 @@ exports.setProjectWithKey = setProjectWithKey;
 /***/ }),
 
 /***/ 339:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_181036__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_185524__) {
 
 "use strict";
 
@@ -11014,8 +11348,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains download utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_181036__(533));
-const attempt_1 = __nested_webpack_require_181036__(503);
+const toolCache = __importStar(__nested_webpack_require_185524__(533));
+const attempt_1 = __nested_webpack_require_185524__(503);
 /**
  * Downloads and extracts the tool at the specified URL.
  *
@@ -11058,14 +11392,14 @@ module.exports = __webpack_require__(357);
 /***/ }),
 
 /***/ 386:
-/***/ (function(module, __unusedexports, __nested_webpack_require_184111__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_188599__) {
 
 "use strict";
 
 
-var stringify = __nested_webpack_require_184111__(897);
-var parse = __nested_webpack_require_184111__(755);
-var formats = __nested_webpack_require_184111__(13);
+var stringify = __nested_webpack_require_188599__(897);
+var parse = __nested_webpack_require_188599__(755);
+var formats = __nested_webpack_require_188599__(13);
 
 module.exports = {
     formats: formats,
@@ -11077,7 +11411,7 @@ module.exports = {
 /***/ }),
 
 /***/ 402:
-/***/ (function(module, __unusedexports, __nested_webpack_require_184423__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_188911__) {
 
 // Approach:
 //
@@ -11121,27 +11455,27 @@ module.exports = {
 
 module.exports = glob
 
-var fs = __nested_webpack_require_184423__(747)
-var rp = __nested_webpack_require_184423__(302)
-var minimatch = __nested_webpack_require_184423__(93)
+var fs = __nested_webpack_require_188911__(747)
+var rp = __nested_webpack_require_188911__(302)
+var minimatch = __nested_webpack_require_188911__(93)
 var Minimatch = minimatch.Minimatch
-var inherits = __nested_webpack_require_184423__(689)
-var EE = __nested_webpack_require_184423__(614).EventEmitter
-var path = __nested_webpack_require_184423__(622)
-var assert = __nested_webpack_require_184423__(357)
-var isAbsolute = __nested_webpack_require_184423__(681)
-var globSync = __nested_webpack_require_184423__(245)
-var common = __nested_webpack_require_184423__(856)
+var inherits = __nested_webpack_require_188911__(689)
+var EE = __nested_webpack_require_188911__(614).EventEmitter
+var path = __nested_webpack_require_188911__(622)
+var assert = __nested_webpack_require_188911__(357)
+var isAbsolute = __nested_webpack_require_188911__(681)
+var globSync = __nested_webpack_require_188911__(245)
+var common = __nested_webpack_require_188911__(856)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
 var ownProp = common.ownProp
-var inflight = __nested_webpack_require_184423__(674)
-var util = __nested_webpack_require_184423__(669)
+var inflight = __nested_webpack_require_188911__(674)
+var util = __nested_webpack_require_188911__(669)
 var childrenIgnored = common.childrenIgnored
 var isIgnored = common.isIgnored
 
-var once = __nested_webpack_require_184423__(49)
+var once = __nested_webpack_require_188911__(49)
 
 function glob (pattern, options, cb) {
   if (typeof options === 'function') cb = options, options = {}
@@ -11874,9 +12208,9 @@ Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
 /***/ }),
 
 /***/ 413:
-/***/ (function(module, __unusedexports, __nested_webpack_require_204014__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_208502__) {
 
-module.exports = __nested_webpack_require_204014__(141);
+module.exports = __nested_webpack_require_208502__(141);
 
 
 /***/ }),
@@ -11889,7 +12223,7 @@ module.exports = __webpack_require__(417);
 /***/ }),
 
 /***/ 431:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_204232__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_208720__) {
 
 "use strict";
 
@@ -11901,8 +12235,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__nested_webpack_require_204232__(87));
-const utils_1 = __nested_webpack_require_204232__(82);
+const os = __importStar(__nested_webpack_require_208720__(87));
+const utils_1 = __nested_webpack_require_208720__(82);
 /**
  * Commands
  *
@@ -11975,7 +12309,7 @@ function escapeProperty(s) {
 /***/ }),
 
 /***/ 470:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_206752__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_211240__) {
 
 "use strict";
 
@@ -11996,11 +12330,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __nested_webpack_require_206752__(431);
-const file_command_1 = __nested_webpack_require_206752__(102);
-const utils_1 = __nested_webpack_require_206752__(82);
-const os = __importStar(__nested_webpack_require_206752__(87));
-const path = __importStar(__nested_webpack_require_206752__(622));
+const command_1 = __nested_webpack_require_211240__(431);
+const file_command_1 = __nested_webpack_require_211240__(102);
+const utils_1 = __nested_webpack_require_211240__(82);
+const os = __importStar(__nested_webpack_require_211240__(87));
+const path = __importStar(__nested_webpack_require_211240__(622));
 /**
  * The code to exit an action
  */
@@ -12372,7 +12706,7 @@ exports.retry = retry;
 /***/ }),
 
 /***/ 533:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_220351__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_224839__) {
 
 "use strict";
 
@@ -12396,19 +12730,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_220351__(470));
-const io = __importStar(__nested_webpack_require_220351__(1));
-const fs = __importStar(__nested_webpack_require_220351__(747));
-const os = __importStar(__nested_webpack_require_220351__(87));
-const path = __importStar(__nested_webpack_require_220351__(622));
-const httpm = __importStar(__nested_webpack_require_220351__(539));
-const semver = __importStar(__nested_webpack_require_220351__(280));
-const stream = __importStar(__nested_webpack_require_220351__(794));
-const util = __importStar(__nested_webpack_require_220351__(669));
-const v4_1 = __importDefault(__nested_webpack_require_220351__(826));
-const exec_1 = __nested_webpack_require_220351__(986);
-const assert_1 = __nested_webpack_require_220351__(357);
-const retry_helper_1 = __nested_webpack_require_220351__(979);
+const core = __importStar(__nested_webpack_require_224839__(470));
+const io = __importStar(__nested_webpack_require_224839__(1));
+const fs = __importStar(__nested_webpack_require_224839__(747));
+const mm = __importStar(__nested_webpack_require_224839__(31));
+const os = __importStar(__nested_webpack_require_224839__(87));
+const path = __importStar(__nested_webpack_require_224839__(622));
+const httpm = __importStar(__nested_webpack_require_224839__(539));
+const semver = __importStar(__nested_webpack_require_224839__(280));
+const stream = __importStar(__nested_webpack_require_224839__(794));
+const util = __importStar(__nested_webpack_require_224839__(669));
+const v4_1 = __importDefault(__nested_webpack_require_224839__(826));
+const exec_1 = __nested_webpack_require_224839__(986);
+const assert_1 = __nested_webpack_require_224839__(357);
+const retry_helper_1 = __nested_webpack_require_224839__(979);
 class HTTPError extends Error {
     constructor(httpStatusCode) {
         super(`Unexpected HTTP response: ${httpStatusCode}`);
@@ -12418,15 +12753,17 @@ class HTTPError extends Error {
 }
 exports.HTTPError = HTTPError;
 const IS_WINDOWS = process.platform === 'win32';
+const IS_MAC = process.platform === 'darwin';
 const userAgent = 'actions/tool-cache';
 /**
  * Download a tool from an url and stream it into a file
  *
  * @param url       url of tool to download
  * @param dest      path to download tool
+ * @param auth      authorization header
  * @returns         path to downloaded tool
  */
-function downloadTool(url, dest) {
+function downloadTool(url, dest, auth) {
     return __awaiter(this, void 0, void 0, function* () {
         dest = dest || path.join(_getTempDirectory(), v4_1.default());
         yield io.mkdirP(path.dirname(dest));
@@ -12437,7 +12774,7 @@ function downloadTool(url, dest) {
         const maxSeconds = _getGlobal('TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS', 20);
         const retryHelper = new retry_helper_1.RetryHelper(maxAttempts, minSeconds, maxSeconds);
         return yield retryHelper.execute(() => __awaiter(this, void 0, void 0, function* () {
-            return yield downloadToolAttempt(url, dest || '');
+            return yield downloadToolAttempt(url, dest || '', auth);
         }), (err) => {
             if (err instanceof HTTPError && err.httpStatusCode) {
                 // Don't retry anything less than 500, except 408 Request Timeout and 429 Too Many Requests
@@ -12453,7 +12790,7 @@ function downloadTool(url, dest) {
     });
 }
 exports.downloadTool = downloadTool;
-function downloadToolAttempt(url, dest) {
+function downloadToolAttempt(url, dest, auth) {
     return __awaiter(this, void 0, void 0, function* () {
         if (fs.existsSync(dest)) {
             throw new Error(`Destination file path ${dest} already exists`);
@@ -12462,7 +12799,14 @@ function downloadToolAttempt(url, dest) {
         const http = new httpm.HttpClient(userAgent, [], {
             allowRetries: false
         });
-        const response = yield http.get(url);
+        let headers;
+        if (auth) {
+            core.debug('set auth');
+            headers = {
+                authorization: auth
+            };
+        }
+        const response = yield http.get(url, headers);
         if (response.message.statusCode !== 200) {
             const err = new HTTPError(response.message.statusCode);
             core.debug(`Failed to download from "${url}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
@@ -12517,9 +12861,10 @@ function extract7z(file, dest, _7zPath) {
         process.chdir(dest);
         if (_7zPath) {
             try {
+                const logLevel = core.isDebug() ? '-bb1' : '-bb0';
                 const args = [
                     'x',
-                    '-bb1',
+                    logLevel,
                     '-bd',
                     '-sccUTF-8',
                     file
@@ -12595,7 +12940,16 @@ function extractTar(file, dest, flags = 'xz') {
         core.debug(versionOutput.trim());
         const isGnuTar = versionOutput.toUpperCase().includes('GNU TAR');
         // Initialize args
-        const args = [flags];
+        let args;
+        if (flags instanceof Array) {
+            args = flags;
+        }
+        else {
+            args = [flags];
+        }
+        if (core.isDebug() && !flags.includes('v')) {
+            args.push('-v');
+        }
         let destArg = dest;
         let fileArg = file;
         if (IS_WINDOWS && isGnuTar) {
@@ -12615,6 +12969,36 @@ function extractTar(file, dest, flags = 'xz') {
     });
 }
 exports.extractTar = extractTar;
+/**
+ * Extract a xar compatible archive
+ *
+ * @param file     path to the archive
+ * @param dest     destination directory. Optional.
+ * @param flags    flags for the xar. Optional.
+ * @returns        path to the destination directory
+ */
+function extractXar(file, dest, flags = []) {
+    return __awaiter(this, void 0, void 0, function* () {
+        assert_1.ok(IS_MAC, 'extractXar() not supported on current OS');
+        assert_1.ok(file, 'parameter "file" is required');
+        dest = yield _createExtractFolder(dest);
+        let args;
+        if (flags instanceof Array) {
+            args = flags;
+        }
+        else {
+            args = [flags];
+        }
+        args.push('-x', '-C', dest, '-f', file);
+        if (core.isDebug()) {
+            args.push('-v');
+        }
+        const xarPath = yield io.which('xar', true);
+        yield exec_1.exec(`"${xarPath}"`, _unique(args));
+        return dest;
+    });
+}
+exports.extractXar = extractXar;
 /**
  * Extract a zip
  *
@@ -12645,7 +13029,7 @@ function extractZipWin(file, dest) {
         const escapedDest = dest.replace(/'/g, "''").replace(/"|\n|\r/g, '');
         const command = `$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ; [System.IO.Compression.ZipFile]::ExtractToDirectory('${escapedFile}', '${escapedDest}')`;
         // run powershell
-        const powershellPath = yield io.which('powershell');
+        const powershellPath = yield io.which('powershell', true);
         const args = [
             '-NoLogo',
             '-Sta',
@@ -12661,8 +13045,12 @@ function extractZipWin(file, dest) {
 }
 function extractZipNix(file, dest) {
     return __awaiter(this, void 0, void 0, function* () {
-        const unzipPath = yield io.which('unzip');
-        yield exec_1.exec(`"${unzipPath}"`, [file], { cwd: dest });
+        const unzipPath = yield io.which('unzip', true);
+        const args = [file];
+        if (!core.isDebug()) {
+            args.unshift('-q');
+        }
+        yield exec_1.exec(`"${unzipPath}"`, args, { cwd: dest });
     });
 }
 /**
@@ -12790,6 +13178,51 @@ function findAllVersions(toolName, arch) {
     return versions;
 }
 exports.findAllVersions = findAllVersions;
+function getManifestFromRepo(owner, repo, auth, branch = 'master') {
+    return __awaiter(this, void 0, void 0, function* () {
+        let releases = [];
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}`;
+        const http = new httpm.HttpClient('tool-cache');
+        const headers = {};
+        if (auth) {
+            core.debug('set auth');
+            headers.authorization = auth;
+        }
+        const response = yield http.getJson(treeUrl, headers);
+        if (!response.result) {
+            return releases;
+        }
+        let manifestUrl = '';
+        for (const item of response.result.tree) {
+            if (item.path === 'versions-manifest.json') {
+                manifestUrl = item.url;
+                break;
+            }
+        }
+        headers['accept'] = 'application/vnd.github.VERSION.raw';
+        let versionsRaw = yield (yield http.get(manifestUrl, headers)).readBody();
+        if (versionsRaw) {
+            // shouldn't be needed but protects against invalid json saved with BOM
+            versionsRaw = versionsRaw.replace(/^\uFEFF/, '');
+            try {
+                releases = JSON.parse(versionsRaw);
+            }
+            catch (_a) {
+                core.debug('Invalid json');
+            }
+        }
+        return releases;
+    });
+}
+exports.getManifestFromRepo = getManifestFromRepo;
+function findFromManifest(versionSpec, stable, manifest, archFilter = os.arch()) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // wrap the internal impl
+        const match = yield mm._findMatch(versionSpec, stable, manifest, archFilter);
+        return match;
+    });
+}
+exports.findFromManifest = findFromManifest;
 function _createExtractFolder(dest) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!dest) {
@@ -12874,20 +13307,26 @@ function _getGlobal(key, defaultValue) {
     /* eslint-enable @typescript-eslint/no-explicit-any */
     return value !== undefined ? value : defaultValue;
 }
+/**
+ * Returns an array of unique values.
+ * @param values Values to make unique.
+ */
+function _unique(values) {
+    return Array.from(new Set(values));
+}
 //# sourceMappingURL=tool-cache.js.map
 
 /***/ }),
 
 /***/ 539:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_240066__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_248109__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_240066__(835);
-const http = __nested_webpack_require_240066__(605);
-const https = __nested_webpack_require_240066__(211);
-const pm = __nested_webpack_require_240066__(950);
+const http = __nested_webpack_require_248109__(605);
+const https = __nested_webpack_require_248109__(211);
+const pm = __nested_webpack_require_248109__(950);
 let tunnel;
 var HttpCodes;
 (function (HttpCodes) {
@@ -12933,7 +13372,7 @@ var MediaTypes;
  * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
  */
 function getProxyUrl(serverUrl) {
-    let proxyUrl = pm.getProxyUrl(url.parse(serverUrl));
+    let proxyUrl = pm.getProxyUrl(new URL(serverUrl));
     return proxyUrl ? proxyUrl.href : '';
 }
 exports.getProxyUrl = getProxyUrl;
@@ -12952,6 +13391,15 @@ const HttpResponseRetryCodes = [
 const RetryableHttpVerbs = ['OPTIONS', 'GET', 'DELETE', 'HEAD'];
 const ExponentialBackoffCeiling = 10;
 const ExponentialBackoffTimeSlice = 5;
+class HttpClientError extends Error {
+    constructor(message, statusCode) {
+        super(message);
+        this.name = 'HttpClientError';
+        this.statusCode = statusCode;
+        Object.setPrototypeOf(this, HttpClientError.prototype);
+    }
+}
+exports.HttpClientError = HttpClientError;
 class HttpClientResponse {
     constructor(message) {
         this.message = message;
@@ -12970,7 +13418,7 @@ class HttpClientResponse {
 }
 exports.HttpClientResponse = HttpClientResponse;
 function isHttps(requestUrl) {
-    let parsedUrl = url.parse(requestUrl);
+    let parsedUrl = new URL(requestUrl);
     return parsedUrl.protocol === 'https:';
 }
 exports.isHttps = isHttps;
@@ -13075,7 +13523,7 @@ class HttpClient {
         if (this._disposed) {
             throw new Error('Client has already been disposed.');
         }
-        let parsedUrl = url.parse(requestUrl);
+        let parsedUrl = new URL(requestUrl);
         let info = this._prepareRequest(verb, parsedUrl, headers);
         // Only perform retries on reads since writes may not be idempotent.
         let maxTries = this._allowRetries && RetryableHttpVerbs.indexOf(verb) != -1
@@ -13114,7 +13562,7 @@ class HttpClient {
                     // if there's no location to redirect to, we won't
                     break;
                 }
-                let parsedRedirectUrl = url.parse(redirectUrl);
+                let parsedRedirectUrl = new URL(redirectUrl);
                 if (parsedUrl.protocol == 'https:' &&
                     parsedUrl.protocol != parsedRedirectUrl.protocol &&
                     !this._allowRedirectDowngrade) {
@@ -13230,7 +13678,7 @@ class HttpClient {
      * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
      */
     getAgent(serverUrl) {
-        let parsedUrl = url.parse(serverUrl);
+        let parsedUrl = new URL(serverUrl);
         return this._getAgent(parsedUrl);
     }
     _prepareRequest(method, requestUrl, headers) {
@@ -13297,13 +13745,13 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_240066__(413);
+                tunnel = __nested_webpack_require_248109__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
                 keepAlive: this._keepAlive,
                 proxy: {
-                    proxyAuth: proxyUrl.auth,
+                    proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`,
                     host: proxyUrl.hostname,
                     port: proxyUrl.port
                 }
@@ -13398,12 +13846,8 @@ class HttpClient {
                 else {
                     msg = 'Failed request: (' + statusCode + ')';
                 }
-                let err = new Error(msg);
-                // attach statusCode and body obj (if available) to the error object
-                err['statusCode'] = statusCode;
-                if (response.result) {
-                    err['result'] = response.result;
-                }
+                let err = new HttpClientError(msg, statusCode);
+                err.result = response.result;
                 reject(err);
             }
             else {
@@ -13418,17 +13862,17 @@ exports.HttpClient = HttpClient;
 /***/ }),
 
 /***/ 569:
-/***/ (function(module, __unusedexports, __nested_webpack_require_262756__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_270899__) {
 
 module.exports = rimraf
 rimraf.sync = rimrafSync
 
-var assert = __nested_webpack_require_262756__(357)
-var path = __nested_webpack_require_262756__(622)
-var fs = __nested_webpack_require_262756__(747)
+var assert = __nested_webpack_require_270899__(357)
+var path = __nested_webpack_require_270899__(622)
+var fs = __nested_webpack_require_270899__(747)
 var glob = undefined
 try {
-  glob = __nested_webpack_require_262756__(402)
+  glob = __nested_webpack_require_270899__(402)
 } catch (_err) {
   // treat glob as optional.
 }
@@ -14143,7 +14587,7 @@ module.exports = __webpack_require__(669);
 /***/ }),
 
 /***/ 672:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_280174__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_288317__) {
 
 "use strict";
 
@@ -14158,9 +14602,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const assert_1 = __nested_webpack_require_280174__(357);
-const fs = __nested_webpack_require_280174__(747);
-const path = __nested_webpack_require_280174__(622);
+const assert_1 = __nested_webpack_require_288317__(357);
+const fs = __nested_webpack_require_288317__(747);
+const path = __nested_webpack_require_288317__(622);
 _a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
 exports.IS_WINDOWS = process.platform === 'win32';
 function exists(fsPath) {
@@ -14345,11 +14789,11 @@ function isUnixExecutable(stats) {
 /***/ }),
 
 /***/ 674:
-/***/ (function(module, __unusedexports, __nested_webpack_require_287851__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_295994__) {
 
-var wrappy = __nested_webpack_require_287851__(11)
+var wrappy = __nested_webpack_require_295994__(11)
 var reqs = Object.create(null)
-var once = __nested_webpack_require_287851__(49)
+var once = __nested_webpack_require_295994__(49)
 
 module.exports = wrappy(inflight)
 
@@ -14434,16 +14878,16 @@ module.exports.win32 = win32;
 /***/ }),
 
 /***/ 689:
-/***/ (function(module, __unusedexports, __nested_webpack_require_289982__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_298125__) {
 
 try {
-  var util = __nested_webpack_require_289982__(669);
+  var util = __nested_webpack_require_298125__(669);
   /* istanbul ignore next */
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __nested_webpack_require_289982__(315);
+  module.exports = __nested_webpack_require_298125__(315);
 }
 
 
@@ -14483,7 +14927,7 @@ module.exports = bytesToUuid;
 /***/ }),
 
 /***/ 729:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_291148__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_299291__) {
 
 "use strict";
 
@@ -14498,10 +14942,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const qs = __nested_webpack_require_291148__(386);
-const url = __nested_webpack_require_291148__(835);
-const path = __nested_webpack_require_291148__(622);
-const zlib = __nested_webpack_require_291148__(761);
+const qs = __nested_webpack_require_299291__(386);
+const url = __nested_webpack_require_299291__(835);
+const path = __nested_webpack_require_299291__(622);
+const zlib = __nested_webpack_require_299291__(761);
 /**
  * creates an url from a request url and optional base url (http://server:8080)
  * @param {string} resource - a fully qualified url or relative path
@@ -14617,12 +15061,12 @@ module.exports = __webpack_require__(747);
 /***/ }),
 
 /***/ 755:
-/***/ (function(module, __unusedexports, __nested_webpack_require_296689__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_304832__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_296689__(581);
+var utils = __nested_webpack_require_304832__(581);
 
 var has = Object.prototype.hasOwnProperty;
 var isArray = Array.isArray;
@@ -14907,10 +15351,10 @@ module.exports = __webpack_require__(794);
 /***/ }),
 
 /***/ 826:
-/***/ (function(module, __unusedexports, __nested_webpack_require_306383__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_314526__) {
 
-var rng = __nested_webpack_require_306383__(139);
-var bytesToUuid = __nested_webpack_require_306383__(722);
+var rng = __nested_webpack_require_314526__(139);
+var bytesToUuid = __nested_webpack_require_314526__(722);
 
 function v4(options, buf, offset) {
   var i = buf && offset || 0;
@@ -14950,7 +15394,7 @@ module.exports = __webpack_require__(835);
 /***/ }),
 
 /***/ 856:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_307235__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_315378__) {
 
 exports.alphasort = alphasort
 exports.alphasorti = alphasorti
@@ -14966,9 +15410,9 @@ function ownProp (obj, field) {
   return Object.prototype.hasOwnProperty.call(obj, field)
 }
 
-var path = __nested_webpack_require_307235__(622)
-var minimatch = __nested_webpack_require_307235__(93)
-var isAbsolute = __nested_webpack_require_307235__(681)
+var path = __nested_webpack_require_315378__(622)
+var minimatch = __nested_webpack_require_315378__(93)
+var isAbsolute = __nested_webpack_require_315378__(681)
 var Minimatch = minimatch.Minimatch
 
 function alphasorti (a, b) {
@@ -15197,7 +15641,7 @@ function childrenIgnored (self, path) {
 /***/ }),
 
 /***/ 874:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_313500__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_321643__) {
 
 "use strict";
 
@@ -15212,10 +15656,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_313500__(835);
-const http = __nested_webpack_require_313500__(605);
-const https = __nested_webpack_require_313500__(211);
-const util = __nested_webpack_require_313500__(729);
+const url = __nested_webpack_require_321643__(835);
+const http = __nested_webpack_require_321643__(605);
+const https = __nested_webpack_require_321643__(211);
+const util = __nested_webpack_require_321643__(729);
 let fs;
 let tunnel;
 var HttpCodes;
@@ -15331,7 +15775,7 @@ class HttpClient {
             this._certConfig = requestOptions.cert;
             if (this._certConfig) {
                 // If using cert, need fs
-                fs = __nested_webpack_require_313500__(747);
+                fs = __nested_webpack_require_321643__(747);
                 // cache the cert content into memory, so we don't have to read it from disk every time
                 if (this._certConfig.caFile && fs.existsSync(this._certConfig.caFile)) {
                     this._ca = fs.readFileSync(this._certConfig.caFile, 'utf8');
@@ -15596,7 +16040,7 @@ class HttpClient {
         if (useProxy) {
             // If using proxy, need tunnel
             if (!tunnel) {
-                tunnel = __nested_webpack_require_313500__(413);
+                tunnel = __nested_webpack_require_321643__(413);
             }
             const agentOptions = {
                 maxSockets: maxSockets,
@@ -15713,13 +16157,13 @@ var isArray = Array.isArray || function (xs) {
 /***/ }),
 
 /***/ 897:
-/***/ (function(module, __unusedexports, __nested_webpack_require_336343__) {
+/***/ (function(module, __unusedexports, __nested_webpack_require_344486__) {
 
 "use strict";
 
 
-var utils = __nested_webpack_require_336343__(581);
-var formats = __nested_webpack_require_336343__(13);
+var utils = __nested_webpack_require_344486__(581);
+var formats = __nested_webpack_require_344486__(13);
 var has = Object.prototype.hasOwnProperty;
 
 var arrayPrefixGenerators = {
@@ -16000,12 +16444,11 @@ module.exports = function (object, opts) {
 /***/ }),
 
 /***/ 950:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_344728__) {
+/***/ (function(__unusedmodule, exports) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __nested_webpack_require_344728__(835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
     let proxyUrl;
@@ -16020,7 +16463,7 @@ function getProxyUrl(reqUrl) {
         proxyVar = process.env['http_proxy'] || process.env['HTTP_PROXY'];
     }
     if (proxyVar) {
-        proxyUrl = url.parse(proxyVar);
+        proxyUrl = new URL(proxyVar);
     }
     return proxyUrl;
 }
@@ -16066,7 +16509,7 @@ exports.checkBypass = checkBypass;
 /***/ }),
 
 /***/ 962:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_346461__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_354543__) {
 
 "use strict";
 
@@ -16108,11 +16551,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Contains installation utility functions.
  */
-const toolCache = __importStar(__nested_webpack_require_346461__(533));
-const core = __importStar(__nested_webpack_require_346461__(470));
-const path_1 = __importDefault(__nested_webpack_require_346461__(622));
-exports.GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
-exports.GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
+const toolCache = __importStar(__nested_webpack_require_354543__(533));
+const core = __importStar(__nested_webpack_require_354543__(470));
+const path_1 = __importDefault(__nested_webpack_require_354543__(622));
 /**
  * Installs the gcloud SDK into the actions environment.
  *
@@ -16126,7 +16567,6 @@ function installGcloudSDK(version, gcloudExtPath) {
         let toolPath = yield toolCache.cacheDir(toolRoot, 'gcloud', version);
         toolPath = path_1.default.join(toolPath, 'bin');
         core.addPath(toolPath);
-        core.exportVariable(exports.GCLOUD_METRICS_ENV_VAR, exports.GCLOUD_METRICS_LABEL);
         return toolPath;
     });
 }
@@ -16136,7 +16576,7 @@ exports.installGcloudSDK = installGcloudSDK;
 /***/ }),
 
 /***/ 979:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_349424__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_357288__) {
 
 "use strict";
 
@@ -16157,7 +16597,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__nested_webpack_require_349424__(470));
+const core = __importStar(__nested_webpack_require_357288__(470));
 /**
  * Internal class for retries
  */
@@ -16213,7 +16653,7 @@ exports.RetryHelper = RetryHelper;
 /***/ }),
 
 /***/ 986:
-/***/ (function(__unusedmodule, exports, __nested_webpack_require_352351__) {
+/***/ (function(__unusedmodule, exports, __nested_webpack_require_360215__) {
 
 "use strict";
 
@@ -16234,7 +16674,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tr = __importStar(__nested_webpack_require_352351__(9));
+const tr = __importStar(__nested_webpack_require_360215__(9));
 /**
  * Exec a command.
  * Output will be streamed to the live console.
@@ -16346,8 +16786,11 @@ const setupGcloud = __importStar(__webpack_require__(702));
 const fs_1 = __webpack_require__(747);
 const path_1 = __importDefault(__webpack_require__(622));
 const uuid_1 = __webpack_require__(898);
+exports.GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
+exports.GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        core.exportVariable(exports.GCLOUD_METRICS_ENV_VAR, exports.GCLOUD_METRICS_LABEL);
         try {
             let version = core.getInput('version');
             if (!version || version == 'latest') {
@@ -16486,12 +16929,11 @@ module.exports = uuid;
 /***/ }),
 
 /***/ 950:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ (function(__unusedmodule, exports) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const url = __webpack_require__(835);
 function getProxyUrl(reqUrl) {
     let usingSsl = reqUrl.protocol === 'https:';
     let proxyUrl;
@@ -16506,7 +16948,7 @@ function getProxyUrl(reqUrl) {
         proxyVar = process.env['http_proxy'] || process.env['HTTP_PROXY'];
     }
     if (proxyVar) {
-        proxyUrl = url.parse(proxyVar);
+        proxyUrl = new URL(proxyVar);
     }
     return proxyUrl;
 }

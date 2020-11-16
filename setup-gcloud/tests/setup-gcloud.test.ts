@@ -57,7 +57,7 @@ describe('#run', function() {
       parseServiceAccountKey: sinon.stub(setupGcloud, 'parseServiceAccountKey'),
       toolCacheFind: sinon.stub(toolCache, 'find').returns('/'),
       writeFile: sinon.stub(fs, 'writeFile'),
-      env: sinon.stub(process, 'env').value({}),
+      env: sinon.stub(process, 'env').value({ GITHUB_PATH: '/' }),
     };
   });
 

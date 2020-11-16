@@ -15,7 +15,7 @@
 name: Set up gcloud Cloud SDK environment
 author: GoogleCloudPlatform
 description: |-
-  Downloads, installs, and configures a gcloud Cloud SDK environment. 
+  Downloads, installs, and configures a Google Cloud SDK environment. 
   Adds the `gcloud` CLI command to the $PATH.
 
 inputs:

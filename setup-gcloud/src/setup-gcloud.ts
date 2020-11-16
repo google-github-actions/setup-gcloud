@@ -21,7 +21,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
+export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
+export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
+
 export async function run(): Promise<void> {
+  core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
   try {
     let version = core.getInput('version');
     if (!version || version == 'latest') {

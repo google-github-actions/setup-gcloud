@@ -21,9 +21,6 @@ import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import path from 'path';
 
-export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
-export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
-
 /**
  * Installs the gcloud SDK into the actions environment.
  *
@@ -39,6 +36,5 @@ export async function installGcloudSDK(
   let toolPath = await toolCache.cacheDir(toolRoot, 'gcloud', version);
   toolPath = path.join(toolPath, 'bin');
   core.addPath(toolPath);
-  core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
   return toolPath;
 }

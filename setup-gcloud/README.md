@@ -14,6 +14,17 @@
 
 # setup-gcloud
 
+## **📢 DEPRECATION NOTICE**
+
+### **GoogleCloudPlatform/github-actions/setup-gcloud has been deprecated. Please use google-github-actions/setup-gcloud**
+
+```diff
+steps:
+ - id: gcloud
+-  uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
++  uses: google-github-actions/setup-gcloud@master
+```
+
 This action configures the [Google Cloud SDK][sdk] in the environment for use in
 actions. The Google Cloud SDK includes both the [gcloud][gcloud] and
 [gsutil][gsutil] binaries.

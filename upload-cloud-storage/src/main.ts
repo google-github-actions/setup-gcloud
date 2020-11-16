@@ -19,6 +19,10 @@ import { Client } from './client';
 
 async function run(): Promise<void> {
   try {
+    // Add notice
+    core.warning(
+      'Thank you for using upload-cloud-storage Action. GoogleCloudPlatform/github-actions/upload-cloud-storage has been deprecated, please switch to google-github-actions/upload-cloud-storage.',
+    );
     const path = core.getInput('path', { required: true });
     const destination = core.getInput('destination', { required: true });
     const serviceAccountKey = core.getInput('credentials');

@@ -42,6 +42,10 @@ function parseSecretsRefs(secretsInput: string): Reference[] {
  */
 async function run(): Promise<void> {
   try {
+    // Add notice
+    core.warning(
+      'Thank you for using get-secretmanager-secrets Action. GoogleCloudPlatform/github-actions/get-secretmanager-secrets has been deprecated, please switch to google-github-actions/get-secretmanager-secrets.',
+    );
     // Fetch the list of secrets provided by the user.
     const secretsInput = core.getInput('secrets', { required: true });
 

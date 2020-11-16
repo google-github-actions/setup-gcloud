@@ -25,6 +25,10 @@ import { get } from 'lodash';
  */
 async function run(): Promise<void> {
   try {
+    // Add notice
+    core.warning(
+      'Thank you for using deploy-cloudrun Action. GoogleCloudPlatform/github-actions/deploy-cloudrun has been deprecated, please switch to google-github-actions/deploy-cloudrun.',
+    );
     // Get inputs
     const image = core.getInput('image');
     const name = core.getInput('service');

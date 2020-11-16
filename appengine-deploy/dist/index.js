@@ -1060,6 +1060,8 @@ const setupGcloud = __importStar(__webpack_require__(702));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // Add notice
+            core.warning('Thank you for using appengine-deploy Action. GoogleCloudPlatform/github-actions/appengine-deploy has been deprecated, please switch to google-github-actions/deploy-appengine.');
             // Get action inputs.
             let projectId = core.getInput('project_id');
             const deliverables = core.getInput('deliverables');

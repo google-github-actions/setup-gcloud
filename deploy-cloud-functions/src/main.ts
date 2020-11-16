@@ -20,6 +20,10 @@ import { CloudFunction } from './cloudFunction';
 
 async function run(): Promise<void> {
   try {
+    // Add notice
+    core.warning(
+      'Thank you for using deploy-cloud-functions Action. GoogleCloudPlatform/github-actions/deploy-cloud-functions has been deprecated, please switch to google-github-actions/deploy-cloud-functions.',
+    );
     // Get inputs
     const name = core.getInput('name', { required: true });
     const runtime = core.getInput('runtime', { required: true });

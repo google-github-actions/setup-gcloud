@@ -15,6 +15,17 @@ limitations under the License.
 -->
 # appengine-deploy
 
+## **📢 DEPRECATION NOTICE**
+
+### **GoogleCloudPlatform/github-actions/appengine-deploy has been deprecated. Please use google-github-actions/deploy-appengine**
+
+```diff
+steps:
+ - id: deploy
+-  uses: GoogleCloudPlatform/github-actions/appengine-deploy@master
++  uses: google-github-actions/deploy-appengine@main
+```
+
 This action deploys your source code to [App Engine][gae] and makes the URL
 available to later build steps via outputs. This allows you to parameterize your
 App Engine deployments.

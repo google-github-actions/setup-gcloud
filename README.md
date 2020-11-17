@@ -17,7 +17,14 @@
 Configures the [Google Cloud SDK][sdk] in the GitHub Actions environment. The Google Cloud SDK includes both the [gcloud][gcloud] and
 [gsutil][gsutil] binaries.
 
-Find other Google Cloud GitHub Actions in [`google-github-actions`](https://github.com/google-github-actions).
+Or integrate natively with other Google Cloud GitHub Actions:
+
+* [Deploy a Cloud Run service](https://github.com/google-github-actions/deploy-cloudrun)
+* [Deploy an App Engine app](https://github.com/google-github-actions/deploy-appengine)
+* [Deploy a Cloud Function](https://github.com/google-github-actions/deploy-cloud-functions)
+* [Access Secret Manager secrets](https://github.com/google-github-actions/get-secretmanager-secrets)
+* [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
+* [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
 **This repository also contains deprecated GCP GitHub Actions from previous mono-repo format.**
 
@@ -33,7 +40,6 @@ Find other Google Cloud GitHub Actions in [`google-github-actions`](https://gith
 - name: Set up Cloud SDK
   uses: google-github-actions/setup-gcloud@master
   with:
-    version: '290.0.1'
     project_id: ${{ secrets.GCP_PROJECT_ID }}
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true

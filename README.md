@@ -12,43 +12,79 @@
  License.
 -->
 
-# Google Cloud Platform: github-actions
+# `setup-gcloud` GitHub Action
 
-This repository contains a library of [Github Actions](https://github.com/actions) providing functionality for working with [Google Cloud Platform](http://cloud.google.com/).
+Configures the [Google Cloud SDK][sdk] in the GitHub Actions environment. The Google Cloud SDK includes both the [gcloud][gcloud] and
+[gsutil][gsutil] binaries.
 
-## Available Actions
+Or integrate natively with other Google Cloud GitHub Actions:
 
-* [setup-gcloud](./setup-gcloud/README.md): This action downloads, installs, and configures a [gcloud Cloud SDK](https://cloud.google.com/sdk/) environment for the worker, adding the `gcloud` CLI command to the worker's $PATH.
+* [Deploy a Cloud Run service](https://github.com/google-github-actions/deploy-cloudrun)
+* [Deploy an App Engine app](https://github.com/google-github-actions/deploy-appengine)
+* [Deploy a Cloud Function](https://github.com/google-github-actions/deploy-cloud-functions)
+* [Access Secret Manager secrets](https://github.com/google-github-actions/get-secretmanager-secrets)
+* [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
+* [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
-* [get-secretmanager-secrets](./get-secretmanager-secrets/README.md): This action accesses secrets from [Google Secret Manager](https://cloud.google.com/secret-manager) and makes their results available as output variables.
+**This repository also contains deprecated GCP GitHub Actions from previous mono-repo format.**
+
+## Table of Contents
+
+* [Usage](#usage)
+* [Inputs](#inputs)
+* [Example Workflows](#example-workflows)
+
+## Usage
+
+```yaml
+- name: Set up Cloud SDK
+  uses: google-github-actions/setup-gcloud@master
+  with:
+    project_id: ${{ secrets.GCP_PROJECT_ID }}
+    service_account_key: ${{ secrets.GCP_SA_KEY }}
+    export_default_credentials: true
+
+- name: Use gcloud CLI
+  run: gcloud info
+```
+
+## Inputs
+
+| Name          | Requirement | Default | Description |
+| ------------- | ----------- | ------- | ----------- |
+| `version`     | _optional_  | `latest`| The version of the `gcloud` to be installed. Example: `290.0.1`|
+| `project_id`  | _optional_  | | ID of the Google Cloud Platform project. If provided, this will configure `gcloud` to use this project ID by default for commands. Individual commands can still override the project using the `--project` flag which takes precedence. |
+| `service_account_key`   | _optional_  | | The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
+| `service_account_email` | _optional_  | | Service account email address to use for authentication. This is required for legacy .p12 keys but can be omitted for JSON keys. This is usually of the format `<name>@<project-id>.iam.gserviceaccount.com`. |
+| `export_default_credentials`| _optional_  |`false`| Exports the path to [Default Application Credentials][dac] as the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to be available in later steps. Google Cloud services automatically use this environment variable to find credentials. |
+| `credentials_file_path`     | _optional_  | `GITHUB_WORKSPACE` | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
+
 
 ## Example Workflows
 
-* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses [GitHub Actions][github-action] to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
+* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses GitHub Actions to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
 
-* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses [GitHub Actions][github-action] to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
+* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses GitHub Actions to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
 
-* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses [GitHub Actions](https://help.github.com/en/categories/automating-your-workflow-with-github-actions) to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
+* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses GitHub Actions to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
 
-## Feature requests and bug reports
+* [App Engine](./example-workflows/gae/README.md): An example workflow that uses GitHub Actions to deploy source
+code to [App Engine](https://cloud.google.com/appengine), a fully managed serverless platform.
 
-Please file feature requests and bug reports as
-[github issues](https://github.com/GoogleCloudPlatform/github-actions/issues).
-
-## Community
-
-The GCP GitHub Actions community uses the **#gcp-github-actions** slack channel on
-[https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
-to ask questions and share feedback. Invitation link available here:
-[gcp-slack](https://cloud.google.com/community#home-support).
+* [Cloud Build](./example-workflows/cloud-build/README.md): An example workflow that uses GitHub Actions to build a container image with [Cloud Build](https://cloud.google.com/cloud-build).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+See [CONTRIBUTING](CONTRIBUTING.md).
 
 ## License
 
-See [LICENSE](LICENSE)
+See [LICENSE](LICENSE).
 
 
 [github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions
+[dac]: https://cloud.google.com/docs/authentication/production
+[sdk]: https://cloud.google.com/sdk/
+[gcloud]: https://cloud.google.com/sdk/gcloud/
+[gsutil]: https://cloud.google.com/storage/docs/gsutil
+[sa-iam-docs]: https://cloud.google.com/iam/docs/service-accounts

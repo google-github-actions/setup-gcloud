@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: Set up gcloud Cloud SDK environment
-author: GoogleCloudPlatform
+author: Google LLC
 description: |-
   Downloads, installs, and configures a Google Cloud SDK environment.
   Adds the `gcloud` CLI command to the $PATH.

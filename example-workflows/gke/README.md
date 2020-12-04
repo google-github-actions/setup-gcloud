@@ -54,7 +54,7 @@ For pushes to the `master` branch, this workflow will:
     - `Storage Admin` - allows publishing to Container Registry
 
     Note: These permissions are overly broad to favor a quick start. They do not
-    represent best practices around the Principle of Least Privledge. To
+    represent best practices around the Principle of Least Privilege. To
     properly restrict access, you should create a custom IAM role with the most
     restrictive permissions.
 

@@ -34,7 +34,7 @@ jobs:
       uses: actions/checkout@v2
 
     # Setup gcloud CLI
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: google-github-actions/setup-gcloud@master
       with:
         version: '290.0.1'
         service_account_key: ${{ secrets.RUN_SA_KEY }}

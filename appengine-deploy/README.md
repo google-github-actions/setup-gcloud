@@ -103,7 +103,7 @@ You can provide credentials using the [setup-gcloud][setup-gcloud] action,
 however you must provide your Project ID to the `appengine-deploy` action:
 
 ```yaml
-- uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+- uses: google-github-actions/setup-gcloud@master
   with:
     version: '290.0.1'
     service_account_key: ${{ secrets.GCP_SA_KEY }}

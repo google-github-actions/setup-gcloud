@@ -60,7 +60,7 @@ steps:
 
 - `runtime`: (Required) Runtime to use for the function. Possible options documented [here][runtimes].
 
-- `entry_point`: (Optional) Name of a function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified. 
+- `entry_point`: (Optional) Name of a function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified.
 
 - `region`: (Optional) Region in which the function should be deployed. Defaults to `us-central1`.
 
@@ -125,7 +125,7 @@ one of the methods found in [Configuring Ownership and access to a service accou
 You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 
 ```yaml
-- uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+- uses: google-github-actions/setup-gcloud@master
   with:
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true

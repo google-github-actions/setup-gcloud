@@ -125,10 +125,10 @@ automatically private services, while deploying a revision of a public
 There are a few ways to authenticate this action. A service account will be needed
 with the following roles:
 
-- Cloud Run Admin (`run.admin`):
+- Cloud Run Admin (`roles/run.admin`):
   - Can create, update, and delete services.
   - Can get and set IAM policies.
-- Cloud Functions Developer (`cloudfunctions.developer`):
+- Cloud Functions Developer (`roles/cloudfunctions.developer`):
   - Can create, update, and delete functions.
   - Can't set IAM policies but can view source code.
 

@@ -21,8 +21,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: cluster-1    # TODO: update to cluster name
-  GKE_ZONE: us-central1-c   # TODO: update to cluster zone
+  GKE_CLUSTER: apimvp-dev-k8s-tf    # TODO: update to cluster name
+  GKE_ZONE: europe-west1-c   # TODO: update to cluster zone
   DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
   IMAGE: static-site
 

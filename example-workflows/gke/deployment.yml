@@ -1,4 +1,4 @@
-# Copyright 2019 Google Inc.
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gke-test
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: gke-test
   strategy:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 1
-  minReadySeconds: 5 
+  minReadySeconds: 5
   template:
     metadata:
       labels:
@@ -30,7 +33,7 @@ spec:
     spec:
       containers:
       - name: gke-test
-        image: gcr.io/github-test-238118/gke-test:TAG
+        image: gcr.io/PROJECT_ID/IMAGE:TAG
         ports:
         - containerPort: 5000
         resources:

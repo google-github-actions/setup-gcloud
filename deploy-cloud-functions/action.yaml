@@ -1,0 +1,106 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Cloud Functions Deploy
+description: |-
+  Cloud Functions is a scalable Functions-as-a-Service (FaaS) to run your 
+  code with zero server management. Use this action to deploy your function or
+  update an existing Cloud Function.
+author: GoogleCloudPlatform
+
+inputs:
+  credentials:
+    description: |-
+      Optional service account key to use for authentication to GCP. This should be the JSON
+      formatted private key which can be exported from the Cloud Console. The
+      value can be raw or base64-encoded.
+    required: false
+    
+  name:
+    description: |-
+      Name of the Cloud Function.
+    required: true
+
+  description:
+    description: |-
+      Description for the Cloud Function.
+    required: false
+
+  project_id:
+    description: |-
+      Project to deploy the function in.
+    required: false
+
+  source_dir:
+    description: |-
+      Path to function deployment directory within the source repo.
+    required: false
+
+  env_vars:
+    description: |-
+      List of key-value pairs to set as environment variables in the form KEY1=VALUE1,KEY2=VALUE2.
+    required: false
+
+  entry_point:
+    description: |-
+      Name of a function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified. 
+    required: false
+
+  runtime:
+    description: |-
+      Runtime to use for the function.
+    required: true
+
+  vpc_connector:
+    description: |-
+      The VPC Access connector that the function can connect to.
+    required: false
+
+  service_account_email:
+    description: |-
+      The email address of the IAM service account associated with the function at runtime.
+    required: false
+
+  timeout:
+    description: |-
+      The function execution timeout.
+    required: false
+
+  max_instances:
+    description: |-
+      The maximum number of instances for the function.
+    required: false
+
+  event_trigger_type:
+    description: |-
+      Specifies which action should trigger the function.
+    required: false
+
+  event_trigger_resource:
+    description: |-
+      Specifies which resource from eventTrigger is observed.
+    required: false
+
+  event_trigger_service:
+    description: |-
+      The hostname of the service that should be observed.
+    required: false
+
+outputs:
+  url:
+    description: The URL of your Cloud Function. Only available with HTTP Trigger.
+
+runs:
+  using: "node12"
+  main: "dist/index.js"

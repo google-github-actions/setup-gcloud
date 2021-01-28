@@ -1,0 +1,37 @@
+name: setup-gcloud-sdk Unit
+on:
+  push:
+    paths:
+    - 'setupGcloudSDK/**'
+    - '.github/workflows/setup-gcloud*'
+  pull_request:
+    paths:
+    - 'setupGcloudSDK/**'
+    - '.github/workflows/setup-gcloud*'
+
+jobs:
+  run:
+    name: setup-gcloud-sdk
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set Node.js 10.x
+      uses: actions/setup-node@master
+      with:
+        node-version: 10.x
+
+    - name: npm install
+      working-directory: ./setupGcloudSDK
+      run: npm install
+
+    - name: Lint
+      working-directory: ./setupGcloudSDK
+      run: npm run lint
+
+    - name: Unit tests
+      working-directory: ./setupGcloudSDK
+      run: npm test

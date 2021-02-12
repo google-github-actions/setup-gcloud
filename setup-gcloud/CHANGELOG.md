@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.2.1](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.2.0...v0.2.1) (2021-02-12)
+
+
+### Bug Fixes
+
+* Update action names ([#250](https://www.github.com/google-github-actions/setup-gcloud/issues/250)) ([#251](https://www.github.com/google-github-actions/setup-gcloud/issues/251)) ([95e2d15](https://www.github.com/google-github-actions/setup-gcloud/commit/95e2d15420adee2aa7d97b08aff5d50feacb17b0))
+
 ## [0.2.0](https://www.github.com/google-github-actions/setup-gcloud/compare/0.1.3...v0.2.0) (2020-11-16)
 
 

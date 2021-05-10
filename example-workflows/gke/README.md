@@ -71,7 +71,7 @@ For pushes to the `master` branch, this workflow will:
 
     - `GKE_CLUSTER` - the instance name of your cluster
 
-    - `GCE_ZONE` - the zone your cluster resides
+    - `GKE_ZONE` - the zone your cluster resides
 
     - `IMAGE` - your preferred Docker image name
 

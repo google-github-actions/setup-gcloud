@@ -1,0 +1,2 @@
+- name: Set up gcloud Cloud SDK environment
+  uses: google-github-actions/setup-gcloud@v0.2.0

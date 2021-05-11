@@ -1,0 +1,29 @@
+Policy Troubleshooter API
+Service: policytroubleshooter.googleapis.com
+Discovery document
+A Discovery Document is a machine-readable specification for describing and consuming REST APIs. It is used to build client libraries, IDE plugins, and other tools that interact with Google APIs. One service may provide multiple discovery documents. This service provides the following discovery documents:
+
+https://policytroubleshooter.googleapis.com/$discovery/rest?version=v1
+https://policytroubleshooter.googleapis.com/$discovery/rest?version=v1beta
+Service endpoint
+A service endpoint is a base URL that specifies the network address of an API service. One service might have multiple service endpoints. This service has the following service endpoint and all URIs below are relative to this service endpoint:
+
+https://policytroubleshooter.googleapis.com
+REST Resource: v1beta.iam
+Methods
+troubleshoot	POST /v1beta/iam:troubleshoot
+Checks whether a member has a specific permission for a specific resource, and explains why the member does or does not have that permission.
+Service: policytroubleshooter.googleapis.com
+Discovery document
+A Discovery Document is a machine-readable specification for describing and consuming REST APIs. It is used to build client libraries, IDE plugins, and other tools that interact with Google APIs. One service may provide multiple discovery documents. This service provides the following discovery documents:
+
+https://policytroubleshooter.googleapis.com/$discovery/rest?version=v1
+https://policytroubleshooter.googleapis.com/$discovery/rest?version=v1beta
+Service endpoint
+A service endpoint is a base URL that specifies the network address of an API service. One service might have multiple service endpoints. This service has the following service endpoint and all URIs below are relative to this service endpoint:
+
+https://policytroubleshooter.googleapis.com
+REST Resource: v1.iam
+Methods
+troubleshoot	POST /v1/iam:troubleshoot
+Checks whether a member has a specific permission for a specific resource, and explains why the member does or does not have that permission.

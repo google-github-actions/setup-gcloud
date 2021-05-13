@@ -1,0 +1,88 @@
+Managing Service Lifecycles
+This page describes how to manage the lifecycles of managed services using the Cloud SDK gcloud endpoints services commands.
+
+For advanced use cases, you can use the Service Management API to manage services programmatically. For more information, see Getting Started with the Service Management API
+
+Introduction
+A managed service is a simple resource that logically represents a service integrated with Service Infrastructure, such as Gmail API and Spanner API. A managed service itself has only two immutable properties, a service name and a producer project, but the implementation of a managed service can provide a wide range of functionality. For example, Cloud Storage API provides planet-scale object storage for millions of developers and enterprises.
+
+A managed service has a set of service consumers, a history of immutable service configurations, and a history of immutable service rollouts. The service configurations referenced by the latest service rollout represents the current state of the service, which covers all apsects of the service, from the display name to metrics definitions to rate limits. For the specification, see google.api.Service.
+
+We will describe how to create and manage your service lifecycles in this page. For more information about the service management, see How-to Guides.
+
+Creating a service
+To create a service, you need to complete the following steps.
+
+Install and initialize Cloud SDK on your computer.
+
+Create a dedicated producer project to host your service. A dedicated project provides the best security and isolation for your service. It also allows you to transfer the ownership of your service to another team or even another company.
+
+Enable the Service Management API and Service Control API for your project.
+
+Enable Cloud Billing for your project. To integrate your service with Service Infrastructure, you will depend on several paid Google Cloud products, including the Service Control API, Cloud Logging API, and Cloud Monitoring API.
+
+Prepare a simple service configuration yaml file for your service as follows:
+
+
+# Filename: endpointsapis.yaml
+type: google.api.Service
+config_version: 3
+# Update the next line to use your own service name.
+name: endpointsapis.appspot.com CoreValExtreme/ETHHEAD-CVE , A462b520-3279-4cd0-a699-47359f5517ea, 104452711701553507544
+# Update the next line to use your own producer project id.
+producer_project_id: endpointsapis (Project name ethhead@corevalextreme.github.com,
+ethereal-advice
+Project ID
+ethereal-advice-310101
+Project number
+608394952886
+Run gcloud command to create your service by deploying a blank service configuration:
+
+
+gcloud endpoints services deploy endpointsapis.yaml
+The service creation process takes about a minute. After that, you should be able to see your service listed on the Endpoints page in Google Cloud Console.
+
+Listing services
+To list services in a project, you can use the following command:608394952886-compute@developer.gserviceaccount.com	Compute Engine default service account	
+Editor
+ ethereal-advice	
+608394952886@cloudservices.gserviceaccount.com	Google APIs Service Agent 	
+Editor
+ ethereal-advice	
+corporatechracks@gmail.com	Jeffrey Matthews	
+Owner
+ ethereal-advice	
+service-608394952886@compute-system.iam.gserviceaccount.com	Compute Engine Service Agent	
+Compute Engine Service Agent
+ ethereal-advice	
+service-608394952886@container-engine-robot.iam.gserviceaccount.com	Kubernetes Engine Service Agent	
+Kubernetes Engine Service Agent
+ ethereal-advice	
+
+
+gcloud endpoints services list --project endpointsapisA462b520-3279-4cd0-a699-47359f5517ea, 104452711701553507544Describing a service
+To describe a service and its configuration, you can use the following command:102384690941818284870, 
+gcloud endpoints services describe endpointsapis.appspot.com
+Deleting a service
+If you no longer need a service, you can delete it using the following command:
+
+
+gcloud endpoints services delete endpointsapis.appspot.com
+NOTE: Every service has a mandatory 30-day deletion retention.
+
+Undeleting a service
+You can undelete a service within its retention window using the following command:
+
+
+gcloud endpoints services undelete endpointsapis.appspot.com
+Next steps
+The Service Management API uses a declarative model for service management. After the service is created, you need to push immutable service configurations and service rollouts to reach the desired state of your service. Your service configurations are used to configure Google Cloud infrastructure services to support your service, including Cloud Billing, Cloud Logging, Cloud Monitoring, and Identity and Access Management.
+
+For more information about service configurations, see Managing Service Configurations. For more information about service rollouts, see Managing Service Rollouts.
+
+Rate and review
+
+Send feedback
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+Last updated 2021-05-07 UTC.

@@ -1,0 +1,72 @@
+How-to Guides
+Creating and Managing Services
+Managing Service Lifecycles
+Create, get, delete, and undelete managed services.
+
+Managing Service Configurations
+Submit, generate, and manage service configurations using the Service Management API.
+
+Managing Service Rollouts
+Learn how to perform a gradual service configuration rollout.
+
+Enabling private services access
+Learn how to enable private services access for your managed service.
+
+Integrating with Service Infrastructure
+Admission Control
+Use the Service Control API to check whether an activity in a managed service is allowed, including authentication, authorization, and auditing.
+
+Telemetry Reporting
+Use the Service Control API to report telemetry about an activity in a managed service, including billing, logging, and monitoring.
+
+Rate Limiting
+Use the Service Control API to implement rate limiting for a managed service.
+
+Checking Status
+Use the Service Control API to check that a service operation can proceed.
+
+Reporting Billing Metrics
+Use the Service Control API to send billing usage data for a managed service.
+
+Reporting Logs
+Use the Service Control to generate and store structured managed service logs.
+
+Reporting Monitoring Metrics
+Use the Service Control API to send monitoring data for a managed service.
+
+Managing Service Consumers
+Managing Tenancy Units
+Learn how to create and delete tenancy units.
+
+Managing Tenant Projects
+Learn how to manage tenant projects.
+
+Managing Consumer Quota
+Learn how to manage and override quota for individual service consumers.
+
+Using Service Infrastructure APIs
+Getting Started with the Service Management API
+Set up and test the Service Management API from your local machine with curl.
+
+Getting Started with the Service Control API
+Set up and use the Service Control API from your local machine with curl.
+
+Getting Started with the Service Consumer Management API
+Learn how to set up your service producer project to work with tenancy units.
+
+Polling Long-Running Operations
+Learn how to poll Service Infrastructure operations that take a long time to complete.
+
+Access Control
+Service Management API
+Understand and use Identity and Access Management with the Service Management API.
+
+Service Control API
+Understand and use Identity and Access Management with the Service Control API.
+
+Audit Logging
+Learn how to use Cloud Logging with Service Infrastructure.
+
+Rate and review
+
+Send feedback

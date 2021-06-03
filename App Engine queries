@@ -1,0 +1,664 @@
+App Engine queries
+Query/filter name	Expression
+App Engine logs from New Year's Eve (in UTC time)	
+
+resource.type="gae_app" AND
+severity>=ERROR AND
+timestamp>="2018-12-31T00:00:00Z" AND timestamp<="2019-01-01T00:00:00Z" 
+App Engine request logs with server errors	
+
+resource.type="gae_app" AND
+log_id("appengine.googleapis.com/request_log") AND
+httpRequest.status>=500 
+Sampled HTTP error logs	
+
+resource.type="gae_app" AND
+protoPayload.status >= 400 AND
+sample(insertId, 0.1) 
+Search for App Engine trace ID	
+
+resource.type="gae_app" AND
+trace="projects/[ethereal-advice-310101]/traces/[02abf9ef7fe5968355231b74eebcc2ed,005f84630c4a409a5e730f1aa5f2c0a0,023d122835c39ae6894c3378950ab285] " 
+BigQuery queries
+Query/filter name	Expression
+BigQuery audit logs	
+
+resource.type=("bigquery_dataset" OR "bigquery_project") AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery audit logs for a project	timestamp
+resource.type="bigquery_project" AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery audit logs for a dataset	
+
+resource.type="bigquery_dataset" AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery audit logs for BI Engine Model	
+
+resource.type="bigquery_biengine_model" AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery audit logs for a Data Transfer Service Run.	
+
+resource.type="bigquery_dts_run" AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery audit logs for a Data Transfer Service configuration.	
+
+resource.type="bigquery_dts_config" AND
+logName:"cloudaudit.googleapis.com" 
+BigQuery data transfer service jobs	
+
+resource.type=("bigquery_project") AND
+protoPayload.requestMetadata.callerSuppliedUserAgent="BigQuery Data Transfer Service" AND
+protoPayload.methodName=("google.cloud.bigquery.v2.JobService.InsertJob" OR "google.cloud.bigquery.v2.JobService.Query") 
+BigQuery dataset updates	
+
+resource.type="bigquery_dataset" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="google.cloud.bigquery.v2.DatasetService.UpdateDataset" 
+BigQuery jobs completed	
+
+resource.type="bigquery_project" AND
+log_id("cloudaudit.googleapis.com/data_access") AND
+protoPayload.methodName=("google.cloud.bigquery.v2.JobService.InsertJob" OR "google.cloud.bigquery.v2.JobService.Query") 
+BigQuery large queries	
+
+resource.type="bigquery_project" AND
+protoPayload.metadata.jobChange.job.jobStats.queryStats.totalBilledBytes>1073741824 
+BigQuery quota exceeded	
+
+resource.type=("bigquery_dataset" OR "bigquery_project") AND
+protoPayload.status.code=8 AND
+severity>=WARNING 
+BigQuery query started	
+
+resource.type="bigquery_project" AND
+protoPayload.metadata.jobInsertion.reason:*
+Dataflow queries
+Query/filter name	Expression
+Errors and warnings in Dataflow workers	
+
+resource.type="dataflow_step" AND
+log_id("dataflow.googleapis.com/worker") AND
+severity>=WARNING 
+Dataproc queries
+Query/filter name	Expression
+Dataproc Apache Hadoop logs	
+
+resource.type="cloud_dataproc_cluster" AND
+jsonPayload.class:"org.apache.hadoop.mapreduce" 
+Cloud Deployment Manager
+Query/filter name	Expression
+Deployment Manager errors	
+
+resource.type="deployment" AND
+severity>=ERROR 
+Cloud Functions queries
+Query/filter name	Expression
+Cloud function errors	
+
+resource.type="cloud_function" AND
+log_id("cloudfunctions.googleapis.com/cloud-functions") AND
+severity>=ERROR 
+Identity and Access Management queries
+Query/filter name	Expression
+Service account creation logs	
+
+resource.type="service_account" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="google.iam.admin.v1.CreateServiceAccount" 
+Service account creation key logs	
+
+resource.type="service_account" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="google.iam.admin.v1.CreateServiceAccountKey" 
+Set access control policy logs	
+
+resource.type="project" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="SetIamPolicy" 
+External member granted access to organization	
+
+resource.type="project" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.@type="type.googleapis.com/google.cloud.audit.AuditLog" AND
+protoPayload.request.@type:"IamPolicy" AND
+protoPayload.serviceData.policyDelta.bindingDeltas.member:* AND
+NOT protoPayload.serviceData.policyDelta.bindingDeltas.member:"@[DOMAIN_NAME].com" 
+Resource creation, modification, or deletion	
+
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:("create" OR "delete" OR "update")
+Cloud Source Repositories queries
+Query/filter name	Expression
+Cloud Source Repository logs	
+
+resource.type="csr_repository" AND
+resource.labels.name="[REPOSITORY_NAME]"
+Cloud Spanner queries
+Query/filter name	Expression
+Cloud Spanner logs for a specific spanner instance	
+
+resource.type="spanner_instance" AND
+resource.labels.instance_id="[SPANNER_INSTANCE]"
+Cloud SQL queries
+Query/filter name	Expression
+Cloud SQL audit logs	
+
+resource.type="cloudsql_database" AND
+resource.labels.database_id="[DATABASE_ID]" AND
+log_id("cloudaudit.googleapis.com/activity")
+Cloud SQL MySQL error logs	
+
+resource.type="cloudsql_database" AND
+log_id("cloudsql.googleapis.com/mysql.err")
+Cloud SQL MySQL-based databases	
+
+resource.type="cloudsql_database" AND
+resource.labels.database_id="[DATABASE_ID]" AND
+log_id("cloudsql.googleapis.com/mysql")
+Cloud SQL Postgres-based databases	
+
+resource.type="cloudsql_database" AND
+resource.labels.database_id="[DATABASE_ID]" AND
+log_id("cloudsql.googleapis.com/postgres.log")
+Cloud SQL SQL Server error logs	
+
+resource.type="cloudsql_database" AND
+log_id("cloudsql.googleapis.com/sqlserver.err")
+Cloud SQL SQL Server-based databases	
+
+resource.type="cloudsql_database" AND
+resource.labels.database_id="[DATABASE_ID]" AND
+log_id("cloudsql.googleapis.com/sqlagent.out")
+Compute Engine queries
+Query/filter name	Expression
+Google Compute Engine Admin Activity logs	
+
+resource.type="gce_instance" AND
+log_id("cloudaudit.googleapis.com/activity")
+Google Compute Engine firewall rule deletion	
+
+resource.type="gce_firewall_rule" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:"firewalls.delete" 
+Google Compute Engine VM syslogs	
+
+resource.type="gce_instance" AND
+log_id("syslog") 
+Cloud Storage queries
+Query/filter name	Expression
+GCS bucket logs	
+
+resource.type="gcs_bucket" AND
+resource.labels.bucket_name="[BUCKET_NAME]"
+GCS bucket audit logs	
+
+resource.type="gcs_bucket" AND
+logName:"cloudaudit.googleapis.com" 
+GCS bucket creation logs	
+
+resource.type="gcs_bucket" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.method_name="storage.buckets.create" 
+GCS bucket deletion logs	
+
+resource.type="gcs_bucket" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.method_name="storage.buckets.delete" 
+Cloud Tasks queries
+Query/filter name	Expression
+Cloud Tasks queue logs	
+
+resource.type="cloud_tasks_queue" AND
+resource.labels.queue_id="[QUEUE_ID]"
+Kubernetes-related queries
+For an overview and examples of Admin Activity audit log queries, see those provided on the GKE Audit logging page.
+Cluster-level queries
+Query/filter name	Expression
+Google Kubernetes Engine cluster operations	
+
+resource.type="gke_cluster" AND
+log_id("cloudaudit.googleapis.com/activity")
+Google Kubernetes Engine cluster creation	
+
+resource.type="gke_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="google.container.v1.ClusterManager.CreateCluster"
+      
+Kubernetes cluster deployment	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:"deployments"
+      
+Kubernetes cluster authentication failure	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.authenticationInfo.principalEmail="system:anonymous"
+      
+Kubernetes cluster operations and events in us-central1-b	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="us-central1-b"
+      
+Kubernetes pod requests from users	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:"io.k8s.core.v1.pods" AND
+protoPayload.authenticationInfo.principalEmail="[USER_EMAIL]"
+      
+Kubernetes events	
+
+resource.type="k8s_cluster" AND
+log_id("events")
+      
+Kubernetes Endpoints update	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.request.kind="Endpoints"
+      
+Kubernetes control plane logs	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.serviceName="k8s.io"
+      
+Kubernetes Engine control plane logs	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.serviceName="container.googleapis.com"
+      
+Pod deletion	
+
+resource.type="k8s_cluster" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName=~"io\.k8s\.core\.v1\.pods\.(create|delete)"
+      
+Kubernetes pod audit logs from control plane	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.resourceName="core/v1/namespaces/POD_NAMESPACE/pods/POD_NAME
+      
+Kubernetes pod evictions	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName="io.k8s.core.v1.pods.eviction.create"
+      
+Kubernetes node audit logs from the control plane	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:"io.k8s.core.v1.nodes"
+      
+Kubernetes cluster control plane for Addon Manager Activity	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.authenticationInfo.principalEmail="system:addon-manager"
+      
+Kubernetes control plane errors (excluding Conflict, which is normal)	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.status.message!="Conflict" AND
+protoPayload.status.code!=0
+      
+Ingress Controller events	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("events") AND
+jsonPayload.source.component="loadbalancer-controller"
+      
+Service Controller events (kube-controller-manager)	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("events") AND
+jsonPayload.source.component="service-controller"
+      
+Cluster Autoscaler events	
+
+resource.type="k8s_cluster" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("events") AND
+jsonPayload.source.component="cluster-autoscaler"
+      
+Pod-level queries
+Filter name	Expression
+Query pod during creation	
+
+resource.type="k8s_pod" AND
+resource.labels.pod_name="POD_NAME" AND
+log_id("events")
+      
+Scheduler events	
+
+resource.type="k8s_pod" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("events") AND
+jsonPayload.source.component="default-scheduler"
+      
+Scheduler events (preemptions)	
+
+resource.type="k8s_pod" AND
+resource.labels.location="CLUSTER_LOCATION" AND
+resource.labels.cluster_name="CLUSTER_NAME" AND
+log_id("events") AND
+jsonPayload.source.component="default-scheduler" AND
+jsonPayload.reason="Preempted"
+      
+Node-level queries
+Filter name	Expression
+Node events	
+
+resource.type="k8s_node" AND
+log_id("events")
+      
+Looking at Kube-proxy logs	
+
+resource.type="k8s_node" AND
+log_id("kube-proxy")
+      
+Looking at dockerd logs	
+
+resource.type="k8s_node" AND
+log_id("container-runtime")
+      
+Looking at kubelet errors or failures	
+
+resource.type="k8s_node" AND
+log_id("kubelet") AND
+jsonPayload.MESSAGE:("error" OR "fail")
+      
+Container queries
+Filter name	Expression
+Stdout container logs across all pods and containers in a cluster	
+
+resource.type="k8s_container" AND
+log_id("stdout")
+      
+Container error logs across all pods and containers in a cluster	
+
+resource.type="k8s_container" AND
+log_id("stderr") AND
+severity=ERROR
+      
+Container error logs for a pod with a specific name	
+
+resource.type="k8s_container" AND
+resource.labels.pod_name="POD_NAME" AND
+severity=ERROR
+      
+Container error logs for a specific container in a specific pod	
+
+resource.type="k8s_container" AND
+resource.labels.pod_name="POD_NAME" AND
+resource.labels.container_name="server" AND
+severity=ERROR
+      
+Container error logs for a specific namespace and container	
+
+resource.type="k8s_container" AND
+resource.labels.namespace_name="istio-system" AND
+resource.labels.container_name="egressgateway" AND
+severity=ERROR
+      
+Container logs for a pod with a specific label	
+
+resource.type="k8s_container" AND
+labels."k8s-pod/app"="loadgenerator" AND
+severity=ERROR
+      
+Container logs for a pod with a label generated using skaffold	
+
+resource.type="k8s_container" AND
+labels."k8s-pod/app"="loadgenerator" AND
+labels."k8s-pod/skaffold_dev/run-id"=[SKAFFOLD_RUN_ID]
+severity=ERROR
+      
+Container error logs for a specific pod containing a POST in the textPayload	
+
+resource.type="k8s_container" AND
+resource.labels.pod_name="POD_NAME" AND
+textPayload:"POST" AND
+severity=ERROR
+      
+Container error logs for a specific pod containing a GET in the structured JSON	
+
+resource.type="k8s_container" AND
+resource.labels.pod_name="POD_NAME" AND
+jsonPayload."http.req.method"="GET" AND
+severity=ERROR
+      
+Container errors logs in the kube-system namespace	
+
+resource.type="k8s_container" AND
+resource.labels.namespace_name="kube-system" AND
+severity=ERROR
+      
+Container error in the container insights log	
+
+resource.type="k8s_container" AND
+log_id("clouderrorreporting.googleapis.com/insights")
+      
+Kubernetes container logs	
+
+resource.type="k8s_container" AND
+resource.labels.cluster_name="CONTAINER_NAME"
+      
+Logging agent application queries
+Query/filter name	Expression
+Apache logs	
+
+resource.type="gce_instance" AND
+(logName:"/apache-access" OR logName:"/apache-error")
+Cassandra logs	
+
+resource.type="gce_instance" AND
+log_id("cassandra")
+Chef logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/chef-"
+Gitlab logs	
+
+resource.type="gce_instance"
+logName:"projects/[PROJECT_ID]/logs/gitlab-" 
+Jenkins logs	
+
+resource.type="gce_instance" AND
+log_id("jenkins")
+Jetty logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/jetty-"
+Joomla logs	
+
+resource.type="gce_instance" AND
+log_id("joomla")
+Linux syslogs	
+
+resource.type="gce_instance" AND
+log_id("syslog")
+Magneto logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/magneto-"
+Mediawiki logs	
+
+resource.type="gce_instance" AND
+log_id("mediawiki")
+memcached logs	
+
+resource.type="gce_instance" AND
+log_id("memcached")
+MongoDB logs	
+
+resource.type="gce_instance" AND
+log_id("mongodb")
+MySQL logs	
+
+resource.type="gce_instance" AND
+log_id("mysql")
+Nginx logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/nginx-"
+Postgresql logs	
+
+resource.type="gce_instance" AND
+log_id("postgresql")
+Puppet logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/puppet-"
+RabbitMQ logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/rabbitmq-"
+Redmine logs	
+
+resource.type="gce_instance" AND
+log_id("redmine")
+Salt logs	
+
+resource.type="gce_instance" AND
+logName:"projects/[PROJECT_ID]/logs/salt-"
+Slow MySQL queries	
+
+resource.type="gce_instance" AND
+log_id("mysql-slow")
+Solr logs	
+
+resource.type="gce_instance" AND
+log_id("solr")
+SugarCRM logs	
+
+resource.type="gce_instance" AND
+log_id("sugarcrm")
+Tomcat logs	
+
+resource.type="gce_instance" AND
+log_id("tomcat")
+Zookeeper logs	
+
+resource.type="gce_instance" AND
+log_id("zookeeper")
+Networking queries
+Query/filter name	Expression
+Firewall- all logs	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/firewall")
+Firewall logs for a given country	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/firewall") AND
+jsonPayload.remote_location.country=[COUNTRY_ISO_ALPHA_3]
+Firewall logs from a VM	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/firewall") AND
+jsonPayload.instance.vm_name="[INSTANCE_NAME]"
+Firewall subnet logs	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/firewall") AND
+resource.labels.subnetwork_name="[SUBNET_NAME]"
+Compute Engine subnetwork traffic logs to a subnet	
+
+resource.type="gce_subnetwork" AND
+ip_in_net(jsonPayload.connection.dest_ip, "[SUBNET_IP]")
+VPC Flow logs	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/vpc_flows")
+VPC Flow logs for specific port and protocol	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/vpc_flows") AND
+jsonPayload.connection.src_port="[PORT_ID]" AND
+jsonPayload.connection.protocol="[PROTOCOL]"
+VPC Flow logs for specific subnet	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/vpc_flows") AND
+resource.labels.subnetwork_name"=[SUBNET_NAME]"
+VPC Flow logs for specific subnet prefix	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/vpc_flows") AND
+ip_in_net(jsonPayload.connection.dest_ip,[SUBNET_IP])
+VPC Flow logs for a specific VM	
+
+resource.type="gce_subnetwork" AND
+log_id("compute.googleapis.com/vpc_flows") AND
+jsonPayload.src_instance.vm_name="[VM_NAME]"
+VPN gateway logs	
+
+resource.type="vpn_gateway" AND
+resource.labels.gateway_id="[GATEWAY_ID]"
+HTTP Load Balancer 5xx errors	
+
+resource.type="http_load_balancer" AND
+httpRequest.status>=500
+HTTP Load Balancer requests to PHPMyAdmin	
+
+resource.type="http_load_balancer" AND
+httpRequest.request_url:"phpmyadmin"
+Security logging queries
+Query/filter name	Expression
+Audit logs—all	
+
+logName:"cloudaudit.googleapis.com"
+Audit logs- Access Transparency (AXT)	
+
+log_id("cloudaudit.googleapis.com/access_transparency")
+Audit logs- Admin Activity	
+
+log_id("cloudaudit.googleapis.com/activity")
+Audit logs- Data Access	
+
+log_id("cloudaudit.googleapis.com/data_access")
+Audit logs- System Event	
+
+log_id("cloudaudit.googleapis.com/system_event")
+Google Cloud's operations suite queries
+Query/filter name	Expression
+Log sink activities	
+
+resource.type="logging_sink" AND
+log_id("cloudaudit.googleapis.com/activity")
+Log-based metric create or update activities	
+
+resource.type="metric" AND
+log_id("cloudaudit.googleapis.com/activity") AND
+protoPayload.methodName:(UpdateLogMetric OR CreateLogMetric)
+Uptime URL checks for a host	
+
+resource.type="uptime_url" AND
+resource.labels.host="[URL]"
+Troubleshooting
+For more information about the query syntax and troubleshooting instructions, go to Building queries: Troubleshooting.
+What's next
+For more information about the query syntax, which you can use to customize these queries, review Building queries.

@@ -1,6 +1,19 @@
 import { getLatestGcloudSDKVersion } from './version-util';
 export { getLatestGcloudSDKVersion };
 /**
+ * Format of a GCloud configuration when using the GCloud CLI like this:
+ * `gcloud config configurations describe $CONFIGURATION_NAME --format=json`
+ */
+export declare type GcloudJsonConfiguration = {
+    is_active: boolean;
+    name: string;
+    properties: {
+        core: {
+            project: string;
+        };
+    };
+};
+/**
  * Checks if gcloud is installed.
  *
  * @param version (Optional) Cloud SDK version.
@@ -39,6 +52,31 @@ export declare function installGcloudSDK(version: string): Promise<string>;
  * @returns ServiceAccountKey as an object.
  */
 export declare function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey;
+/**
+ * Fetches information about a configuration with the given name.
+ * @param name Name of the configuration to be fetched.
+ * @return undefined if a configuration with the given name does not (yet?) exist.
+ */
+export declare function getConfiguration(name: string): Promise<GcloudJsonConfiguration | undefined>;
+/**
+ * Checks if the configuration with the given name has been defined already.
+ * @param name Name of the configuration to be checked for existence.
+ * @return true if the configuration has already been defined.
+ */
+export declare function hasConfiguration(name: string): Promise<boolean>;
+/**
+ * Creates a new configuration with the given name.
+ * @param name Name of the configuration to be created.
+ * @param activate true if the configuration shall be activated after creation, false otherwise.
+ */
+export declare function createConfiguration(name: string, activate?: boolean): Promise<void>;
+/**
+ * Activates the configuration with the given name.
+ * If the configuration does not (yet) exist, it can directly be created.
+ * @param name Name of the configuration to be activated.
+ * @param create true if the configuration shall be created if it does not yet exist prior to activating it.
+ */
+export declare function activateConfiguration(name: string, create?: boolean): Promise<void>;
 /**
  * Authenticates the gcloud tool using a service account key.
  *

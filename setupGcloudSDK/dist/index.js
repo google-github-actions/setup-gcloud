@@ -6326,6 +6326,94 @@ function parseServiceAccountKey(serviceAccountKey) {
 }
 exports.parseServiceAccountKey = parseServiceAccountKey;
 /**
+ * Fetches information about a configuration with the given name.
+ * @param name Name of the configuration to be fetched.
+ * @return undefined if a configuration with the given name does not (yet?) exist.
+ */
+function getConfiguration(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const toolCommand = getToolCommand();
+        let jsonOutput = '';
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    jsonOutput += data.toString();
+                },
+            },
+        };
+        const returnCode = yield exec.exec(toolCommand, ['config', 'configurations', 'describe', `--name=${name}`, '--format=json'], options);
+        if (returnCode !== 0) {
+            return undefined;
+        }
+        return JSON.parse(jsonOutput);
+    });
+}
+exports.getConfiguration = getConfiguration;
+/**
+ * Checks if the configuration with the given name has been defined already.
+ * @param name Name of the configuration to be checked for existence.
+ * @return true if the configuration has already been defined.
+ */
+function hasConfiguration(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (yield getConfiguration(name)) !== undefined;
+    });
+}
+exports.hasConfiguration = hasConfiguration;
+/**
+ * Creates a new configuration with the given name.
+ * @param name Name of the configuration to be created.
+ * @param activate true if the configuration shall be activated after creation, false otherwise.
+ */
+function createConfiguration(name, activate = false) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const toolCommand = getToolCommand();
+        const returnCode = yield exec.exec(toolCommand, [
+            'config',
+            'configurations',
+            'create',
+            '${name}',
+            activate ? '--activate' : '--no-activate',
+        ]);
+        if (returnCode !== 0) {
+            throw new Error(`Unable to create configuration "${name}"`);
+        }
+    });
+}
+exports.createConfiguration = createConfiguration;
+/**
+ * Activates the configuration with the given name.
+ * If the configuration does not (yet) exist, it can directly be created.
+ * @param name Name of the configuration to be activated.
+ * @param create true if the configuration shall be created if it does not yet exist prior to activating it.
+ */
+function activateConfiguration(name, create = true) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const exists = yield hasConfiguration(name);
+        if (!exists) {
+            if (create) {
+                yield createConfiguration(name, true);
+            }
+            else {
+                throw new Error(`Configuration ${name} does already exist.`);
+            }
+        }
+        else {
+            const toolCommand = getToolCommand();
+            const returnCode = yield exec.exec(toolCommand, [
+                'config',
+                'configurations',
+                'activate',
+                '${name}',
+            ]);
+            if (returnCode !== 0) {
+                throw new Error(`Unable to activate configuration "${name}"`);
+            }
+        }
+    });
+}
+exports.activateConfiguration = activateConfiguration;
+/**
  * Authenticates the gcloud tool using a service account key.
  *
  * @param serviceAccountKey The service account key used for authentication.

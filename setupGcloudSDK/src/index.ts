@@ -26,6 +26,20 @@ import { getLatestGcloudSDKVersion } from './version-util';
 export { getLatestGcloudSDKVersion };
 
 /**
+ * Format of a GCloud configuration when using the GCloud CLI like this:
+ * `gcloud config configurations describe $CONFIGURATION_NAME --format=json`
+ */
+export type GcloudJsonConfiguration = {
+  is_active: boolean;
+  name: string;
+  properties: {
+    core: {
+      project: string;
+    };
+  };
+};
+
+/**
  * Checks if gcloud is installed.
  *
  * @param version (Optional) Cloud SDK version.
@@ -145,6 +159,99 @@ export function parseServiceAccountKey(
     serviceAccount = Buffer.from(serviceAccountKey, 'base64').toString('utf8');
   }
   return JSON.parse(serviceAccount);
+}
+
+/**
+ * Fetches information about a configuration with the given name.
+ * @param name Name of the configuration to be fetched.
+ * @return undefined if a configuration with the given name does not (yet?) exist.
+ */
+export async function getConfiguration(
+  name: string,
+): Promise<GcloudJsonConfiguration | undefined> {
+  const toolCommand = getToolCommand();
+
+  let jsonOutput = '';
+
+  const options = {
+    listeners: {
+      stdout: (data: Buffer): void => {
+        jsonOutput += data.toString();
+      },
+    },
+  };
+
+  const returnCode = await exec.exec(
+    toolCommand,
+    ['config', 'configurations', 'describe', `--name=${name}`, '--format=json'],
+    options,
+  );
+  if (returnCode !== 0) {
+    return undefined;
+  }
+  return JSON.parse(jsonOutput) as GcloudJsonConfiguration;
+}
+
+/**
+ * Checks if the configuration with the given name has been defined already.
+ * @param name Name of the configuration to be checked for existence.
+ * @return true if the configuration has already been defined.
+ */
+export async function hasConfiguration(name: string): Promise<boolean> {
+  return (await getConfiguration(name)) !== undefined;
+}
+
+/**
+ * Creates a new configuration with the given name.
+ * @param name Name of the configuration to be created.
+ * @param activate true if the configuration shall be activated after creation, false otherwise.
+ */
+export async function createConfiguration(
+  name: string,
+  activate = false,
+): Promise<void> {
+  const toolCommand = getToolCommand();
+  const returnCode = await exec.exec(toolCommand, [
+    'config',
+    'configurations',
+    'create',
+    '${name}',
+    activate ? '--activate' : '--no-activate',
+  ]);
+  if (returnCode !== 0) {
+    throw new Error(`Unable to create configuration "${name}"`);
+  }
+}
+
+/**
+ * Activates the configuration with the given name.
+ * If the configuration does not (yet) exist, it can directly be created.
+ * @param name Name of the configuration to be activated.
+ * @param create true if the configuration shall be created if it does not yet exist prior to activating it.
+ */
+export async function activateConfiguration(
+  name: string,
+  create = true,
+): Promise<void> {
+  const exists = await hasConfiguration(name);
+  if (!exists) {
+    if (create) {
+      await createConfiguration(name, true);
+    } else {
+      throw new Error(`Configuration ${name} does already exist.`);
+    }
+  } else {
+    const toolCommand = getToolCommand();
+    const returnCode = await exec.exec(toolCommand, [
+      'config',
+      'configurations',
+      'activate',
+      '${name}',
+    ]);
+    if (returnCode !== 0) {
+      throw new Error(`Unable to activate configuration "${name}"`);
+    }
+  }
 }
 
 /**

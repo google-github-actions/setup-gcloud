@@ -6372,7 +6372,7 @@ function createConfiguration(name, activate = false) {
             'config',
             'configurations',
             'create',
-            '${name}',
+            name,
             activate ? '--activate' : '--no-activate',
         ]);
         if (returnCode !== 0) {
@@ -6404,7 +6404,7 @@ function activateConfiguration(name, create = true) {
                 'config',
                 'configurations',
                 'activate',
-                '${name}',
+                name,
             ]);
             if (returnCode !== 0) {
                 throw new Error(`Unable to activate configuration "${name}"`);

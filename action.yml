@@ -27,6 +27,13 @@ inputs:
     default: latest
     required: false
 
+  configuration_name:
+    description: |-
+      Name of the gcloud configuration to be set up.
+      Can be ommited to work with the configuration named "default".
+    default: default
+    required: false
+
   service_account_email:
     description: |-
       Service account email address to use for authentication. This is required

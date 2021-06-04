@@ -215,7 +215,7 @@ export async function createConfiguration(
     'config',
     'configurations',
     'create',
-    '${name}',
+    name,
     activate ? '--activate' : '--no-activate',
   ]);
   if (returnCode !== 0) {
@@ -246,7 +246,7 @@ export async function activateConfiguration(
       'config',
       'configurations',
       'activate',
-      '${name}',
+      name,
     ]);
     if (returnCode !== 0) {
       throw new Error(`Unable to activate configuration "${name}"`);

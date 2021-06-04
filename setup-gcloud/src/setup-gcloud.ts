@@ -40,6 +40,12 @@ export async function run(): Promise<void> {
       core.addPath(path.join(toolPath, 'bin'));
     }
 
+    const configurationName = core.getInput('configuration_name');
+    if (configurationName !== 'default') {
+      await setupGcloud.createConfiguration(configurationName, true);
+      core.info(`Configuration "${configurationName}" has been created`);
+    }
+
     // Set the project ID, if given.
     const projectId = core.getInput('project_id');
     if (projectId) {

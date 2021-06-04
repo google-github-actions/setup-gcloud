@@ -6353,8 +6353,8 @@ exports.authenticateGcloudSDK = authenticateGcloudSDK;
 /**
  * Sets the GCP Project Id in the gcloud config.
  *
- * @param serviceAccountKey The service account key used for authentication.
- * @returns project ID.
+ * @param projectId The ID of the default project used in the current configuration.
+ * @returns exit code.
  */
 function setProject(projectId) {
     return __awaiter(this, void 0, void 0, function* () {

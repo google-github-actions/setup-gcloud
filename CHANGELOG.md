@@ -1,4 +1,33 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software distributed under the License
+ is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied. See the License for the specific language governing permissions and limitations under the
+ License.
+-->
 # Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [Unresolved]
+
+ ### Security
+
+ ### Added
+
+ ### Changed
+
+ ### Removed
+
+ ### Fixed
 
 ### [0.2.1](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.2.0...v0.2.1) (2021-02-12)
 
@@ -29,3 +58,72 @@
 ### Reverts
 
 * Revert "Use RUNNER_TEMP to export credentials" (#149) ([0926395](https://www.github.com/google-github-actions/setup-gcloud/commit/0926395459ca75ce323bcc26564f2843cd48ed98)), closes [#149](https://www.github.com/google-github-actions/setup-gcloud/issues/149) [#148](https://www.github.com/google-github-actions/setup-gcloud/issues/148)
+
+## [0.1.3] - 2020-07-30
+
+ ### Security
+
+ ### Added
+ - [deploy-cloudrun](https://github.com/GoogleCloudPlatform/github-actions/pull/117): Added action for deploying to Google Cloud Run
+ - [appengine-deploy](https://github.com/GoogleCloudPlatform/github-actions/pull/91): Added action for deploying to Google App Engine
+ - [upload-cloud-storage](https://github.com/GoogleCloudPlatform/github-actions/pull/121): Added action for uploading an artifact to GCS
+ - [get-secretmanager-secrets](https://github.com/GoogleCloudPlatform/github-actions/pull/53): Fetch secrets from Secret Manager
+
+ ### Changed
+ - [setup-gcloud]: Allow setting of project Id
+
+ ### Removed
+
+ ### Fixed
+ - cached gcloud path
+ - missing credential input field in action.yml
+ - allow GAE tests to run in parallel
+
+
+## [0.1.2] - 2020-02-28
+
+ ### Security
+
+ ### Added
+ - Added support for setting up GOOGLE APPLICATION CREDENTIALS
+ - Can specify creds as b64 or plain json
+
+ ### Changed
+ - Changed testing framework for mocha
+ - Updated linter config
+
+ ### Removed
+
+ ### Fixed
+
+
+## [0.1.1] - 2020-01-30
+
+ ### Security
+
+ ### Added
+ - [setup-gcloud]: Added support for specifying 'latest' SDK version
+ - [setup-gcloud]: Made authentication optional
+ - [setup-gcloud]: Added metrics tracking label
+ - [setup-gcloud]: Added CloudRun example workflow
+ - [setup-gcloud]: Added integration tests
+
+ ### Changed
+
+ ### Removed
+
+ ### Fixed
+
+## [0.1.0] - 2019-11-08
+
+ ### Security
+
+ ### Added
+  - Initial release of setup-gcloud action.
+    - Provides support for configuring Google Cloud SDK within the GitHub Actions v2 environment.
+
+ ### Changed
+
+ ### Removed
+
+ ### Fixed

@@ -13,10 +13,10 @@
 # limitations under the License.
 
 name: Set up gcloud Cloud SDK environment
-author: Google LLC
+author: GoogleCloudPlatform
 description: |-
-  Downloads, installs, and configures a Google Cloud SDK environment.
-  Adds the `gcloud` CLI command to the $PATH.
+  Downloads, installs, and configures a gcloud Cloud SDK environment for the
+  worker. This will add the `gcloud` CLI command to the worker's $PATH.
 
 inputs:
   version:
@@ -58,7 +58,6 @@ inputs:
       these credentials.
     default: false
     required: false
-
   credentials_file_path:
     description: |-
       The path and name of the file to which to write the shared default
@@ -70,4 +69,4 @@ inputs:
 
 runs:
   using: node12
-  main: setup-gcloud/dist/index.js
+  main: dist-frozen/index.js

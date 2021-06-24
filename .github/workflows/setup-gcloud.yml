@@ -27,13 +27,10 @@ jobs:
         node-version: 10.x
 
     - name: npm install
-      working-directory: ./setup-gcloud
       run: npm install
 
     - name: Lint
-      working-directory: ./setup-gcloud
       run: npm run lint
 
     - name: Test
-      working-directory: ./setup-gcloud
       run: npm test

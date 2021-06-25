@@ -22,6 +22,7 @@ import { getReleaseURL } from './format-url';
 import * as downloadUtil from './download-util';
 import * as installUtil from './install-util';
 import { getLatestGcloudSDKVersion } from './version-util';
+import { ExecOptions } from '@actions/exec/lib/interfaces';
 
 export { getLatestGcloudSDKVersion };
 
@@ -162,7 +163,10 @@ export async function authenticateGcloudSDK(
 
   const toolCommand = getToolCommand();
   // Authenticate as the specified service account.
-  const options = { input: Buffer.from(JSON.stringify(serviceAccountJson)) };
+  const options = {
+    input: Buffer.from(JSON.stringify(serviceAccountJson)),
+    silent: true,
+  };
   return await exec.exec(
     toolCommand,
     [
@@ -173,7 +177,7 @@ export async function authenticateGcloudSDK(
       '--key-file',
       '-',
     ],
-    options,
+    options as ExecOptions,
   );
 }
 

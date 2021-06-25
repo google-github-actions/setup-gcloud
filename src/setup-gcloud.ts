@@ -16,7 +16,7 @@
 
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
-import * as setupGcloud from '../../setupGcloudSDK/dist/index';
+import * as setupGcloud from '../setupGcloudSDK/dist/index';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';

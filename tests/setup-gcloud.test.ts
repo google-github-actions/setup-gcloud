@@ -23,7 +23,7 @@ import * as sinon from 'sinon';
 
 import os from 'os';
 import { promises as fs } from 'fs';
-import * as setupGcloud from '../../setupGcloudSDK/dist/index';
+import * as setupGcloud from '../setupGcloudSDK/dist/index';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 

@@ -21,15 +21,10 @@
       "es6"
     ],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDirs": ["./src", "./setupGcloudSDK"],
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true
   },
-  "references": [
-    {
-      "path": "../setupGcloudSDK"
-    }
-  ],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

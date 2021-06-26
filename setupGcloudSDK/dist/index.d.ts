@@ -38,14 +38,18 @@ export declare function installGcloudSDK(version: string): Promise<string>;
  * @param serviceAccountKey The service account key used for authentication.
  * @returns ServiceAccountKey as an object.
  */
-export declare function parseServiceAccountKey(serviceAccountKey: string): ServiceAccountKey;
+export declare function parseServiceAccountKey(
+  serviceAccountKey: string,
+): ServiceAccountKey;
 /**
  * Authenticates the gcloud tool using a service account key.
  *
  * @param serviceAccountKey The service account key used for authentication.
  * @returns exit code.
  */
-export declare function authenticateGcloudSDK(serviceAccountKey: string): Promise<number>;
+export declare function authenticateGcloudSDK(
+  serviceAccountKey: string,
+): Promise<number>;
 /**
  * Sets the GCP Project Id in the gcloud config.
  *
@@ -59,16 +63,18 @@ export declare function setProject(projectId: string): Promise<number>;
  * @param serviceAccountKey The service account key used for authentication.
  * @returns project ID.
  */
-export declare function setProjectWithKey(serviceAccountKey: string): Promise<string>;
+export declare function setProjectWithKey(
+  serviceAccountKey: string,
+): Promise<string>;
 interface ServiceAccountKey {
-    type: string;
-    project_id: string;
-    project_key_id: string;
-    private_key: string;
-    client_email: string;
-    client_id: string;
-    auth_uri: string;
-    token_uri: string;
-    auth_provider_x509_cert_url: string;
-    client_x509_cert_url: string;
+  type: string;
+  project_id: string;
+  project_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
 }

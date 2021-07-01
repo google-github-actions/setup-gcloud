@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "google-auth-library": "^5.9.2"
+    "google-auth-library": "^7.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.9",
@@ -33,9 +33,9 @@
     "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.21.0",
     "chai": "^4.2.0",
+    "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "eslint": "^6.8.0",
     "husky": "^4.2.3",
     "mocha": "^7.0.1",
     "prettier": "^1.19.1",

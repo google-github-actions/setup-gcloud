@@ -3,7 +3,7 @@ name: setup-gcloud Integration
 on:
   push:
     paths:
-    - 'setup-gcloud/**'
+    - './**'
     - '.github/workflows/setup-gcloud*'
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
         npm run build
     - id: build
       name: Build dist
-      working-directory: setup-gcloud
       run: |-
         npm install
         npm run build
@@ -35,7 +34,7 @@ jobs:
 
     - name: Integration Tests
       shell: bash
-      run: ./setup-gcloud/tests/integration-tests.sh
+      run: ./tests/integration-tests.sh
 
   latest:
     name: setup-gcloud latest
@@ -47,13 +46,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build dependency
-        working-directory: setupGcloudSDK
         run: |-
           npm install
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -65,7 +62,7 @@ jobs:
 
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/tests/integration-tests.sh
+        run: ./tests/integration-tests.sh
 
   email:
     name: setup-gcloud user-defined email
@@ -83,7 +80,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -96,7 +92,7 @@ jobs:
 
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/tests/integration-tests.sh
+        run: ./tests/integration-tests.sh
 
   exported:
     name: setup-gcloud exported credentials
@@ -114,7 +110,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -145,7 +140,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build

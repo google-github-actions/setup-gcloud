@@ -8,7 +8,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
     commit-message:
       prefix: "chore(deps): "
     rebase-strategy: "disabled"

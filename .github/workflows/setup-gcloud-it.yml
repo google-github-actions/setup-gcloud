@@ -8,6 +8,7 @@ on:
 
 jobs:
   versioned:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud versioned
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -37,6 +38,7 @@ jobs:
       run: ./tests/integration-tests.sh
 
   latest:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud latest
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -65,6 +67,7 @@ jobs:
         run: ./tests/integration-tests.sh
 
   email:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud user-defined email
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -95,6 +98,7 @@ jobs:
         run: ./tests/integration-tests.sh
 
   exported:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud exported credentials
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -125,6 +129,7 @@ jobs:
         run: test -f $GOOGLE_APPLICATION_CREDENTIALS
 
   project_id:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud with configured project
     runs-on: ${{ matrix.operating-system }}
     strategy:

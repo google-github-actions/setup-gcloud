@@ -2,9 +2,9 @@ name: setup-gcloud Integration
 
 on:
   push:
-    paths:
-    - './**'
-    - '.github/workflows/setup-gcloud*'
+    branches:
+    - 'main'
+    pull_request:
 
 jobs:
   versioned:

@@ -67,7 +67,6 @@ jobs:
           bump-minor-pre-major: true
           fork: true
           package-name: ${{env.ACTION_NAME}}
-          path: ${{env.ACTION_NAME}}
           command: release-pr
   release-please-release:
     runs-on: ubuntu-latest
@@ -80,7 +79,6 @@ jobs:
           release-type: node
           bump-minor-pre-major: true
           package-name: ${{env.ACTION_NAME}}
-          path: ${{env.ACTION_NAME}}
           command: github-release
       - uses: actions/checkout@v2
       - name: tag major and patch versions

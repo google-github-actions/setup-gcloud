@@ -2,10 +2,9 @@ name: setup-gcloud Integration
 
 on:
   push:
-    paths:
-    - 'setup-gcloud/**'
-    - '.github/workflows/setup-gcloud*'
-  pull_request:
+    branches:
+    - 'main'
+    pull_request:
 
 jobs:
   versioned:
@@ -25,7 +24,6 @@ jobs:
         npm run build
     - id: build
       name: Build dist
-      working-directory: setup-gcloud
       run: |-
         npm install
         npm run build
@@ -37,7 +35,7 @@ jobs:
 
     - name: Integration Tests
       shell: bash
-      run: ./setup-gcloud/tests/integration-tests.sh
+      run: ./tests/integration-tests.sh
 
   latest:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
@@ -50,13 +48,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build dependency
-        working-directory: setupGcloudSDK
         run: |-
           npm install
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -68,7 +64,7 @@ jobs:
 
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/tests/integration-tests.sh
+        run: ./tests/integration-tests.sh
 
   email:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
@@ -87,7 +83,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -100,7 +95,7 @@ jobs:
 
       - name: Integration Tests
         shell: bash
-        run: ./setup-gcloud/tests/integration-tests.sh
+        run: ./tests/integration-tests.sh
 
   exported:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
@@ -119,7 +114,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build
@@ -151,7 +145,6 @@ jobs:
           npm run build
       - id: build
         name: Build dist
-        working-directory: setup-gcloud
         run: |-
           npm install
           npm run build

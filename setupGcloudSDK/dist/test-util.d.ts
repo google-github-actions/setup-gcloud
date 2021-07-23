@@ -5,15 +5,15 @@
  * used.
  */
 export declare class TestToolCache {
-    private static paths;
-    /**
-     * Creates temporary directories for the runner cache and temp, and configures
-     * the Action's runner to use said directories.
-     *
-     * @returns two strings - first is overridden toolsPath, second is tempPath.
-     */
-    static override(): [string, string];
-    private static randomStr;
+  private static paths;
+  /**
+   * Creates temporary directories for the runner cache and temp, and configures
+   * the Action's runner to use said directories.
+   *
+   * @returns two strings - first is overridden toolsPath, second is tempPath.
+   */
+  static override(): [string, string];
+  private static randomStr;
 }
 /**
  * The version of the gcloud SDK being tested against.

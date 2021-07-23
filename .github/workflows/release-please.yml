@@ -8,21 +8,14 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-        max-parallel: 1
-        matrix: 
-          actions: ["setupGcloudSDK", "setup-gcloud"]
     steps:
       - uses: actions/checkout@v2
       - run: git pull
       - name: install
-        working-directory: ${{ matrix.actions }}
         run: npm install
       - name: build
         run: npm run build
-        working-directory: ${{ matrix.actions }}
       - name: commit
-        working-directory: ${{ matrix.actions }}
         run: |-
           set -e
           # get current commit hash

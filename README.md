@@ -26,7 +26,27 @@ Or integrate natively with other Google Cloud GitHub Actions:
 * [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
 * [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
-**This repository also contains deprecated GCP GitHub Actions from previous mono-repo format.**
+## 📢 NOTICE
+
+**Previously this repository contained the code for ALL of the GCP GithHub Actions. Now each 
+action has it's own repo and this repo is only for setup-gcloud**
+
+### Use google-github-actions/setup-gcloud
+
+```diff
+steps:
+ - id: gcloud
+-  uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
++  uses: google-github-actions/setup-gcloud@master
+```
+
+### Or google-github-actions/{action}
+```diff
+steps:
+ - id: deploy
+-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
++  uses: google-github-actions/deploy-cloudrun@main
+```
 
 ## Table of Contents
 

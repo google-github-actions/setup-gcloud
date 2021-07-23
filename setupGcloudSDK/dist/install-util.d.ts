@@ -5,4 +5,7 @@
  * @param gcloudExtPath The extraction path for the gcloud SDK.
  * @returns The path of the installed tool.
  */
-export declare function installGcloudSDK(version: string, gcloudExtPath: string): Promise<string>;
+export declare function installGcloudSDK(
+  version: string,
+  gcloudExtPath: string,
+): Promise<string>;

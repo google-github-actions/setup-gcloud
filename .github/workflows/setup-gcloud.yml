@@ -1,14 +1,6 @@
 name: setup-gcloud Unit
 
-on:
-  push:
-    paths:
-    - './**'
-    - '.github/workflows/setup-gcloud*'
-  pull_request:
-    paths:
-    - './**'
-    - '.github/workflows/setup-gcloud*'
+on: [push, pull_request]
 
 jobs:
   run:

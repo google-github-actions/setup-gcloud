@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gke-simple-nginx
+  name: gke-test
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: gke-simple-nginx
+      app: gke-test
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -29,27 +29,15 @@ spec:
   template:
     metadata:
       labels:
-        app: gke-simple-nginx
+        app: gke-test
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.14.2
+      - name: gke-test
+        image: gcr.io/PROJECT_ID/IMAGE:TAG
         ports:
-        - containerPort: 80
+        - containerPort: 5000
         resources:
           requests:
             cpu: 100m
           limits:
             cpu: 100m
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gke-simple-nginx-service
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 80
-  selector:
-    app: gke-simple-nginx

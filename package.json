@@ -39,7 +39,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^13.7.4",
     "@types/semver": "^7.1.0",
-    "@types/sinon": "^7.5.2",
+    "@types/sinon": "^10.0.2",
     "@types/tmp": "^0.1.0",
     "@types/uuid": "^3.4.7",
     "@typescript-eslint/eslint-plugin": "^2.20.0",

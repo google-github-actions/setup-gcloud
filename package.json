@@ -42,7 +42,7 @@
     "@types/sinon": "^10.0.2",
     "@types/tmp": "^0.1.0",
     "@types/uuid": "^3.4.7",
-    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.21.0",
     "chai": "^4.2.0",

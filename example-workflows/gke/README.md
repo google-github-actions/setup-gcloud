@@ -1,6 +1,6 @@
 # Google Kubernetes Engine - GitHub Actions
 
-An example workflow that uses [GitHub Actions][actions] to deploy a simple nginx server
+An example workflow that uses [GitHub Actions][actions] to deploy a simple hello app
 to an existing [Google Kubernetes Engine][gke] cluster.
 
 This code is intended to be an _example_. You will likely need to change or

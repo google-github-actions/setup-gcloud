@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ name: Build and Deploy to GKE
 on:
   push:
     branches:
-    - master
+    - main
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: cluster-1    # TODO: update to cluster name
   GKE_ZONE: us-central1-c   # TODO: update to cluster zone
-  DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
+  DEPLOYMENT_NAME: gke-test # TODO: update deployment name if changed in deployment.yaml or service.yml
   IMAGE: static-site
 
 jobs:
@@ -38,7 +38,6 @@ jobs:
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@master
       with:
-        version: '290.0.1'
         service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
 

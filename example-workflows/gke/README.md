@@ -8,7 +8,7 @@ update values to match your setup.
 
 ## Workflow description
 
-For pushes to the `master` branch, this workflow will:
+For pushes to the `main` branch, this workflow will:
 
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
@@ -16,7 +16,7 @@ For pushes to the `master` branch, this workflow will:
 1.  Use a Kubernetes Deployment to push the image to the cluster.
 
     - Note that a GKE deployment requires a unique Tag to update the pods. Using
-      a constant tag `latest` or a branch name `master` may result in successful
+      a constant tag `latest` or a branch name `main` may result in successful
       workflows that don't update the cluster.
 
 ## Setup
@@ -49,12 +49,14 @@ For pushes to the `master` branch, this workflow will:
 
     - `Kubernetes Engine Developer` - allows deploying to GKE
 
-    Note: These permissions are overly broad to favor a quick start. They do not
+    **Note:** *These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privilege. To
     properly restrict access, you should create a custom IAM role with the most
-    restrictive permissions.
+    restrictive permissions.*
 
 1.  [Create a JSON service account key][create-key] for the service account.
+
+    **Note**: *You won't require this if you are using [self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners)*
 
 1.  Add the following secrets to your repository's secrets:
 
@@ -72,7 +74,7 @@ For pushes to the `master` branch, this workflow will:
     You can find the names of your clusters using the command:
 
     ```
-    $ gcloud container clusters list
+    $ gcloud container clusters list --project $PROJECT_ID
     ```
 
     and the zone using the command:
@@ -90,10 +92,10 @@ For pushes to the `master` branch, this workflow will:
     $ git commit -m "Set up GitHub workflow"
     ```
 
-1.  Push to the `master` branch:
+1.  Push to the `main` branch:
 
     ```text
-    $ git push -u origin master
+    $ git push -u origin main
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top

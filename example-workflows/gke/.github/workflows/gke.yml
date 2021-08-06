@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Deploy simple nginx to GKE
+name: Deploy simple hello app to GKE
 
 on:
   push:
     branches:
-    - master
+    - main
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: cluster-1    # TODO: update to cluster name
   GKE_ZONE: europe-central2-a	   # TODO: update to cluster zone
-  DEPLOYMENT_NAME: gke-simple-nginx # TODO: update to deployment name
+  DEPLOYMENT_NAME: gke-hello-app # TODO: update deployment name if changed in deployment.yaml
 
 jobs:
   setup-build-publish-deploy:
@@ -37,7 +37,6 @@ jobs:
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@master
       with:
-        version: '290.0.1'
         service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
 

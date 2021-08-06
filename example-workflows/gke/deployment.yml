@@ -15,12 +15,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gke-simple-nginx
+  name: gke-hello-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: gke-simple-nginx
+      app: gke-hello-app
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -29,13 +29,13 @@ spec:
   template:
     metadata:
       labels:
-        app: gke-simple-nginx
+        app: gke-hello-app
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.14.2
+      - name: hello-app
+        image: gcr.io/google-samples/hello-app:1.0
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         resources:
           requests:
             cpu: 100m
@@ -45,11 +45,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gke-simple-nginx-service
+  name: gke-hello-app-service
 spec:
   type: LoadBalancer
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
   selector:
-    app: gke-simple-nginx
+    app: gke-hello-app

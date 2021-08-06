@@ -51,7 +51,7 @@ For pushes to the `main` branch, this workflow will:
 
     - `Kubernetes Engine Developer` - allows deploying to GKE
 
-    - `Storage Admin` - allows publishing to Container Registry
+    - `Artifact Registry Writer` - allows publishing to Container Registry
 
     **Note**: *These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privilege. To

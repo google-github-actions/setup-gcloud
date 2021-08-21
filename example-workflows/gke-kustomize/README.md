@@ -13,7 +13,7 @@ For pushes to the `main` branch, this workflow will:
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
 
-1.  Build, tag, and push a container image to Google Container Registry.
+1.  Build, tag, and push a container image to Google Artifact Registry.
 
 1.  Use a Kubernetes Deployment to push the image to the cluster.
 
@@ -24,7 +24,7 @@ For pushes to the `main` branch, this workflow will:
 ## Setup
 
 1.  Create a new Google Cloud Project (or select an existing project) and
-    [enable the Container Registry and Kubernetes Engine APIs](https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com,container.googleapis.com).
+    [enable the Artifact Registry and Kubernetes Engine APIs](https://console.cloud.google.com/flows/enableapi?apiid=artifactregistry.googleapis.com,container.googleapis.com).
 
 1.  [Create a new GKE cluster][cluster] or select an existing GKE cluster.
 
@@ -47,11 +47,13 @@ For pushes to the `main` branch, this workflow will:
 1.  [Create a Google Cloud service account][create-sa] if one does not already
     exist.
 
+1.  [Create an Antifact Registry docker repository](https://cloud.google.com/artifact-registry/docs/docker/quickstart#gcloud) if one does not already exist
+
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
     - `Kubernetes Engine Developer` - allows deploying to GKE
 
-    - `Artifact Registry Writer` - allows publishing to Container Registry
+    - `Artifact Registry Writer` - allows publishing to Artifact Registry
 
     **Note**: *These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privilege. To

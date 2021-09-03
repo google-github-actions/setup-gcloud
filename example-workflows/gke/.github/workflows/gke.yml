@@ -26,8 +26,8 @@ env:
   DEPLOYMENT_NAME: gke-hello-app # TODO: update deployment name if changed in deployment.yaml
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  setup-and-deploy:
+    name: Setup and Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,7 @@ jobs:
     - run: |-
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
-    # Deploy nginx image to the GKE cluster
+    # Deploy sample image to the GKE cluster
     - name: Deploy
       run: |-
         kubectl apply -f deployment.yml

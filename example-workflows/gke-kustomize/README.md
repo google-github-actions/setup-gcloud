@@ -1,7 +1,7 @@
 # Google Kubernetes Engine - GitHub Actions
 
-An example workflow that uses [GitHub Actions][actions] to deploy a simple hello app
-to an existing [Google Kubernetes Engine][gke] cluster.
+An example workflow that uses [GitHub Actions][actions] to deploy [a static
+website](site/) to an existing [Google Kubernetes Engine][gke] cluster.
 
 This code is intended to be an _example_. You will likely need to change or
 update values to match your setup.
@@ -13,6 +13,8 @@ For pushes to the `main` branch, this workflow will:
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
 
+1.  Build, tag, and push a container image to Google Artifact Registry.
+
 1.  Use a Kubernetes Deployment to push the image to the cluster.
 
     - Note that a GKE deployment requires a unique Tag to update the pods. Using
@@ -22,7 +24,7 @@ For pushes to the `main` branch, this workflow will:
 ## Setup
 
 1.  Create a new Google Cloud Project (or select an existing project) and
-    [enable the Container Registry and Kubernetes Engine APIs](https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com,container.googleapis.com).
+    [enable the Artifact Registry and Kubernetes Engine APIs](https://console.cloud.google.com/flows/enableapi?apiid=artifactregistry.googleapis.com,container.googleapis.com).
 
 1.  [Create a new GKE cluster][cluster] or select an existing GKE cluster.
 
@@ -39,17 +41,21 @@ For pushes to the `main` branch, this workflow will:
     1.  Copy the example into the repository:
 
         ```
-        $ cp -r <path_to>/github-actions/example-workflows/gke/ .
+        $ cp -r <path_to>/github-actions/example-workflows/gke-kustomize/ .
         ```
 
 1.  [Create a Google Cloud service account][create-sa] if one does not already
     exist.
 
+1.  [Create an Antifact Registry docker repository](https://cloud.google.com/artifact-registry/docs/docker/quickstart#gcloud) if one does not already exist
+
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 
     - `Kubernetes Engine Developer` - allows deploying to GKE
 
-    **Note:** *These permissions are overly broad to favor a quick start. They do not
+    - `Artifact Registry Writer` - allows publishing to Artifact Registry
+
+    **Note**: *These permissions are overly broad to favor a quick start. They do not
     represent best practices around the Principle of Least Privilege. To
     properly restrict access, you should create a custom IAM role with the most
     restrictive permissions.*
@@ -64,12 +70,14 @@ For pushes to the `main` branch, this workflow will:
 
     - `GKE_SA_KEY`: the content of the service account JSON file
 
-1.  Update `.github/workflows/gke.yml` to match the values corresponding to your
+1.  Update `.github/workflows/gke-kustomize.yml` to match the values corresponding to your
     VM:
 
     - `GKE_CLUSTER` - the instance name of your cluster
 
     - `GKE_ZONE` - the zone your cluster resides
+
+    - `IMAGE` - your preferred Docker image name
 
     You can find the names of your clusters using the command:
 
@@ -99,7 +107,7 @@ For pushes to the `main` branch, this workflow will:
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top
-    of your repository on GitHub. Then click on the `Deploy simple nginx to GKE`
+    of your repository on GitHub. Then click on the `Build and Deploy to GKE`
     element to see the details.
 
 [actions]: https://help.github.com/en/categories/automating-your-workflow-with-github-actions

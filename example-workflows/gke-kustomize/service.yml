@@ -12,44 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gke-hello-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: gke-hello-app
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-  minReadySeconds: 5
-  template:
-    metadata:
-      labels:
-        app: gke-hello-app
-    spec:
-      containers:
-      - name: hello-app
-        image: gcr.io/google-samples/hello-app:1.0
-        ports:
-        - containerPort: 8080
-        resources:
-          requests:
-            cpu: 100m
-          limits:
-            cpu: 100m
----
 apiVersion: v1
 kind: Service
 metadata:
-  name: gke-hello-app-service
+  name: gke-test-service
 spec:
   type: LoadBalancer
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: 5000
   selector:
-    app: gke-hello-app
+    app: gke-test

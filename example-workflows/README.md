@@ -7,13 +7,14 @@ update values to match your setup.
 
 ## Workflows
 
-|           Workflow              |        Description       |
-| ------------------------------- | ------------------------ |
-| [Google Kubernetes Engine](gke/)| Deploy a static site to an existing GKE cluster |
-| [Cloud Run](cloud-run/)         | Deploy a container to Cloud Run (Fully Managed)|
-| [Google Compute Engine](gce/)   | Deploy a container to a GCE VM |
-| [Cloud Build](cloud-build/)     | Build a container image using Cloud Build|
-| [App Engine](gae/)              | Deploy from source to App Engine |
+|           Workflow                        |        Description       |
+| ----------------------------------------- | ------------------------ |
+| [Google Kubernetes Engine](gke-kustomize/)| Build image and deploy a static site to an existing GKE cluster |
+| [Google Kubernetes Engine](gke/)          | Deploy a simple hello app to an existing GKE cluster |
+| [Cloud Run](cloud-run/)                   | Deploy a container to Cloud Run (Fully Managed)|
+| [Google Compute Engine](gce/)             | Deploy a container to a GCE VM |
+| [Cloud Build](cloud-build/)               | Build a container image using Cloud Build|
+| [App Engine](gae/)                        | Deploy from source to App Engine |
 
 ## Community Workflows
 

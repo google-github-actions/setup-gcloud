@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,14 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: gke-test-service
+  name: gke-test
 spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 5000
+  replicas: 1
   selector:
-    app: gke-test
+    matchLabels:
+      app: gke-test
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: gke-test
+    spec:
+      containers:
+      - name: gke-test
+        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 100m

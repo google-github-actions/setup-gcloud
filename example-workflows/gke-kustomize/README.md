@@ -73,6 +73,8 @@ For pushes to the `main` branch, this workflow will:
 1.  Update `.github/workflows/gke-kustomize.yml` to match the values corresponding to your
     VM:
 
+    - `GAR_LOCATION` - the region of your Artifact Registry repository
+
     - `GKE_CLUSTER` - the instance name of your cluster
 
     - `GKE_ZONE` - the zone your cluster resides

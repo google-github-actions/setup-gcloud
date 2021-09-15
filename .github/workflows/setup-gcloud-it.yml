@@ -3,7 +3,7 @@ name: setup-gcloud Integration
 on:
   push:
     branches:
-    - 'main'
+    - 'master'
     pull_request:
 
 jobs:

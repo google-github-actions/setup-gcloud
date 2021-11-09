@@ -29,7 +29,10 @@ function formatReleaseURL(os: string, arch: string, version: string): string {
   // massage the arch to match gcloud sdk conventions
   if (arch == 'x64') {
     arch = 'x86_64';
+  } else if(arch=='arm64'){
+    arch = 'arm';
   }
+
 
   let objectName: string;
   switch (os) {

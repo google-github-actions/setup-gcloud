@@ -17,6 +17,13 @@
 import * as httpm from 'typed-rest-client/HttpClient';
 import { retry } from '@lifeomic/attempt';
 
+// archMap is a mapping of how node detects an operating system to the
+// associated cloud sdk architecture value.
+const archMap: Record<string, string> = {
+  x64: 'x86_64',
+  arm64: 'arm',
+};
+
 /**
  * Formats the gcloud SDK release URL according to the specified arguments.
  *
@@ -27,8 +34,8 @@ import { retry } from '@lifeomic/attempt';
  */
 function formatReleaseURL(os: string, arch: string, version: string): string {
   // massage the arch to match gcloud sdk conventions
-  if (arch == 'x64') {
-    arch = 'x86_64';
+  if (archMap[arch]) {
+    arch = archMap[arch];
   }
 
   let objectName: string;

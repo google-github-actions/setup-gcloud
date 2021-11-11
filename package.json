@@ -31,7 +31,7 @@
     "@lifeomic/attempt": "^3.0.0",
     "semver": "^7.3.5",
     "tmp": "^0.2.1",
-    "typed-rest-client": "^1.8.5",
+    "typed-rest-client": "^1.8.6",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

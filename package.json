@@ -24,7 +24,7 @@
   "author": "GoogleCloudPlatform",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "^1.4.0",
+    "@actions/core": "^1.6.0",
     "@actions/exec": "^1.0.3",
     "@actions/io": "^1.1.1",
     "@actions/tool-cache": "^1.7.1",

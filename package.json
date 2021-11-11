@@ -30,7 +30,7 @@
     "@actions/tool-cache": "^1.7.1",
     "@lifeomic/attempt": "^3.0.0",
     "semver": "^7.3.5",
-    "tmp": "^0.1.0",
+    "tmp": "^0.2.1",
     "typed-rest-client": "^1.8.5",
     "uuid": "^8.3.2"
   },

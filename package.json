@@ -25,23 +25,15 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@actions/exec": "^1.0.3",
-    "@actions/io": "^1.1.1",
     "@actions/tool-cache": "^1.7.1",
     "@google-github-actions/setup-cloud-sdk": "^0.1.1",
-    "@lifeomic/attempt": "^3.0.0",
-    "semver": "^7.3.5",
-    "tmp": "^0.2.1",
-    "typed-rest-client": "^1.8.6",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.7.1",
-    "@types/semver": "^7.3.8",
     "@types/sinon": "^10.0.2",
-    "@types/tmp": "^0.2.2",
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",

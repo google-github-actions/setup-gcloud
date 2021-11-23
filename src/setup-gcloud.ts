@@ -95,10 +95,7 @@ export async function run(): Promise<void> {
       core.info('Successfully exported Default Application Credentials');
     }
   } catch (error) {
-    if (error instanceof Error) {
-      core.setFailed(error.message);
-    } else {
-      core.setFailed("'setup-gcloud' failed to be installed.");
-    }
+    const msg = error instanceof Error ? error.message : error;
+    core.setFailed(`'setup-gcloud' failed to be installed: ${msg}`);
   }
 }

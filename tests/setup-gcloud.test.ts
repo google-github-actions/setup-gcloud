@@ -23,13 +23,12 @@ import * as sinon from 'sinon';
 
 import os from 'os';
 import { promises as fs } from 'fs';
-import * as setupGcloud from '../setupGcloudSDK/dist/index';
+import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 
 import { run } from '../src/setup-gcloud';
 
-/* eslint-disable @typescript-eslint/camelcase */
 // These are mock data for github actions inputs, where camel case is expected.
 const fakeInputs: { [key: string]: string } = {
   version: '999',
@@ -38,7 +37,6 @@ const fakeInputs: { [key: string]: string } = {
   export_default_credentials: 'false',
   credentials_file_path: '/creds',
 };
-/* eslint-enable @typescript-eslint/camelcase */
 
 function getInputMock(name: string): string {
   return fakeInputs[name];

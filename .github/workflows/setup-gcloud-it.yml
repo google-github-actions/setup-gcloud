@@ -161,5 +161,6 @@ jobs:
       - name: Verify install
         shell: bash
         run: |-
+          gcloud components list
           gcloud components list --format list | grep "\[ Installed \]\tgcloud Alpha"
           gcloud components list --format list | grep "\[ Installed \]\tgcloud Beta"

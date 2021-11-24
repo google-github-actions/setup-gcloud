@@ -23,6 +23,7 @@ import {
   setProject,
   authenticateGcloudSDK,
   parseServiceAccountKey,
+  installComponent
 } from '@google-github-actions/setup-cloud-sdk';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -46,6 +47,12 @@ export async function run(): Promise<void> {
       const toolPath = toolCache.find('gcloud', version);
       core.addPath(path.join(toolPath, 'bin'));
     }
+
+    // Install additional components
+    const components = core.getInput('install_components').split(",");
+    components.forEach(component => {
+      installComponent(component.trim());
+    })
 
     // Set the project ID, if given.
     const projectId = core.getInput('project_id');

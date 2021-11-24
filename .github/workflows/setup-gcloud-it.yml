@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - 'master'
-    pull_request:
+  pull_request:
 
 jobs:
   versioned:
@@ -136,3 +136,30 @@ jobs:
       - name: Verify project
         shell: bash
         run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+
+  components:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: setup-gcloud with configured project
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - id: build
+        name: Build dist
+        run: |-
+          npm install
+          npm run build
+      - name: setup-gcloud
+        uses: ./
+        with:
+          project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+          install_components: alpha, beta
+
+      - name: Verify install
+        shell: bash
+        run: |-
+          gcloud components list --format list | grep "\[ Installed \]\tgcloud Alpha"
+          gcloud components list --format list | grep "\[ Installed \]\tgcloud Beta"

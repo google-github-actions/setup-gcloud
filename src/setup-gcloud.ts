@@ -16,7 +16,14 @@
 
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
-import * as setupGcloud from '../setupGcloudSDK/dist/index';
+import {
+  getLatestGcloudSDKVersion,
+  isInstalled,
+  installGcloudSDK,
+  setProject,
+  authenticateGcloudSDK,
+  parseServiceAccountKey,
+} from '@google-github-actions/setup-cloud-sdk';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -29,12 +36,12 @@ export async function run(): Promise<void> {
   try {
     let version = core.getInput('version');
     if (!version || version == 'latest') {
-      version = await setupGcloud.getLatestGcloudSDKVersion();
+      version = await getLatestGcloudSDKVersion();
     }
 
     // Install the gcloud if not already present
-    if (!setupGcloud.isInstalled(version)) {
-      await setupGcloud.installGcloudSDK(version);
+    if (!isInstalled(version)) {
+      await installGcloudSDK(version);
     } else {
       const toolPath = toolCache.find('gcloud', version);
       core.addPath(path.join(toolPath, 'bin'));
@@ -43,7 +50,7 @@ export async function run(): Promise<void> {
     // Set the project ID, if given.
     const projectId = core.getInput('project_id');
     if (projectId) {
-      await setupGcloud.setProject(projectId);
+      await setProject(projectId);
       core.info('Successfully set default project');
     }
 
@@ -53,7 +60,7 @@ export async function run(): Promise<void> {
       core.info('No credentials provided, skipping authentication');
       return;
     } else {
-      await setupGcloud.authenticateGcloudSDK(serviceAccountKey);
+      await authenticateGcloudSDK(serviceAccountKey);
     }
 
     // Export credentials if requested - these credentials must be exported in
@@ -74,9 +81,7 @@ export async function run(): Promise<void> {
         credsPath = path.join(credsDir, uuidv4());
       }
 
-      const serviceAccountKeyObj = setupGcloud.parseServiceAccountKey(
-        serviceAccountKey,
-      );
+      const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
 
       await fs.writeFile(
         credsPath,
@@ -90,6 +95,7 @@ export async function run(): Promise<void> {
       core.info('Successfully exported Default Application Credentials');
     }
   } catch (error) {
-    core.setFailed(error.message);
+    const msg = error instanceof Error ? error.message : error;
+    core.setFailed(`'setup-gcloud' failed to be installed: ${msg}`);
   }
 }

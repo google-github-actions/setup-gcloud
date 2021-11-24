@@ -23,13 +23,12 @@ import * as sinon from 'sinon';
 
 import os from 'os';
 import { promises as fs } from 'fs';
-import * as setupGcloud from '../setupGcloudSDK/dist/index';
+import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 
 import { run } from '../src/setup-gcloud';
 
-/* eslint-disable @typescript-eslint/camelcase */
 // These are mock data for github actions inputs, where camel case is expected.
 const fakeInputs: { [key: string]: string } = {
   version: '999',
@@ -38,14 +37,13 @@ const fakeInputs: { [key: string]: string } = {
   export_default_credentials: 'false',
   credentials_file_path: '/creds',
 };
-/* eslint-enable @typescript-eslint/camelcase */
 
 function getInputMock(name: string): string {
   return fakeInputs[name];
 }
 
-describe('#run', function() {
-  beforeEach(async function() {
+describe('#run', function () {
+  beforeEach(async function () {
     this.stubs = {
       getInput: sinon.stub(core, 'getInput').callsFake(getInputMock),
       exportVariable: sinon.stub(core, 'exportVariable'),
@@ -61,11 +59,11 @@ describe('#run', function() {
     };
   });
 
-  afterEach(function() {
+  afterEach(function () {
     Object.keys(this.stubs).forEach((k) => this.stubs[k].restore());
   });
 
-  it('downloads the latest gcloud SDK if version is not provided', async function() {
+  it('downloads the latest gcloud SDK if version is not provided', async function () {
     this.stubs.getInput.withArgs('version').returns('');
     await run();
     // getLatestGcloudSDKVersion is implemented as a getter on on exports and so stubbing doesn't work.
@@ -76,7 +74,7 @@ describe('#run', function() {
     ).to.eq(1);
   });
 
-  it('downloads the latest gcloud SDK if version is "latest"', async function() {
+  it('downloads the latest gcloud SDK if version is "latest"', async function () {
     this.stubs.getInput.withArgs('version').returns('latest');
     await run();
     expect(
@@ -85,20 +83,20 @@ describe('#run', function() {
     ).to.eq(1);
   });
 
-  it('doesnt download the SDK if version is provided', async function() {
+  it('doesnt download the SDK if version is provided', async function () {
     this.stubs.getInput.withArgs('version').returns('999');
     await run();
     expect(this.stubs.installGcloudSDK.withArgs('999').callCount).to.eq(1);
   });
 
-  it('installs the gcloud SDK if it is not already installed', async function() {
+  it('installs the gcloud SDK if it is not already installed', async function () {
     this.stubs.isInstalled.returns(false);
     this.stubs.getInput.withArgs('version').returns('888');
     await run();
     expect(this.stubs.installGcloudSDK.withArgs('888').callCount).to.eq(1);
   });
 
-  it('uses the cached gcloud SDK if it was already installed', async function() {
+  it('uses the cached gcloud SDK if it was already installed', async function () {
     this.stubs.isInstalled.returns(true);
     this.stubs.getInput.withArgs('version').returns('777');
     await run();
@@ -107,19 +105,19 @@ describe('#run', function() {
     );
   });
 
-  it('sets the project ID if provided', async function() {
+  it('sets the project ID if provided', async function () {
     this.stubs.getInput.withArgs('project_id').returns('test');
     await run();
     expect(this.stubs.setProject.withArgs('test').callCount).to.eq(1);
   });
 
-  it('does not set the project ID if not provided', async function() {
+  it('does not set the project ID if not provided', async function () {
     this.stubs.getInput.withArgs('project_id').returns('');
     await run();
     expect(this.stubs.setProject.callCount).to.eq(0);
   });
 
-  it('does not run any authentication functions if key not provided', async function() {
+  it('does not run any authentication functions if key not provided', async function () {
     this.stubs.getInput.withArgs('service_account_key').returns('');
     await run();
     expect(this.stubs.authenticateGcloudSDK.callCount).to.eq(0);
@@ -129,13 +127,13 @@ describe('#run', function() {
     ).to.eq(0);
   });
 
-  it('authenticates if key is provided', async function() {
+  it('authenticates if key is provided', async function () {
     this.stubs.getInput.withArgs('service_account_key').returns('key');
     await run();
     expect(this.stubs.authenticateGcloudSDK.withArgs('key').callCount).to.eq(1);
   });
 
-  it('writes default credentials to disk and exports the path if export_default_credentials=true', async function() {
+  it('writes default credentials to disk and exports the path if export_default_credentials=true', async function () {
     this.stubs.env.value({ GITHUB_WORKSPACE: '/usr/workspace' });
     this.stubs.getInput.withArgs('export_default_credentials').returns('true');
     this.stubs.getInput.withArgs('credentials_file_path').returns('');
@@ -167,7 +165,7 @@ describe('#run', function() {
     ).to.eq(1);
   });
 
-  it('works if export_default_credentials is a boolean', async function() {
+  it('works if export_default_credentials is a boolean', async function () {
     this.stubs.getInput.withArgs('export_default_credentials').returns(true);
     this.stubs.getInput.withArgs('credentials_file_path').returns('/');
     this.stubs.getInput.withArgs('service_account_key').returns('key');
@@ -177,7 +175,7 @@ describe('#run', function() {
     expect(this.stubs.writeFile.callCount).to.eq(1);
   });
 
-  it('works if export_default_credentials is all caps', async function() {
+  it('works if export_default_credentials is all caps', async function () {
     this.stubs.getInput.withArgs('export_default_credentials').returns('TRUE');
     this.stubs.getInput.withArgs('credentials_file_path').returns('/');
     this.stubs.getInput.withArgs('service_account_key').returns('key');
@@ -187,7 +185,7 @@ describe('#run', function() {
     expect(this.stubs.writeFile.callCount).to.eq(1);
   });
 
-  it('writes credentials to the given path if provided', async function() {
+  it('writes credentials to the given path if provided', async function () {
     this.stubs.getInput.withArgs('export_default_credentials').returns('true');
     this.stubs.getInput.withArgs('credentials_file_path').returns('/usr/creds');
 
@@ -202,7 +200,7 @@ describe('#run', function() {
     ).to.eq(1);
   });
 
-  it('throws an error if credentials_file_path is not provided and GITHUB_WORKSPACE is not set', async function() {
+  it('throws an error if credentials_file_path is not provided and GITHUB_WORKSPACE is not set', async function () {
     this.stubs.getInput.withArgs('export_default_credentials').returns('true');
     this.stubs.getInput.withArgs('credentials_file_path').returns('');
     await run();

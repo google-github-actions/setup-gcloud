@@ -115,7 +115,7 @@ describe('#run', function () {
   it('installs additional components', async function () {
     this.stubs.getInput.withArgs('install_components').returns('beta, alpha');
     await run();
-    expect(this.stubs.installComponent.callCount).to.eq(2);
+    expect(this.stubs.installComponent.callCount).to.eq(1);
   });
 
   it('sets the project ID if provided', async function () {

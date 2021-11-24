@@ -162,5 +162,9 @@ jobs:
         shell: bash
         run: |-
           gcloud components list
-          gcloud components list --format list | grep "\[ Installed \]\tgcloud Alpha"
-          gcloud components list --format list | grep "\[ Installed \]\tgcloud Beta"
+          if [[ $(gcloud components list --filter=name:alpha --format="value(Status)" | grep Not) -eq 1 ]]; then
+            exit 1;
+          fi
+          if [[ $(gcloud components list --filter=name:beta --format="value(Status)" | grep Not) -eq 1 ]]; then
+            exit 1;
+          fi

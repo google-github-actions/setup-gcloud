@@ -18,7 +18,6 @@ module.exports = {
   arrowParens: 'always',
   bracketSpacing: true,
   endOfLine: 'auto',
-  jsxBracketSameLine: true,
   jsxSingleQuote: true,
   printWidth: 80,
   quoteProps: 'consistent',

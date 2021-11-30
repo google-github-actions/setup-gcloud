@@ -21,7 +21,7 @@
       "es6"
     ],
     "outDir": "./dist",
-    "rootDirs": ["./src"],
+    "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true

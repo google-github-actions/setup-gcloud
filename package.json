@@ -26,15 +26,13 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/tool-cache": "^1.7.1",
-    "@google-github-actions/setup-cloud-sdk": "^0.2.0",
-    "uuid": "^8.3.2"
+    "@google-github-actions/setup-cloud-sdk": "^0.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.7.1",
     "@types/sinon": "^10.0.2",
-    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@zeit/ncc": "^0.22.3",

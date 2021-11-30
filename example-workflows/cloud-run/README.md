@@ -32,7 +32,7 @@ For pushes to the `example` branch, this workflow will:
 
 1. [Enable the Cloud Run API](https://console.cloud.google.com/flows/enableapi?apiid=run.googleapis.com).
 
-1.  [Create a Google Cloud service account][sa] or select an existing one.
+1.  [Create a Google Cloud service account][create-sa] or select an existing one.
 
 1.  Add the the following [Cloud IAM roles][roles] to your service account:
 

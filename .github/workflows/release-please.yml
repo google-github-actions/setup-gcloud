@@ -9,12 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: git pull
-      - name: install
-        run: npm install
-      - name: build
-        run: npm run build
+      - uses: 'actions/checkout@v2'
+        with:
+          fetch-depth: '0'
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
+      - name: 'npm ci'
+        run: 'npm ci'
+      - name: 'npm build'
+        run: 'npm run build'
       - name: commit
         run: |-
           set -e

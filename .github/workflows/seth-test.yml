@@ -1,0 +1,51 @@
+name: seth-test
+
+on:
+  push:
+    branches:
+    - 'master'
+  pull_request:
+    branches:
+    - 'master'
+
+concurrency:
+  group: '${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: 'test'
+    runs-on: 'ubuntu-latest'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Cloud SDK
+      uses: ./
+      with:
+        project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+        export_default_credentials: true
+
+    - name: ADC
+      run: |-
+        echo $GOOGLE_APPLICATION_CREDENTIALS
+        file $GOOGLE_APPLICATION_CREDENTIALS
+
+
+    # - name: Bucket creation DEV
+    #   shell: bash
+    #   run: |
+    #     gsutil ls -b gs://${{ secrets.GCP_PROJECT_NAME}} || (gcloud services enable storage-api.googleapis.com && gsutil mb gs://${{ secrets.GCP_PROJECT_NAME}} && gsutil versioning set on gs://${{ secrets.GCP_PROJECT_NAME}} )
+
+    # - name: plan-dev
+    #   uses: dflook/terraform-plan@v1
+    #   env:
+    #     GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+    #     TERRAFORM_HTTP_CREDENTIALS: |
+    #       github.com/ebomart=${{ secrets.CI_USER}}:${{ secrets.CI_TOKEN}}
+    #   with:
+    #     path: ./
+    #     var_file: environment/dev/variables.tfvars
+    #     label: dev
+    #     backend_config_file: environment/dev/gcs-bucket.tfvars

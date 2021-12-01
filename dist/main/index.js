@@ -10660,6 +10660,21 @@ exports.debug = debug; // for test
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -14432,8 +14447,8 @@ function run() {
                     // because GITHUB_WORKSPACE is not automatically cleaned up on
                     // self-hosted runners. To mitigate this issue, this action defines a
                     // post step to remove any created credentials.
-                    const runnerTempDir = process.env.GITHUB_WORKSPACE;
-                    if (!runnerTempDir) {
+                    const githubWorkspace = process.env.GITHUB_WORKSPACE;
+                    if (!githubWorkspace) {
                         throw new Error('$GITHUB_WORKSPACE is not set');
                     }
                     // Generate a random filename to store the credential. 12 bytes is 24
@@ -14441,7 +14456,7 @@ function run() {
                     // the 255 character limit for Windows filenames (which includes their
                     // entire leading path).
                     const uniqueName = crypto_1.default.randomBytes(12).toString('hex');
-                    credsPath = path_1.default.join(runnerTempDir, uniqueName);
+                    credsPath = path_1.default.join(githubWorkspace, uniqueName);
                 }
                 const serviceAccountKeyObj = (0, setup_cloud_sdk_1.parseServiceAccountKey)(serviceAccountKey);
                 yield (0, utils_1.writeSecureFile)(credsPath, JSON.stringify(serviceAccountKeyObj, null, 2));

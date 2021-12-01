@@ -133,8 +133,8 @@ describe('#run', function () {
     expect(this.stubs.authenticateGcloudSDK.withArgs('key').callCount).to.eq(1);
   });
 
-  it('writes default credentials to RUNNER_TEMP if export_default_credentials is true', async function () {
-    this.stubs.env.value({ RUNNER_TEMP: os.tmpdir() });
+  it('writes default credentials to GITHUB_WORKSPACE if export_default_credentials is true', async function () {
+    this.stubs.env.value({ GITHUB_WORKSPACE: os.tmpdir() });
     this.stubs.getBooleanInput
       .withArgs('export_default_credentials')
       .returns(true);
@@ -169,7 +169,7 @@ describe('#run', function () {
     ).to.eq(1);
   });
 
-  it('throws an error if credentials_file_path is not provided and RUNNER_TEMP is not set', async function () {
+  it('throws an error if credentials_file_path is not provided and GITHUB_WORKSPACE is not set', async function () {
     this.stubs.getBooleanInput
       .withArgs('export_default_credentials')
       .returns('true');

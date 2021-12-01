@@ -2,9 +2,9 @@
   "name": "setup-gcloud",
   "version": "0.2.1",
   "description": "Setup gcloud GitHub action",
-  "main": "dist/index.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts",
+    "build": "ncc build src/main.ts -o dist/main && ncc build src/post.ts -o dist/post",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'",
     "format": "prettier --write **/*.ts"

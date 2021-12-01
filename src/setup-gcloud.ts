@@ -24,30 +24,12 @@ import {
   authenticateGcloudSDK,
   parseServiceAccountKey,
 } from '@google-github-actions/setup-cloud-sdk';
-import { promises as fs } from 'fs';
+import { writeSecureFile } from './utils';
 import path from 'path';
 import crypto from 'crypto';
 
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
-
-/**
- * writeSecureFile writes a file to disk in a given directory with a
- * random name.
- *
- * @param outputPath Path in which to create random file in.
- * @param data Data to write to file.
- * @returns Path to written file.
- */
-export async function writeSecureFile(
-  outputPath: string,
-  data: string,
-): Promise<string> {
-  // Write the file as 0640 so the owner has RW, group as R, and the file is
-  // otherwise unreadable. Also write with EXCL to prevent a symlink attack.
-  await fs.writeFile(outputPath, data, { mode: 0o640, flag: 'wx' });
-  return outputPath;
-}
 
 export async function run(): Promise<void> {
   core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
@@ -87,9 +69,19 @@ export async function run(): Promise<void> {
     if (exportCreds) {
       let credsPath = core.getInput('credentials_file_path');
       if (!credsPath) {
-        const runnerTempDir = process.env.RUNNER_TEMP;
-        if (!runnerTempDir) {
-          throw new Error('$RUNNER_TEMP is not set');
+        // Note: We explicitly and intentionally export to GITHUB_WORKSPACE
+        // instead of RUNNER_TEMP, because RUNNER_TEMP is not shared with
+        // Docker-based actions on the filesystem. Exporting to GITHUB_WORKSPACE
+        // ensures that the exported credentials are automatically available to
+        // Docker-based actions without user modification.
+        //
+        // This has the unintended side-effect of leaking credentials over time,
+        // because GITHUB_WORKSPACE is not automatically cleaned up on
+        // self-hosted runners. To mitigate this issue, this action defines a
+        // post step to remove any created credentials.
+        const githubWorkspace = process.env.GITHUB_WORKSPACE;
+        if (!githubWorkspace) {
+          throw new Error('$GITHUB_WORKSPACE is not set');
         }
 
         // Generate a random filename to store the credential. 12 bytes is 24
@@ -97,7 +89,7 @@ export async function run(): Promise<void> {
         // the 255 character limit for Windows filenames (which includes their
         // entire leading path).
         const uniqueName = crypto.randomBytes(12).toString('hex');
-        credsPath = path.join(runnerTempDir, uniqueName);
+        credsPath = path.join(githubWorkspace, uniqueName);
       }
 
       const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
@@ -112,6 +104,7 @@ export async function run(): Promise<void> {
         projectId ? projectId : serviceAccountKeyObj.project_id,
       );
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
+      core.exportVariable('GOOGLE_GHA_CREDS_PATH', credsPath);
       core.info('Successfully exported Default Application Credentials');
     }
   } catch (error) {

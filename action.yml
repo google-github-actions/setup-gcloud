@@ -68,6 +68,14 @@ inputs:
     default: null
     required: false
 
+  cleanup_credentials:
+    description: |-
+      If true, the action will remove any generated credentials from the
+      filesystem upon completion.
+    default: true
+    required: false
+
 runs:
-  using: node12
-  main: dist/index.js
+  using: 'node12'
+  main: 'dist/main/index.js'
+  post: 'dist/post/index.js'

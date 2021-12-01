@@ -79,8 +79,8 @@ export async function run(): Promise<void> {
         // because GITHUB_WORKSPACE is not automatically cleaned up on
         // self-hosted runners. To mitigate this issue, this action defines a
         // post step to remove any created credentials.
-        const runnerTempDir = process.env.GITHUB_WORKSPACE;
-        if (!runnerTempDir) {
+        const githubWorkspace = process.env.GITHUB_WORKSPACE;
+        if (!githubWorkspace) {
           throw new Error('$GITHUB_WORKSPACE is not set');
         }
 
@@ -89,7 +89,7 @@ export async function run(): Promise<void> {
         // the 255 character limit for Windows filenames (which includes their
         // entire leading path).
         const uniqueName = crypto.randomBytes(12).toString('hex');
-        credsPath = path.join(runnerTempDir, uniqueName);
+        credsPath = path.join(githubWorkspace, uniqueName);
       }
 
       const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);

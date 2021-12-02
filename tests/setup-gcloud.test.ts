@@ -34,7 +34,6 @@ const fakeInputs: { [key: string]: string } = {
   version: '999',
   project_id: 'test',
   service_account_key: 'abc',
-  export_default_credentials: 'false',
   credentials_file_path: '/creds',
 };
 
@@ -46,6 +45,7 @@ describe('#run', function () {
   beforeEach(async function () {
     this.stubs = {
       getInput: sinon.stub(core, 'getInput').callsFake(getInputMock),
+      getBooleanInput: sinon.stub(core, 'getBooleanInput').returns(false),
       exportVariable: sinon.stub(core, 'exportVariable'),
       setFailed: sinon.stub(core, 'setFailed'),
       installGcloudSDK: sinon.stub(setupGcloud, 'installGcloudSDK'),
@@ -146,60 +146,29 @@ describe('#run', function () {
     expect(this.stubs.authenticateGcloudSDK.withArgs('key').callCount).to.eq(1);
   });
 
-  it('writes default credentials to disk and exports the path if export_default_credentials=true', async function () {
-    this.stubs.env.value({ GITHUB_WORKSPACE: '/usr/workspace' });
-    this.stubs.getInput.withArgs('export_default_credentials').returns('true');
-    this.stubs.getInput.withArgs('credentials_file_path').returns('');
-    this.stubs.getInput.withArgs('service_account_key').returns('key');
-    this.stubs.parseServiceAccountKey.withArgs('key').returns({ json: true });
+  it('writes default credentials to GITHUB_WORKSPACE if export_default_credentials is true', async function () {
+    this.stubs.env.value({ GITHUB_WORKSPACE: os.tmpdir() });
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
+    this.stubs.getInput
+      .withArgs('service_account_key')
+      .returns('{"json":"key"}');
 
     await run();
 
-    expect(this.stubs.parseServiceAccountKey.withArgs('key').callCount).to.eq(
-      1,
-    );
-
-    let expectedPath;
-    if (os.platform() === 'win32') {
-      expectedPath = sinon.match('\\usr\\workspace');
-    } else {
-      expectedPath = sinon.match('/usr/workspace');
-    }
-
-    expect(
-      this.stubs.writeFile.withArgs(expectedPath, sinon.match.string).callCount,
-    ).to.eq(1);
-
-    expect(
-      this.stubs.exportVariable.withArgs(
-        'GOOGLE_APPLICATION_CREDENTIALS',
-        expectedPath,
-      ).callCount,
-    ).to.eq(1);
-  });
-
-  it('works if export_default_credentials is a boolean', async function () {
-    this.stubs.getInput.withArgs('export_default_credentials').returns(true);
-    this.stubs.getInput.withArgs('credentials_file_path').returns('/');
-    this.stubs.getInput.withArgs('service_account_key').returns('key');
-
-    await run();
-
+    expect(this.stubs.parseServiceAccountKey.callCount).to.eq(1);
     expect(this.stubs.writeFile.callCount).to.eq(1);
-  });
-
-  it('works if export_default_credentials is all caps', async function () {
-    this.stubs.getInput.withArgs('export_default_credentials').returns('TRUE');
-    this.stubs.getInput.withArgs('credentials_file_path').returns('/');
-    this.stubs.getInput.withArgs('service_account_key').returns('key');
-
-    await run();
-
-    expect(this.stubs.writeFile.callCount).to.eq(1);
+    expect(
+      this.stubs.exportVariable.withArgs('GOOGLE_APPLICATION_CREDENTIALS')
+        .callCount,
+    ).to.eq(1);
   });
 
   it('writes credentials to the given path if provided', async function () {
-    this.stubs.getInput.withArgs('export_default_credentials').returns('true');
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
     this.stubs.getInput.withArgs('credentials_file_path').returns('/usr/creds');
 
     await run();
@@ -214,7 +183,9 @@ describe('#run', function () {
   });
 
   it('throws an error if credentials_file_path is not provided and GITHUB_WORKSPACE is not set', async function () {
-    this.stubs.getInput.withArgs('export_default_credentials').returns('true');
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns('true');
     this.stubs.getInput.withArgs('credentials_file_path').returns('');
     await run();
     expect(this.stubs.setFailed.callCount).to.eq(1);

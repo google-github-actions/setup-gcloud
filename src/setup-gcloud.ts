@@ -26,9 +26,9 @@ import {
   runCmdWithJsonFormat,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
-import { promises as fs } from 'fs';
+import { writeSecureFile } from './utils';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
@@ -74,39 +74,52 @@ export async function run(): Promise<void> {
       await authenticateGcloudSDK(serviceAccountKey);
     }
 
-    // Export credentials if requested - these credentials must be exported in
-    // the shared workspace directory, since the filesystem must be shared among
-    // all steps.
-    const exportCreds = core.getInput('export_default_credentials');
-    if (String(exportCreds).toLowerCase() === 'true') {
+    // Export credentials if requested - these credentials are exported in the
+    // shared temp directory, so the filesystem is available among all steps.
+    const exportCreds = core.getBooleanInput('export_default_credentials');
+    if (exportCreds) {
       let credsPath = core.getInput('credentials_file_path');
-
       if (!credsPath) {
-        const credsDir = process.env.GITHUB_WORKSPACE;
-        if (!credsDir) {
-          throw new Error(
-            'No path for credentials. Set credentials_file_path or process.env.GITHUB_WORKSPACE',
-          );
+        // Note: We explicitly and intentionally export to GITHUB_WORKSPACE
+        // instead of RUNNER_TEMP, because RUNNER_TEMP is not shared with
+        // Docker-based actions on the filesystem. Exporting to GITHUB_WORKSPACE
+        // ensures that the exported credentials are automatically available to
+        // Docker-based actions without user modification.
+        //
+        // This has the unintended side-effect of leaking credentials over time,
+        // because GITHUB_WORKSPACE is not automatically cleaned up on
+        // self-hosted runners. To mitigate this issue, this action defines a
+        // post step to remove any created credentials.
+        const githubWorkspace = process.env.GITHUB_WORKSPACE;
+        if (!githubWorkspace) {
+          throw new Error('$GITHUB_WORKSPACE is not set');
         }
 
-        credsPath = path.join(credsDir, uuidv4());
+        // Generate a random filename to store the credential. 12 bytes is 24
+        // characters in hex. It's not the ideal entropy, but we have to be under
+        // the 255 character limit for Windows filenames (which includes their
+        // entire leading path).
+        const uniqueName = crypto.randomBytes(12).toString('hex');
+        credsPath = path.join(githubWorkspace, uniqueName);
       }
 
       const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
-
-      await fs.writeFile(
+      await writeSecureFile(
         credsPath,
         JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
       );
+
+      // If projectId is set export it, else export projectId from SA
       core.exportVariable(
         'GCLOUD_PROJECT',
         projectId ? projectId : serviceAccountKeyObj.project_id,
-      ); // If projectId is set export it, else export projectId from SA
+      );
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
+      core.exportVariable('GOOGLE_GHA_CREDS_PATH', credsPath);
       core.info('Successfully exported Default Application Credentials');
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : error;
-    core.setFailed(`'setup-gcloud' failed to be installed: ${msg}`);
+    core.setFailed(`google-github-actions/setup-gcloud failed with: ${msg}`);
   }
 }

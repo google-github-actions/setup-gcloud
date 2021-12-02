@@ -5,6 +5,12 @@ on:
     branches:
     - 'master'
   pull_request:
+    branches:
+    - 'master'
+
+concurrency:
+  group: '${{github.workflow}}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
 
 jobs:
   versioned:
@@ -168,3 +174,39 @@ jobs:
           if [[ $(gcloud components list --filter=name:beta --format="value(Status)" | grep Not) -eq 1 ]]; then
             exit 1;
           fi
+
+  # This test ensures that the GOOGLE_APPLICATION_CREDENTIALS environment
+  # variable is shared with the container and that the path of the file is on
+  # the shared filesystem with the container and that the USER for the container
+  # has permissions to read the file.
+  docker:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: 'setup-gcloud with docker-based steps'
+    runs-on: 'ubuntu-latest'
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: 'actions/checkout@v2'
+
+    - uses: 'actions/setup-node@v2'
+      with:
+        node-version: '12.x'
+
+    - name: 'npm ci'
+      run: 'npm ci'
+
+    - name: 'npm build'
+      run: 'npm run build'
+
+    - name: 'setup-gcloud'
+      uses: './'
+      with:
+        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+        export_default_credentials: true
+
+    - name: 'docker'
+      uses: 'docker://alpine:3'
+      with:
+        entrypoint: '/bin/sh'
+        args: '-euc "test -n "${GOOGLE_APPLICATION_CREDENTIALS}" && test -r "${GOOGLE_APPLICATION_CREDENTIALS}"'
+

@@ -2,9 +2,9 @@
   "name": "setup-gcloud",
   "version": "0.2.1",
   "description": "Setup gcloud GitHub action",
-  "main": "dist/index.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts",
+    "build": "ncc build src/main.ts -o dist/main && ncc build src/post.ts -o dist/post",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'",
     "format": "prettier --write **/*.ts"
@@ -26,15 +26,13 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/tool-cache": "^1.7.1",
-    "@google-github-actions/setup-cloud-sdk": "^0.1.1",
-    "uuid": "^8.3.2"
+    "@google-github-actions/setup-cloud-sdk": "^0.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.7.1",
     "@types/sinon": "^10.0.2",
-    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@zeit/ncc": "^0.22.3",
@@ -43,7 +41,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^9.1.3",
-    "prettier": "^2.4.1",
+    "prettier": "^2.5.0",
     "sinon": "^12.0.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2"

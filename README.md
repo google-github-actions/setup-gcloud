@@ -28,7 +28,7 @@ Or integrate natively with other Google Cloud GitHub Actions:
 
 ## 📢 NOTICE
 
-**Previously this repository contained the code for ALL of the GCP GithHub Actions. Now each 
+**Previously this repository contained the code for ALL of the GCP GithHub Actions. Now each
 action has it's own repo and this repo is only for setup-gcloud**
 
 ### Use google-github-actions/setup-gcloud
@@ -77,7 +77,8 @@ steps:
 | `service_account_key`   | _optional_  | | The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
 | `service_account_email` | _optional_  | | Service account email address to use for authentication. This is required for legacy .p12 keys but can be omitted for JSON keys. This is usually of the format `<name>@<project-id>.iam.gserviceaccount.com`. |
 | `export_default_credentials`| _optional_  |`false`| Exports the path to [Default Application Credentials][dac] as the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to be available in later steps. Google Cloud services automatically use this environment variable to find credentials. |
-| `credentials_file_path`     | _optional_  | `GITHUB_WORKSPACE` | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
+| `credentials_file_path`     | _optional_  | (temporary file) | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
+| `cleanup_credentials` | _optional_ | `true` | If true, the action will remove any generated credentials from the filesystem upon completion. |
 
 
 ## Example Workflows
@@ -92,6 +93,12 @@ steps:
 code to [App Engine](https://cloud.google.com/appengine), a fully managed serverless platform.
 
 * [Cloud Build](./example-workflows/cloud-build/README.md): An example workflow that uses GitHub Actions to build a container image with [Cloud Build](https://cloud.google.com/cloud-build).
+
+
+## Sharing Credentials
+
+If `export_default_credentials` is true, this GitHub Action will automatically export the credentials to be available in future steps in the job. By default, the credentials are exported into `$GITHUB_WORKSPACE` which is available to all steps in the job. The file is automatically deleted when jobs finish, regardless of their status.
+
 
 ## Contributing
 

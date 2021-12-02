@@ -58,8 +58,8 @@ export async function run(): Promise<void> {
     // If a service account key is provided, add warning to use google-github-actions/auth
     if (serviceAccountKey) {
       core.warning(
-        '"serviceAccountKey" input has been deprecated. ' +
-          'Please switch to using google-github-actions/auth which supports both Workload Identity Federation and JSON Key authentication. ' +
+        '"service_account_key" has been deprecated. ' +
+          'Please switch to using google-github-actions/auth which supports both Workload Identity Federation and Service Account Key JSON authentication. ' +
           'For more details, see https://github.com/google-github-actions/setup-gcloud#authorization',
       );
     }

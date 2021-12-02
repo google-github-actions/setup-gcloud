@@ -219,7 +219,7 @@ jobs:
         run: |-
           gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
 
-  auth-key:
+  credentials_json:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'with key and auth action'
     runs-on: '${{ matrix.os }}'

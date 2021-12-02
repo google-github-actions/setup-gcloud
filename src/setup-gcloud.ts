@@ -66,12 +66,20 @@ export async function run(): Promise<void> {
     }
 
     const serviceAccountKey = core.getInput('service_account_key');
-    // If a service account key isn't provided, log an un-authenticated notice
-    if (!serviceAccountKey) {
-      core.info('No credentials provided, skipping authentication');
-      return;
-    } else {
+    // If a service account key is provided, add warning to use google-github-actions/auth
+    if (serviceAccountKey) {
+      core.warning(
+        '"service_account_key" has been deprecated. ' +
+          'Please switch to using google-github-actions/auth which supports both Workload Identity Federation and Service Account Key JSON authentication. ' +
+          'For more details, see https://github.com/google-github-actions/setup-gcloud#authorization',
+      );
+    }
+
+    // Either serviceAccountKey or GOOGLE_GHA_CREDS_PATH env var required
+    if (serviceAccountKey || process.env.GOOGLE_GHA_CREDS_PATH) {
       await authenticateGcloudSDK(serviceAccountKey);
+    } else {
+      core.info('No credentials detected, skipping authentication');
     }
 
     // Export credentials if requested - these credentials are exported in the

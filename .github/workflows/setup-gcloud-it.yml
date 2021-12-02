@@ -210,3 +210,81 @@ jobs:
         entrypoint: '/bin/sh'
         args: '-euc "test -n "${GOOGLE_APPLICATION_CREDENTIALS}" && test -r "${GOOGLE_APPLICATION_CREDENTIALS}"'
 
+  wif:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: 'with wif'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - 'ubuntu-latest'
+        - 'windows-latest'
+        - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
+
+      - id: build
+        name: Build dist
+        run: |-
+          npm ci
+          npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
+      - name: 'setup-gcloud'
+        uses: './'
+      
+      - id: 'gcloud'
+        shell: 'bash'
+        run: |-
+          gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
+
+  credentials_json:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: 'with key and auth action'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - 'ubuntu-latest'
+        - 'windows-latest'
+        - 'macos-latest'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
+
+      - id: build
+        name: Build dist
+        run: |-
+          npm ci
+          npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          credentials_json: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+      - name: 'setup-gcloud'
+        uses: './'
+      
+      - id: 'gcloud'
+        shell: 'bash'
+        run: |-
+          gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
+

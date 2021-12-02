@@ -57,12 +57,14 @@ steps:
 ## Usage
 
 ```yaml
-- name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@master
+- id: auth
+  uses: google-github-actions/auth@v0.4.1
   with:
-    project_id: ${{ secrets.GCP_PROJECT_ID }}
-    service_account_key: ${{ secrets.GCP_SA_KEY }}
-    export_default_credentials: true
+    workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+    service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+
+- name: Set up Cloud SDK
+  uses: google-github-actions/setup-gcloud@v0.2.1
 
 - name: Use gcloud CLI
   run: gcloud info
@@ -74,7 +76,7 @@ steps:
 | ------------- | ----------- | ------- | ----------- |
 | `version`     | _optional_  | `latest`| The version of the `gcloud` to be installed. Example: `290.0.1`|
 | `project_id`  | _optional_  | | ID of the Google Cloud Platform project. If provided, this will configure `gcloud` to use this project ID by default for commands. Individual commands can still override the project using the `--project` flag which takes precedence. |
-| `service_account_key`   | _optional_  | | The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
+| `service_account_key`   | _optional_  | | (**Deprecated**) This input is deprecated. See [auth section](https://github.com/google-github-actions/setup-gcloud#via-google-github-actionsauth) for more details. The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
 | `service_account_email` | _optional_  | | Service account email address to use for authentication. This is required for legacy .p12 keys but can be omitted for JSON keys. This is usually of the format `<name>@<project-id>.iam.gserviceaccount.com`. |
 | `export_default_credentials`| _optional_  |`false`| Exports the path to [Default Application Credentials][dac] as the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to be available in later steps. Google Cloud services automatically use this environment variable to find credentials. |
 | `credentials_file_path`     | _optional_  | (temporary file) | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
@@ -95,9 +97,61 @@ code to [App Engine](https://cloud.google.com/appengine), a fully managed server
 * [Cloud Build](./example-workflows/cloud-build/README.md): An example workflow that uses GitHub Actions to build a container image with [Cloud Build](https://cloud.google.com/cloud-build).
 
 
-## Sharing Credentials
+## Authorization
 
-If `export_default_credentials` is true, this GitHub Action will automatically export the credentials to be available in future steps in the job. By default, the credentials are exported into `$GITHUB_WORKSPACE` which is available to all steps in the job. The file is automatically deleted when jobs finish, regardless of their status.
+There are a few ways to authenticate this action.
+
+### Via google-github-actions/auth
+
+Use [google-github-actions/auth](https://github.com/google-github-actions/auth) to authenticate gcloud[gcloud]. You can use [Workload Identity Federation][wif] or traditional [Service Account Key JSON][sa] authentication.
+
+See [usage](https://github.com/google-github-actions/auth#usage) for more details.
+
+#### Authenticating via Workload Identity Federation
+
+```yaml
+- id: auth
+  uses: google-github-actions/auth@v0.4.0
+  with:
+    workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+    service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+
+- name: Set up Cloud SDK
+  uses: google-github-actions/setup-gcloud@v0.2.1
+
+- name: Use gcloud CLI
+  run: gcloud info
+```
+
+#### Authenticating via Service Account Key JSON
+
+```yaml
+- id: auth
+  uses: google-github-actions/auth@v0.4.0
+  with:
+    credentials_json: ${{ secrets.gcp_credentials }}
+
+- name: Set up Cloud SDK
+  uses: google-github-actions/setup-gcloud@v0.2.1
+
+- name: Use gcloud CLI
+  run: gcloud info
+```
+
+### Via Application Default Credentials
+
+If you are hosting your own runners, **and** those runners are on Google Cloud,
+you can leverage the Application Default Credentials of the instance. This will
+authenticate gcloud[gcloud] as the service account attached to the instance. **This
+only works using a custom runner hosted on GCP.**
+
+```yaml
+- name: Set up Cloud SDK
+  uses: google-github-actions/setup-gcloud@v0.2.1
+
+- name: Use gcloud CLI
+  run: gcloud info
+```
 
 
 ## Contributing
@@ -115,3 +169,5 @@ See [LICENSE](LICENSE).
 [gcloud]: https://cloud.google.com/sdk/gcloud/
 [gsutil]: https://cloud.google.com/storage/docs/gsutil
 [sa-iam-docs]: https://cloud.google.com/iam/docs/service-accounts
+[sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
+[wif]: https://cloud.google.com/iam/docs/workload-identity-federation

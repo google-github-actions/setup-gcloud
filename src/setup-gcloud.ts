@@ -51,9 +51,7 @@ export async function run(): Promise<void> {
     // Install additional components
     const components = core.getInput('install_components');
     if (components) {
-      await installComponent(
-        components.split(',').map((comp) => comp.trim())
-      );
+      await installComponent(components.split(',').map((comp) => comp.trim()));
     }
 
     // Set the project ID, if given.

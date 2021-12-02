@@ -81,6 +81,7 @@ steps:
 | `credentials_file_path`     | _optional_  | (temporary file) | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
 | `cleanup_credentials` | _optional_ | `true` | If true, the action will remove any generated credentials from the filesystem upon completion. |
 | `service_account_key`   | _optional_  | | (**Deprecated**) This input is deprecated. See [auth section](https://github.com/google-github-actions/setup-gcloud#authorization) for more details. The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
+| `install_components` | _optional_  | | List of Cloud SDK components to install |
 
 
 ## Example Workflows

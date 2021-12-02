@@ -23,7 +23,6 @@ import {
   installGcloudSDK,
   isInstalled,
   parseServiceAccountKey,
-  runCmdWithJsonFormat,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
 import { writeSecureFile } from './utils';
@@ -53,8 +52,7 @@ export async function run(): Promise<void> {
     const components = core.getInput('install_components');
     if (components) {
       await installComponent(
-        components.split(',').map((comp) => comp.trim()),
-        false,
+        components.split(',').map((comp) => comp.trim())
       );
     }
 

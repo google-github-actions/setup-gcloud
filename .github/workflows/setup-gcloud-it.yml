@@ -23,10 +23,13 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
+    - uses: 'actions/setup-node@v2'
+      with:
+        node-version: '12.x'
     - id: build
       name: Build dist
       run: |-
-        npm install
+        npm ci
         npm run build
     - name: setup-gcloud
       uses: ./
@@ -48,14 +51,17 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
       - name: Build dependency
         run: |-
-          npm install
+          npm ci
           npm run build
       - id: build
         name: Build dist
         run: |-
-          npm install
+          npm ci
           npm run build
       - name: setup-gcloud
         uses: ./
@@ -77,10 +83,13 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
       - id: build
         name: Build dist
         run: |-
-          npm install
+          npm ci
           npm run build
       - name: setup-gcloud
         uses: ./
@@ -103,10 +112,14 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
+
       - id: build
         name: Build dist
         run: |-
-          npm install
+          npm ci
           npm run build
       - name: setup-gcloud
         uses: ./
@@ -128,20 +141,20 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - id: build
-        name: Build dist
-        run: |-
-          npm install
-          npm run build
-      - name: setup-gcloud
-        uses: ./
-        with:
-          project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+          - uses: actions/checkout@v2
+          - id: build
+            name: Build dist
+            run: |-
+              npm ci
+              npm run build
+          - name: setup-gcloud
+            uses: ./
+            with:
+              project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
 
-      - name: Verify project
-        shell: bash
-        run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+          - name: Verify project
+            shell: bash
+            run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
 
   components:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
@@ -156,7 +169,7 @@ jobs:
       - id: build
         name: Build dist
         run: |-
-          npm install
+          npm ci
           npm run build
       - name: setup-gcloud
         uses: ./

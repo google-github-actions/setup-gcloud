@@ -255,3 +255,60 @@ jobs:
         shell: 'bash'
         run: |-
           gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
+  multi_credentials:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: 'with two setup gcloud with different SA'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - 'ubuntu-latest'
+        - 'windows-latest'
+        - 'macos-latest'
+    
+    permissions:
+      id-token: 'write'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: 'actions/setup-node@v2'
+        with:
+          node-version: '12.x'
+
+      - id: build
+        name: Build dist
+        run: |-
+          npm ci
+          npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
+      - name: 'setup-gcloud'
+        uses: './'
+
+      # current SA should be OIDC_AUTH_SA_EMAIL
+      - name: 'check current SA'
+        shell: 'bash'
+        run: |-
+          CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
+          if [ ${{ secrets.OIDC_AUTH_SA_EMAIL }} != $CURRENT_SA ]; then exit 1; fi
+
+      - name: setup-gcloud
+        uses: ./
+        with:
+          version: 'latest'
+          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
+          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+
+      # current SA should be SETUP_GCLOUD_IT_EMAIL
+      - name: 'check current SA'
+        shell: 'bash'
+        run: |-
+           CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
+           if [ ${{ secrets.SETUP_GCLOUD_IT_EMAIL }} != $CURRENT_SA ]; then exit 1; fi
+

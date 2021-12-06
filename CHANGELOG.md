@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * cleanup old actions([#331](https://www.github.com/google-github-actions/setup-gcloud/issues/331)) ([38fab88](https://www.github.com/google-github-actions/setup-gcloud/commit/38fab8887c8defeb67814b4ccf61b916ce8b9220))
 * Export credentials into RUNNER_TEMP instead of GITHUB_WORKSPACE ([#405](https://www.github.com/google-github-actions/setup-gcloud/issues/405)) ([9bd5f65](https://www.github.com/google-github-actions/setup-gcloud/commit/9bd5f65b7f188cbeaf56022b705397ec4ae49717))
-* Support WIF creds ([#413](https://www.github.com/google-github-actions/setup-gcloud/issues/413)) ([f38d54f](https://www.github.com/google-github-actions/setup-gcloud/commit/f38d54f0d75ec3e1b27429833f635cb308c71cd4))
+* Support WIF creds and add deprecation notice for `service_account_key` input ([#413](https://www.github.com/google-github-actions/setup-gcloud/issues/413)) ([f38d54f](https://www.github.com/google-github-actions/setup-gcloud/commit/f38d54f0d75ec3e1b27429833f635cb308c71cd4))
 * update to use setup-cloud-sdk package ([#397](https://www.github.com/google-github-actions/setup-gcloud/issues/397)) ([990c038](https://www.github.com/google-github-actions/setup-gcloud/commit/990c038e2c13ea4fc75024716f1cb8641d187185))
 
 

@@ -17,6 +17,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.2.1...v0.3.0) (2021-12-06)
+
+
+### Features
+
+* cleanup old actions([#331](https://www.github.com/google-github-actions/setup-gcloud/issues/331)) ([38fab88](https://www.github.com/google-github-actions/setup-gcloud/commit/38fab8887c8defeb67814b4ccf61b916ce8b9220))
+* Export credentials into RUNNER_TEMP instead of GITHUB_WORKSPACE ([#405](https://www.github.com/google-github-actions/setup-gcloud/issues/405)) ([9bd5f65](https://www.github.com/google-github-actions/setup-gcloud/commit/9bd5f65b7f188cbeaf56022b705397ec4ae49717))
+* Support WIF creds ([#413](https://www.github.com/google-github-actions/setup-gcloud/issues/413)) ([f38d54f](https://www.github.com/google-github-actions/setup-gcloud/commit/f38d54f0d75ec3e1b27429833f635cb308c71cd4))
+* update to use setup-cloud-sdk package ([#397](https://www.github.com/google-github-actions/setup-gcloud/issues/397)) ([990c038](https://www.github.com/google-github-actions/setup-gcloud/commit/990c038e2c13ea4fc75024716f1cb8641d187185))
+
+
+### Bug Fixes
+
+* **deps:** bump y18n from 4.0.0 to 4.0.1 in /setupGcloudSDK ([#275](https://www.github.com/google-github-actions/setup-gcloud/issues/275)) ([00135cf](https://www.github.com/google-github-actions/setup-gcloud/commit/00135cf09c03f6102ba0f8c47d5d37d905ba197e))
+* fix auth precedence ([#423](https://www.github.com/google-github-actions/setup-gcloud/issues/423)) ([f0d0410](https://www.github.com/google-github-actions/setup-gcloud/commit/f0d0410093b6663935c322444d414b182713ef47))
+
 ## [Unresolved]
 
  ### Security

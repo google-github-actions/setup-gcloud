@@ -64,7 +64,7 @@ steps:
     service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
 - name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.2.1
+  uses: google-github-actions/setup-gcloud@v0.3.0
 
 - name: Use gcloud CLI
   run: gcloud info
@@ -111,7 +111,7 @@ This action installs the Cloud SDK (`gcloud`). To configure its authentication t
     service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
 - name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.2.1
+  uses: google-github-actions/setup-gcloud@v0.3.0
 
 - name: Use gcloud CLI
   run: gcloud info
@@ -126,7 +126,7 @@ This action installs the Cloud SDK (`gcloud`). To configure its authentication t
     credentials_json: ${{ secrets.gcp_credentials }}
 
 - name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.2.1
+  uses: google-github-actions/setup-gcloud@v0.3.0
 
 - name: Use gcloud CLI
   run: gcloud info
@@ -139,7 +139,7 @@ the Cloud SDK will automatically authenticate using the machine credentials:
 
 ```yaml
 - name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.2.1
+  uses: google-github-actions/setup-gcloud@v0.3.0
 
 - name: Use gcloud CLI
   run: gcloud info

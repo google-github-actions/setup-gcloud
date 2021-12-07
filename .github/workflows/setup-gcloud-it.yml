@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - 'master'
-    - 'fix-export'
   pull_request:
     branches:
     - 'master'
@@ -259,7 +258,7 @@ jobs:
 
   credentials_json_exported:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: 'auth action wtih key and setup-gcloud export'
+    name: 'auth action with json key and setup-gcloud export'
     runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false

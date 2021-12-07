@@ -27,6 +27,7 @@ import {
 import { writeSecureFile } from './utils';
 import path from 'path';
 import crypto from 'crypto';
+import { promises as fs } from 'fs';
 
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
@@ -100,7 +101,26 @@ export async function run(): Promise<void> {
         credsPath = path.join(githubWorkspace, uniqueName);
       }
 
-      const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
+      let serviceAccountKeyObj;
+      // if explicit SA passed, use that
+      if (serviceAccountKey) {
+        serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
+      } else if (process.env.GOOGLE_GHA_CREDS_PATH) {
+        const cPath = await fs.readFile(
+          process.env.GOOGLE_GHA_CREDS_PATH,
+          'utf8',
+        );
+        serviceAccountKeyObj = parseServiceAccountKey(cPath);
+        // An explicit SA was not passed in via serviceAccountKey.
+        // User is likely using google-github-actions/auth for auth followed by setup-gcloud with export_default_credentials.
+        core.info(
+          'Credentials detected and possibly exported using google-github-actions/auth. ' +
+            'google-github-actions/auth exports credentials by default.',
+        );
+      } else {
+        throw new Error('No credentials provided to export');
+      }
+
       await writeSecureFile(
         credsPath,
         JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents

@@ -277,13 +277,11 @@ jobs:
 
       - id: build
         name: Build dist
-        run: |-
-          npm ci
-          npm run build
+        run: 'npm ci && npm run build'
 
       - uses: google-github-actions/auth@main
         with:
-          credentials_json: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+          credentials_json: '${{ secrets.SETUP_GCLOUD_IT_KEY }}'
 
       - name: 'setup-gcloud'
         uses: './'

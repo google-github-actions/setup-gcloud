@@ -101,18 +101,21 @@ export async function run(): Promise<void> {
         credsPath = path.join(githubWorkspace, uniqueName);
       }
 
-      let serviceAccountKeyObj;
-      // if explicit SA passed, use that
+      // If explicit SA input, parse it, write to disk and set GCLOUD_PROJECT.
       if (serviceAccountKey) {
-        serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
-      } else if (process.env.GOOGLE_GHA_CREDS_PATH) {
-        const cPath = await fs.readFile(
-          process.env.GOOGLE_GHA_CREDS_PATH,
-          'utf8',
+        const serviceAccountKeyObj = parseServiceAccountKey(serviceAccountKey);
+        await writeSecureFile(
+          credsPath,
+          JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
         );
-        serviceAccountKeyObj = parseServiceAccountKey(cPath);
-        // An explicit SA was not passed in via serviceAccountKey.
+        core.exportVariable('GCLOUD_PROJECT', serviceAccountKeyObj.project_id);
+      } else if (process.env.GOOGLE_GHA_CREDS_PATH) {
+        // No explicit SA input but process.env.GOOGLE_GHA_CREDS_PATH is set.
+        // process.env.GOOGLE_GHA_CREDS_PATH already contains credentials written to disk,
+        // so set credsPath to the existing cred filepath.
+        credsPath = process.env.GOOGLE_GHA_CREDS_PATH;
         // User is likely using google-github-actions/auth for auth followed by setup-gcloud with export_default_credentials.
+        // This is unnecessary as auth already exports credentials.
         core.info(
           'Credentials detected and possibly exported using google-github-actions/auth. ' +
             'google-github-actions/auth exports credentials by default.',
@@ -121,16 +124,10 @@ export async function run(): Promise<void> {
         throw new Error('No credentials provided to export');
       }
 
-      await writeSecureFile(
-        credsPath,
-        JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
-      );
-
-      // If projectId is set export it, else export projectId from SA
-      core.exportVariable(
-        'GCLOUD_PROJECT',
-        projectId ? projectId : serviceAccountKeyObj.project_id,
-      );
+      // If explicit projectId is set export it
+      if (projectId) {
+        core.exportVariable('GCLOUD_PROJECT', projectId);
+      }
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
       core.exportVariable('GOOGLE_GHA_CREDS_PATH', credsPath);
       core.info('Successfully exported Default Application Credentials');

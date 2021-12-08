@@ -27,7 +27,6 @@ import {
 import { writeSecureFile } from './utils';
 import path from 'path';
 import crypto from 'crypto';
-import { promises as fs } from 'fs';
 
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';

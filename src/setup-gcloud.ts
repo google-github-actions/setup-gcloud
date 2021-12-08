@@ -116,7 +116,7 @@ export async function run(): Promise<void> {
         credsPath = process.env.GOOGLE_GHA_CREDS_PATH;
         // User is likely using google-github-actions/auth for auth followed by setup-gcloud with export_default_credentials.
         // This is unnecessary as auth already exports credentials.
-        core.info(
+        core.warning(
           'Credentials detected and possibly exported using google-github-actions/auth. ' +
             'google-github-actions/auth exports credentials by default.',
         );

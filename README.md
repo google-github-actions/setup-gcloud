@@ -66,7 +66,7 @@ jobs:
 
     steps:
     - id: auth
-      uses: google-github-actions/auth@v0.4.1
+      uses: google-github-actions/auth@v0
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
@@ -121,7 +121,7 @@ jobs:
 
     steps:
     - id: auth
-      uses: google-github-actions/auth@v0.4.0
+      uses: google-github-actions/auth@v0
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
@@ -140,7 +140,7 @@ job:
   job_id:
     steps:
     - id: auth
-      uses: google-github-actions/auth@v0.4.0
+      uses: google-github-actions/auth@v0
       with:
         credentials_json: ${{ secrets.gcp_credentials }}
 

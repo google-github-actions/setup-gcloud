@@ -57,17 +57,25 @@ steps:
 ## Usage
 
 ```yaml
-- id: auth
-  uses: google-github-actions/auth@v0.4.1
-  with:
-    workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-    service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+jobs:
+  job_id:
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-- name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.3.0
+    steps:
+    - id: auth
+      uses: google-github-actions/auth@v0.4.1
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
-- name: Use gcloud CLI
-  run: gcloud info
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.3.0
+
+    - name: Use gcloud CLI
+      run: gcloud info
 ```
 
 ## Inputs
@@ -104,32 +112,43 @@ This action installs the Cloud SDK (`gcloud`). To configure its authentication t
 ### Workload Identity Federation (preferred)
 
 ```yaml
-- id: auth
-  uses: google-github-actions/auth@v0.4.0
-  with:
-    workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-    service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+jobs:
+  job_id:
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-- name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.3.0
+    steps:
+    - id: auth
+      uses: google-github-actions/auth@v0.4.0
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
-- name: Use gcloud CLI
-  run: gcloud info
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.3.0
+
+    - name: Use gcloud CLI
+      run: gcloud info
 ```
 
 ### Service Account Key JSON
 
 ```yaml
-- id: auth
-  uses: google-github-actions/auth@v0.4.0
-  with:
-    credentials_json: ${{ secrets.gcp_credentials }}
+job:
+  job_id:
+    steps:
+    - id: auth
+      uses: google-github-actions/auth@v0.4.0
+      with:
+        credentials_json: ${{ secrets.gcp_credentials }}
 
-- name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.3.0
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.3.0
 
-- name: Use gcloud CLI
-  run: gcloud info
+    - name: Use gcloud CLI
+      run: gcloud info
 ```
 
 ### Application Default Credentials
@@ -138,11 +157,14 @@ If and only if you are using self-hosted runners that are hosted on Google Cloud
 the Cloud SDK will automatically authenticate using the machine credentials:
 
 ```yaml
-- name: Set up Cloud SDK
-  uses: google-github-actions/setup-gcloud@v0.3.0
+job:
+  job_id:
+    steps:
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.3.0
 
-- name: Use gcloud CLI
-  run: gcloud info
+    - name: Use gcloud CLI
+      run: gcloud info
 ```
 
 

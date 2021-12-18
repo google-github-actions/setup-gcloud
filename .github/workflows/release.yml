@@ -1,0 +1,94 @@
+name: 'release'
+
+on:
+  push:
+    branches:
+    - 'main'
+  workflow_dispatch:
+
+jobs:
+  # build compiles the code and creates a pull request of the compiled result if
+  # there is a diff.
+  build:
+    runs-on: 'ubuntu-latest'
+    steps:
+    - uses: 'actions/checkout@v2'
+
+    - uses: 'actions/setup-node@v2'
+      with:
+        node-version: '12.x'
+
+    - name: 'npm build'
+      run: 'npm ci && npm run build'
+
+    - name: 'Create pull request'
+      uses: 'peter-evans/create-pull-request@dcd5fd746d53dd8de555c0f10bca6c35628be47a'
+      with:
+        token: '${{ secrets.ACTIONS_BOT_TOKEN }}'
+        add-paths: 'dist/'
+        committer: 'google-github-actions-bot <github-actions-bot@google.com>'
+        author: 'google-github-actions-bot <github-actions-bot@google.com>'
+        signoff: 'google-github-actions-bot <github-actions-bot@google.com>'
+        commit-message: 'Build dist'
+        title: 'chore: build dist'
+        body: 'Build compiled Typescript'
+        base: 'main'
+        branch: 'actions/build'
+        push-to-fork: 'google-github-actions-bot/setup-gcloud'
+        delete-branch: true
+
+  # create-pull-request creates a release pull request if there are any
+  # convential commit changes since the last release.
+  create-pull-request:
+    runs-on: 'ubuntu-latest'
+    steps:
+    - uses: 'google-github-actions/release-please-action@v2'
+      with:
+        token: '${{ secrets.ACTIONS_BOT_TOKEN }}'
+        release-type: 'node'
+        bump-minor-pre-major: true
+        command: 'release-pr'
+        fork: true
+
+  # release does a release on the merge of the release pull request. It also
+  # updates the floating tag alias for the major version.
+  release:
+    runs-on: 'ubuntu-latest'
+    steps:
+    - id: 'release'
+      uses: 'google-github-actions/release-please-action@v2'
+      with:
+        release-type: 'node'
+        bump-minor-pre-major: true
+        command: 'github-release'
+
+    - name: 'Update floating tag'
+      if: '${{ steps.release.outputs.release_created }}'
+      uses: 'actions/github-script@v5'
+      with:
+        script: |-
+          const sha = '${{ steps.release.outputs.sha }}'
+          const major = 'v${{ steps.release.outputs.major }}';
+
+          // Try to update the ref first. If that fails, it probably does not
+          // exist yet, and we should create it.
+          try {
+            await github.rest.git.updateRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `tags/${major}`,
+              sha: sha,
+              force: true,
+            });
+            core.info(`Updated ${major} to ${sha}`);
+          } catch(err) {
+            core.warning(`Failed to create ${major}: ${err}`);
+
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${major}`,
+              sha: sha,
+            });
+            core.info(`Created ${major} at ${sha}`);
+          }

@@ -216,7 +216,9 @@ describe('#run', function () {
 
     expect(this.stubs.warning.callCount).to.eq(1);
     expect(this.stubs.warning.args[0][0]).to.contains(
-      'Credentials detected and possibly exported using google-github-actions/auth',
+      'Credentials detected and possibly exported using google-github-actions/auth. ' +
+        'google-github-actions/auth exports credentials by default. ' +
+        'This will be an error in a future release.',
     );
   });
 

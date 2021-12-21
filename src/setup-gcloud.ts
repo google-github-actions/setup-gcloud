@@ -118,7 +118,8 @@ export async function run(): Promise<void> {
         // This is unnecessary as auth already exports credentials.
         core.warning(
           'Credentials detected and possibly exported using google-github-actions/auth. ' +
-            'google-github-actions/auth exports credentials by default.',
+            'google-github-actions/auth exports credentials by default. ' +
+            'This will be an error in a future release.',
         );
       } else {
         throw new Error('No credentials provided to export');

@@ -231,7 +231,7 @@ describe('#run', function () {
     await run();
 
     expect(this.stubs.warning.args[1][0]).to.contains(
-      `Service Account project id foo and input project_id ${projectIDInput} differs. ` +
+      `Service Account project id foo and input project_id ${projectIDInput} differ. ` +
         `Input project_id ${projectIDInput} will be exported.`,
     );
     expect(

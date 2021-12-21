@@ -220,6 +220,71 @@ describe('#run', function () {
     );
   });
 
+  it('warns if input project_id is different from SA key project_id ', async function () {
+    const projectIDInput = 'baz';
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
+    this.stubs.getInput.withArgs('service_account_key').returns(fakeCreds);
+    this.stubs.getInput.withArgs('project_id').returns(projectIDInput);
+
+    await run();
+
+    expect(this.stubs.warning.args[1][0]).to.contains(
+      `Service Account project id foo and input project_id ${projectIDInput} differs. ` +
+        `Input project_id ${projectIDInput} will be exported.`,
+    );
+    expect(
+      this.stubs.exportVariable.withArgs('GCLOUD_PROJECT', projectIDInput)
+        .callCount,
+    ).to.eq(1);
+  });
+
+  it('exports project id input if no SA key', async function () {
+    this.stubs.env.value({ GOOGLE_GHA_CREDS_PATH: 'foo/bar/credpath' });
+    const projectIDInput = 'baz';
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
+    this.stubs.getInput.withArgs('service_account_key').returns('');
+    this.stubs.getInput.withArgs('project_id').returns(projectIDInput);
+
+    await run();
+
+    expect(
+      this.stubs.exportVariable.withArgs('GCLOUD_PROJECT', projectIDInput)
+        .callCount,
+    ).to.eq(1);
+  });
+
+  it('exports SA key project_id if no explicit project id input', async function () {
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
+    this.stubs.getInput.withArgs('service_account_key').returns(fakeCreds);
+    this.stubs.getInput.withArgs('project_id').returns('');
+
+    await run();
+
+    expect(
+      this.stubs.exportVariable.withArgs('GCLOUD_PROJECT', 'foo').callCount,
+    ).to.eq(1);
+  });
+
+  it('skips project id export if neither SA key project_id nor project id input', async function () {
+    this.stubs.getBooleanInput
+      .withArgs('export_default_credentials')
+      .returns(true);
+    this.stubs.getInput.withArgs('service_account_key').returns('');
+    this.stubs.getInput.withArgs('project_id').returns('');
+
+    await run();
+
+    expect(
+      this.stubs.exportVariable.withArgs('GCLOUD_PROJECT').callCount,
+    ).to.eq(0);
+  });
+
   it('throws an error if credentials_file_path is not provided and GITHUB_WORKSPACE is not set', async function () {
     this.stubs.getBooleanInput
       .withArgs('export_default_credentials')

@@ -48,7 +48,7 @@ export async function run(): Promise<void> {
     }
 
     // Set the project ID, if given.
-    const projectId = core.getInput('project_id');
+    let projectId = core.getInput('project_id');
     if (projectId) {
       await setProject(projectId);
       core.info('Successfully set default project');
@@ -99,6 +99,7 @@ export async function run(): Promise<void> {
         const uniqueName = crypto.randomBytes(12).toString('hex');
         credsPath = path.join(githubWorkspace, uniqueName);
       }
+      let saProjectID = '';
 
       // If explicit SA input, parse it, write to disk and set GCLOUD_PROJECT.
       if (serviceAccountKey) {
@@ -107,7 +108,7 @@ export async function run(): Promise<void> {
           credsPath,
           JSON.stringify(serviceAccountKeyObj, null, 2), // Print to file as string w/ indents
         );
-        core.exportVariable('GCLOUD_PROJECT', serviceAccountKeyObj.project_id);
+        saProjectID = serviceAccountKeyObj.project_id;
       } else if (process.env.GOOGLE_GHA_CREDS_PATH) {
         // No explicit SA input but process.env.GOOGLE_GHA_CREDS_PATH is set.
         // process.env.GOOGLE_GHA_CREDS_PATH already contains credentials written to disk,
@@ -123,10 +124,21 @@ export async function run(): Promise<void> {
         throw new Error('No credentials provided to export');
       }
 
-      // If explicit projectId is set export it
+      // If both explicit project id and sa key project id, warn user if they are different
+      if (projectId && saProjectID && saProjectID != projectId) {
+        core.warning(
+          `Service Account project id ${saProjectID} and` +
+            ` input project_id ${projectId} differ. Input project_id ${projectId} will be exported.`,
+        );
+      } else if (!projectId && saProjectID) {
+        // no explicit project id, use sa key project id if set
+        projectId = saProjectID;
+      }
       if (projectId) {
         core.exportVariable('GCLOUD_PROJECT', projectId);
+        core.info(`Successfully exported GCLOUD_PROJECT ${projectId}`);
       }
+
       core.exportVariable('GOOGLE_APPLICATION_CREDENTIALS', credsPath);
       core.exportVariable('GOOGLE_GHA_CREDS_PATH', credsPath);
       core.info('Successfully exported Default Application Credentials');

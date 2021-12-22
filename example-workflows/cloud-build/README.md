@@ -8,7 +8,7 @@ update values to match your setup.
 
 ## Workflow description
 
-For pushes to the `main` branch, this workflow will:
+For pushes to the `master` branch, this workflow will:
 
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
@@ -69,14 +69,14 @@ For pushes to the `main` branch, this workflow will:
     $ git commit -m "Set up GitHub workflow"
     ```
 
-1.  Push to the `main` branch:
+1.  Push to the `master` branch:
 
     ```text
-    $ git push -u origin main
+    $ git push -u origin master
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top
-    of your repository on GitHub. Then click on the `Build using Cloud Build`
+    of your repository on GitHub. Then click on the `Build using Cloud Build` 
     element to see the details.
 
 [actions]: https://help.github.com/en/categories/automating-your-workflow-with-github-actions

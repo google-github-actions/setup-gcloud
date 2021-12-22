@@ -36,15 +36,15 @@ action has it's own repo and this repo is only for setup-gcloud**
 ```diff
 steps:
  - id: gcloud
--  uses: GoogleCloudPlatform/github-actions/setup-gcloud@main
-+  uses: google-github-actions/setup-gcloud@v0
+-  uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
++  uses: google-github-actions/setup-gcloud@master
 ```
 
 ### Or google-github-actions/{action}
 ```diff
 steps:
  - id: deploy
--  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@main
+-  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
 +  uses: google-github-actions/deploy-cloudrun@main
 ```
 

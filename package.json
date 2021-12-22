@@ -4,7 +4,7 @@
   "description": "Setup gcloud GitHub action",
   "main": "dist/main/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts -o dist/main && ncc build src/post.ts -o dist/post",
+    "build": "ncc build -m src/main.ts -o dist/main && ncc build -m src/post.ts -o dist/post",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'",
     "format": "prettier --write **/*.ts"

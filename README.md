@@ -142,7 +142,7 @@ job:
     - id: auth
       uses: google-github-actions/auth@v0
       with:
-        credentials_json: ${{ secrets.gcp_credentials }}
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.3.0

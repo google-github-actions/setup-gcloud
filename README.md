@@ -19,6 +19,7 @@ Configures the [Google Cloud SDK][sdk] in the GitHub Actions environment. The Go
 
 Or integrate natively with other Google Cloud GitHub Actions:
 
+* [Authenticate to Google Cloud](https://github.com/google-github-actions/auth)
 * [Deploy a Cloud Run service](https://github.com/google-github-actions/deploy-cloudrun)
 * [Deploy an App Engine app](https://github.com/google-github-actions/deploy-appengine)
 * [Deploy a Cloud Function](https://github.com/google-github-actions/deploy-cloud-functions)
@@ -26,33 +27,33 @@ Or integrate natively with other Google Cloud GitHub Actions:
 * [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
 * [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
-## 📢 NOTICE
+## 📢 NOTICES
 
-**Previously this repository contained the code for ALL of the GCP GithHub Actions. Now each
-action has it's own repo and this repo is only for setup-gcloud**
+-   **Do not pin this action to `@master`, use `@v0` instead. We are going to
+    rename the branch to `main` in 2022 and this _will break_ existing
+    workflows. See [Versioning](#versioning) for more information.**
 
-### Use google-github-actions/setup-gcloud
+-   **Previously this repository contained the code for ALL of the GCP GithHub
+    Actions. Now each action has it's own repo and this repo is only for
+    `setup-gcloud`.**
 
-```diff
-steps:
- - id: gcloud
--  uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-+  uses: google-github-actions/setup-gcloud@master
-```
+    For `setup-gcloud`:
 
-### Or google-github-actions/{action}
-```diff
-steps:
- - id: deploy
--  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
-+  uses: google-github-actions/deploy-cloudrun@main
-```
+    ```diff
+    steps:
+    - id: gcloud
+    -  uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    +  uses: google-github-actions/setup-gcloud@v0
+    ```
 
-## Table of Contents
+    For other actions (example uses `deploy-cloudrun`):
 
-* [Usage](#usage)
-* [Inputs](#inputs)
-* [Example Workflows](#example-workflows)
+    ```diff
+    steps:
+    - id: deploy
+    -  uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@master
+    +  uses: google-github-actions/deploy-cloudrun@v0
+    ```
 
 ## Usage
 
@@ -65,17 +66,17 @@ jobs:
       id-token: 'write'
 
     steps:
-    - id: auth
-      uses: google-github-actions/auth@v0
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.3.0
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
 
-    - name: Use gcloud CLI
-      run: gcloud info
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 ```
 
 ## Inputs
@@ -120,17 +121,17 @@ jobs:
       id-token: 'write'
 
     steps:
-    - id: auth
-      uses: google-github-actions/auth@v0
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.3.0
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
 
-    - name: Use gcloud CLI
-      run: gcloud info
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 ```
 
 ### Service Account Key JSON
@@ -139,16 +140,16 @@ jobs:
 job:
   job_id:
     steps:
-    - id: auth
-      uses: google-github-actions/auth@v0
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
       with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.3.0
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
 
-    - name: Use gcloud CLI
-      run: gcloud info
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 ```
 
 ### Application Default Credentials
@@ -160,12 +161,34 @@ the Cloud SDK will automatically authenticate using the machine credentials:
 job:
   job_id:
     steps:
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.3.0
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
 
-    - name: Use gcloud CLI
-      run: gcloud info
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 ```
+
+
+## Versioning
+
+We recommend pinning to the latest available major version:
+
+```yaml
+- uses: 'google-github-actions/setup-gcloud@v0'
+```
+
+While this action attempts to follow semantic versioning, but we're ultimately
+human and sometimes make mistakes. To prevent accidental breaking changes, you
+can also pin to a specific version:
+
+```yaml
+- uses: 'google-github-actions/setup-gcloud@v0.1.1'
+```
+
+However, you will not get automatic security updates or new features without
+explicitly updating your version number. Note that we only publish `MAJOR` and
+`MAJOR.MINOR.PATCH` versions. There is **not** a floating alias for
+`MAJOR.MINOR`.
 
 
 ## Contributing

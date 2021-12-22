@@ -3,10 +3,10 @@ name: setup-gcloud Integration
 on:
   push:
     branches:
-    - 'master'
+    - 'main'
   pull_request:
     branches:
-    - 'master'
+    - 'main'
 
 concurrency:
   group: '${{github.workflow}}-${{ github.head_ref || github.ref }}'
@@ -213,7 +213,7 @@ jobs:
 
       - name: 'setup-gcloud'
         uses: './'
-      
+
       - id: 'gcloud'
         shell: 'bash'
         run: |-
@@ -250,7 +250,7 @@ jobs:
 
       - name: 'setup-gcloud'
         uses: './'
-      
+
       - id: 'gcloud'
         shell: 'bash'
         run: |-
@@ -287,7 +287,7 @@ jobs:
         uses: './'
         with:
           export_default_credentials: true
-      
+
       - id: 'gcloud'
         shell: 'bash'
         run: |-
@@ -304,7 +304,7 @@ jobs:
         - 'ubuntu-latest'
         - 'windows-latest'
         - 'macos-latest'
-    
+
     permissions:
       id-token: 'write'
 
@@ -349,4 +349,3 @@ jobs:
         run: |-
            CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
            if [ ${{ secrets.SETUP_GCLOUD_IT_EMAIL }} != $CURRENT_SA ]; then exit 1; fi
-

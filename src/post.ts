@@ -24,16 +24,30 @@ import { removeExportedCredentials } from './utils';
  */
 export async function run(): Promise<void> {
   try {
-    const cleanupCredentials: boolean = getBooleanInput('cleanup_credentials');
+    // If this action did not export credentials, do not clean up. Without this,
+    // a setup-gcloud step might remove credentials exported by another action.
+    // Since this is a post action, it probably doesn't matter, but just to be
+    // sure...
+    const exportCredentials = getBooleanInput('export_default_credentials');
+    if (!exportCredentials) {
+      logInfo(
+        `Skipping credential cleanup - "export_default_credentials" is false.`,
+      );
+      return;
+    }
+
+    // If the user explicitly opted out of cleaning up credentials, do nothing.
+    const cleanupCredentials = getBooleanInput('cleanup_credentials');
     if (!cleanupCredentials) {
+      logInfo(`Skipping credential cleanup - "cleanup_credentials" is false.`);
       return;
     }
 
     const exportedPath = await removeExportedCredentials();
     if (exportedPath) {
-      logInfo(`Removed exported credentials at ${exportedPath}`);
+      logInfo(`Removed exported credentials at "${exportedPath}".`);
     } else {
-      logInfo('No exported credentials found');
+      logInfo(`No exported credentials were found at "${exportedPath}".`);
     }
   } catch (err) {
     setFailed(`google-github-actions/setup-gcloud post failed with: ${err}`);

@@ -88,7 +88,7 @@ jobs:
 | `service_account_email` | _optional_  | | Service account email address to use for authentication. This is required for legacy .p12 keys but can be omitted for JSON keys. This is usually of the format `<name>@<project-id>.iam.gserviceaccount.com`. |
 | `export_default_credentials`| _optional_  |`false`| Exports the path to [Default Application Credentials][dac] as the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to be available in later steps. Google Cloud services automatically use this environment variable to find credentials. |
 | `credentials_file_path`     | _optional_  | (temporary file) | Only valid when `export_default_credentials` is `true`. Sets the path at which the credentials should be written. |
-| `cleanup_credentials` | _optional_ | `true` | If true, the action will remove any generated credentials from the filesystem upon completion. |
+| `cleanup_credentials` | _optional_ | `true` | If true, the action will remove exported credentials from the filesystem upon completion. This only applies if `export_default_credentials` is true. |
 | `service_account_key`   | _optional_  | | (**Deprecated**) This input is deprecated. See [auth section](https://github.com/google-github-actions/setup-gcloud#authorization) for more details. The service account key which will be used for authentication credentials. This key should be [created](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and stored as a [secret](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets). It can be encoded as a [Base64](https://en.wikipedia.org/wiki/Base64) string or as JSON. |
 
 

@@ -31,7 +31,22 @@ import crypto from 'crypto';
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 
+const actionRef = process.env.GITHUB_ACTION_REF;
+
 export async function run(): Promise<void> {
+  if (actionRef == 'main' || actionRef == 'master') {
+    core.warning(
+      `google-github-actions/setup-gcloud is pinned at HEAD. We strongly ` +
+        `advise against pinning to "@master" as it may be unstable. Please ` +
+        `update your GitHub Action YAML from:\n\n` +
+        `    uses: 'google-github-actions/setup-gcloud@master'\n\n` +
+        `to:\n\n` +
+        `    uses: 'google-github-actions/setup-gcloud@v0'\n\n` +
+        `Alternatively, you can pin to any git tag or git SHA in the ` +
+        `repository.`,
+    );
+  }
+
   core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
   try {
     let version = core.getInput('version');

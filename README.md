@@ -78,6 +78,8 @@ jobs:
     project ID for commands. Individual commands can still override the project
     with the `--project` flag. If unspecified, the action attempts to find the
     "best" project ID by looking at other inputs and environment variables.
+    
+- `install_components`: (Optional) List of Cloud SDK components to install
 
 ### Authentication inputs
 

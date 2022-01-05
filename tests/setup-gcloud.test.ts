@@ -54,6 +54,7 @@ describe('#run', function () {
       authenticateGcloudSDK: sinon.stub(setupGcloud, 'authenticateGcloudSDK'),
       isInstalled: sinon.stub(setupGcloud, 'isInstalled').returns(false),
       setProject: sinon.stub(setupGcloud, 'setProject'),
+      installComponent: sinon.stub(setupGcloud, 'installComponent'),
       parseServiceAccountKey: sinon
         .stub(setupGcloud, 'parseServiceAccountKey')
         .returns(JSON.parse(fakeCreds)),
@@ -87,7 +88,7 @@ describe('#run', function () {
     ).to.eq(1);
   });
 
-  it('doesnt download the SDK if version is provided', async function () {
+  it('does not download the SDK if version is provided', async function () {
     this.stubs.getInput.withArgs('version').returns('999');
     await run();
     expect(this.stubs.installGcloudSDK.withArgs('999').callCount).to.eq(1);
@@ -107,6 +108,18 @@ describe('#run', function () {
     expect(this.stubs.toolCacheFind.withArgs('gcloud', '777').callCount).to.eq(
       1,
     );
+  });
+
+  it('installs 1 additional component', async function () {
+    this.stubs.getInput.withArgs('install_components').returns('beta');
+    await run();
+    expect(this.stubs.installComponent.callCount).to.eq(1);
+  });
+
+  it('installs additional components', async function () {
+    this.stubs.getInput.withArgs('install_components').returns('beta, alpha');
+    await run();
+    expect(this.stubs.installComponent.callCount).to.eq(1);
   });
 
   it('sets the project ID if provided', async function () {

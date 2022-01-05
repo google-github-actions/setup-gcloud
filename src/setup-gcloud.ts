@@ -17,12 +17,13 @@
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import {
-  getLatestGcloudSDKVersion,
-  isInstalled,
-  installGcloudSDK,
-  setProject,
   authenticateGcloudSDK,
+  getLatestGcloudSDKVersion,
+  installComponent,
+  installGcloudSDK,
+  isInstalled,
   parseServiceAccountKey,
+  setProject,
 } from '@google-github-actions/setup-cloud-sdk';
 import { writeSecureFile } from './utils';
 import path from 'path';
@@ -60,6 +61,12 @@ export async function run(): Promise<void> {
     } else {
       const toolPath = toolCache.find('gcloud', version);
       core.addPath(path.join(toolPath, 'bin'));
+    }
+
+    // Install additional components
+    const components = core.getInput('install_components');
+    if (components) {
+      await installComponent(components.split(',').map((comp) => comp.trim()));
     }
 
     // Set the project ID, if given.

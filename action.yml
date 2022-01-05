@@ -49,6 +49,10 @@ inputs:
     default: null
     required: false
 
+  install_components:
+    description: List of Cloud SDK components to install
+    required: false
+  
   export_default_credentials:
     description: |-
       Export the provided credentials as Google Default Application Credentials.

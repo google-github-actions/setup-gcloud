@@ -36,7 +36,7 @@ const actionRef = process.env.GITHUB_ACTION_REF;
 export async function run(): Promise<void> {
   if (actionRef == 'main' || actionRef == 'master') {
     core.warning(
-      `google-github-actions/setup-gcloud is pinned at HEAD. We strongly ` +
+      `google-github-actions/setup-gcloud is effectively pinned to HEAD. We strongly ` +
         `advise against pinning to "@master" as it may be unstable. Please ` +
         `update your GitHub Action YAML from:\n\n` +
         `    uses: 'google-github-actions/setup-gcloud@master'\n\n` +

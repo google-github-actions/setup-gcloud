@@ -79,7 +79,7 @@ jobs:
     with the `--project` flag. If unspecified, the action attempts to find the
     "best" project ID by looking at other inputs and environment variables.
     
-- `isntall_components`: (Optional) List of Cloud SDK components to install
+- `install_components`: (Optional) List of Cloud SDK components to install
 
 ### Authentication inputs
 

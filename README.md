@@ -73,12 +73,16 @@ jobs:
     (`gcloud`) to install (e.g. `"290.0.1"`). The default value is "latest",
     which will install the latest available Cloud SDK version.
 
+    **Warning!** Workload Identity Federation requires version
+    [363.0.0](https://cloud.google.com/sdk/docs/release-notes#36300_2021-11-02)
+    or newer.
+
 -   `project_id`: (Optional) Project ID (**not** project _number_) of the Google
     Cloud project. If provided, this will configure the `gcloud` CLI to use that
     project ID for commands. Individual commands can still override the project
     with the `--project` flag. If unspecified, the action attempts to find the
     "best" project ID by looking at other inputs and environment variables.
-    
+
 - `install_components`: (Optional) List of Cloud SDK components to install
 
 ### Authentication inputs

@@ -17,6 +17,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.3.0...v0.4.0) (2022-01-21)
+
+
+### Features
+
+* add install_component field ([#399](https://www.github.com/google-github-actions/setup-gcloud/issues/399)) ([489ab62](https://www.github.com/google-github-actions/setup-gcloud/commit/489ab62c6e3c1ced7dd3ee7ae435591181cf8526))
+* emit a warning when action is pinned to head ([#460](https://www.github.com/google-github-actions/setup-gcloud/issues/460)) ([1a48ffa](https://www.github.com/google-github-actions/setup-gcloud/commit/1a48ffaf046b28c93468eef7603c643377f487ec))
+
+
+### Bug Fixes
+
+* support export auth export with envvar for backwards compat ([#426](https://www.github.com/google-github-actions/setup-gcloud/issues/426)) ([aaf4f27](https://www.github.com/google-github-actions/setup-gcloud/commit/aaf4f27520fb60c21616fcb2c7c60a1108ce72cd))
+
 ## [0.3.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.2.1...v0.3.0) (2021-12-06)
 
 

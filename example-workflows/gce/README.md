@@ -45,7 +45,7 @@ For pushes to the `master` branch, this workflow will:
 1.  [Create a Google Cloud service account][create-sa] if one does not already
     exist.
 
-1.  Add the the following [Cloud IAM roles][roles] to your service account:
+1.  Add the following [Cloud IAM roles][roles] to your service account:
 
     - `Compute Instance Admin` - allows administering GCE VMs
 

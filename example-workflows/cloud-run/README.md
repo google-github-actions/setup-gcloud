@@ -34,7 +34,7 @@ For pushes to the `example` branch, this workflow will:
 
 1.  [Create a Google Cloud service account][create-sa] or select an existing one.
 
-1.  Add the the following [Cloud IAM roles][roles] to your service account:
+1.  Add the following [Cloud IAM roles][roles] to your service account:
 
     - `Cloud Run Admin` - allows for the creation of new Cloud Run services
 

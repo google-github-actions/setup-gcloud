@@ -49,7 +49,7 @@ For pushes to the `main` branch, this workflow will:
 
 1.  [Create an Antifact Registry docker repository](https://cloud.google.com/artifact-registry/docs/docker/quickstart#gcloud) if one does not already exist
 
-1.  Add the the following [Cloud IAM roles][roles] to your service account:
+1.  Add the following [Cloud IAM roles][roles] to your service account:
 
     - `Kubernetes Engine Developer` - allows deploying to GKE
 

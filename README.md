@@ -83,7 +83,13 @@ jobs:
     with the `--project` flag. If unspecified, the action attempts to find the
     "best" project ID by looking at other inputs and environment variables.
 
-- `install_components`: (Optional) List of Cloud SDK components to install
+-   `install_components`: (Optional) List of [Cloud SDK
+    components](https://cloud.google.com/sdk/docs/components) to install
+    specified as a comma-separated list of strings:
+
+    ```yaml
+    install_components: 'alpha,cloud-datastore-emulator'
+    ```
 
 ### Authentication inputs
 

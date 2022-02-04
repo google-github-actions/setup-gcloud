@@ -17,6 +17,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.4.0...v0.5.0) (2022-02-04)
+
+### Bug fixes
+
+* fix a bug where gcloud error output was being hidden
+
+### Miscellaneous Chores
+
+* release 0.5.0 ([442c774](https://www.github.com/google-github-actions/setup-gcloud/commit/442c774cb39c4116f87a7c27a4ce4cc8f1477920))
+
 ## [0.4.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.3.0...v0.4.0) (2022-01-21)
 
 

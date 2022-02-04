@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.5.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.4.0...v0.5.0) (2022-02-04)
 
+### Bug fixes
+
+* fix a bug where gcloud error output was being hidden
 
 ### Miscellaneous Chores
 

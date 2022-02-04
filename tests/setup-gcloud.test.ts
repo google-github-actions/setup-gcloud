@@ -214,7 +214,7 @@ describe('#run', function () {
 
     expect(this.stubs.setFailed.callCount).to.eq(1);
     expect(this.stubs.setFailed.args[0][0]).to.eq(
-      'google-github-actions/setup-gcloud failed with: No credentials provided to export',
+      'google-github-actions/setup-gcloud failed with: no credentials provided to export',
     );
   });
 

@@ -25,6 +25,11 @@ import {
   parseServiceAccountKey,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
+import {
+  errorMessage,
+  isPinnedToHead,
+  pinnedToHeadWarning,
+} from '@google-github-actions/actions-utils';
 import { writeSecureFile } from './utils';
 import path from 'path';
 import crypto from 'crypto';
@@ -32,20 +37,10 @@ import crypto from 'crypto';
 export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 
-const actionRef = process.env.GITHUB_ACTION_REF;
-
 export async function run(): Promise<void> {
-  if (actionRef == 'main' || actionRef == 'master') {
-    core.warning(
-      `google-github-actions/setup-gcloud is pinned at HEAD. We strongly ` +
-        `advise against pinning to "@master" as it may be unstable. Please ` +
-        `update your GitHub Action YAML from:\n\n` +
-        `    uses: 'google-github-actions/setup-gcloud@master'\n\n` +
-        `to:\n\n` +
-        `    uses: 'google-github-actions/setup-gcloud@v0'\n\n` +
-        `Alternatively, you can pin to any git tag or git SHA in the ` +
-        `repository.`,
-    );
+  // Warn if pinned to HEAD
+  if (isPinnedToHead()) {
+    core.warning(pinnedToHeadWarning('v0'));
   }
 
   core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
@@ -166,8 +161,8 @@ export async function run(): Promise<void> {
       core.exportVariable('GOOGLE_GHA_CREDS_PATH', credsPath);
       core.info('Successfully exported Default Application Credentials');
     }
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : error;
+  } catch (err) {
+    const msg = errorMessage(err);
     core.setFailed(`google-github-actions/setup-gcloud failed with: ${msg}`);
   }
 }

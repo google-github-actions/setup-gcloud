@@ -36,7 +36,7 @@
     "@types/sinon": "^10.0.10",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
-    "@vercel/ncc": "^0.33.1",
+    "@vercel/ncc": "^0.33.3",
     "chai": "^4.3.6",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",

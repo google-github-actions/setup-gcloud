@@ -27,14 +27,14 @@
     "@actions/core": "^1.6.0",
     "@actions/tool-cache": "^1.7.1",
     "@google-github-actions/actions-utils": "^0.1.2",
-    "@google-github-actions/setup-cloud-sdk": "^0.4.0"
+    "@google-github-actions/setup-cloud-sdk": "^0.5.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.14",
     "@types/sinon": "^10.0.10",
-    "@typescript-eslint/eslint-plugin": "^5.10.2",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.10.2",
     "@vercel/ncc": "^0.33.1",
     "chai": "^4.3.6",

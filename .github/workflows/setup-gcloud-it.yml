@@ -34,7 +34,7 @@ jobs:
       - name: setup-gcloud
         uses: ./
         with:
-          version: "290.0.1"
+          version: "374.0.0"
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
       - name: Integration Tests

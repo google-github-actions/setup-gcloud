@@ -52,7 +52,7 @@ inputs:
   install_components:
     description: List of Cloud SDK components to install
     required: false
-  
+
   export_default_credentials:
     description: |-
       Export the provided credentials as Google Default Application Credentials.
@@ -78,6 +78,10 @@ inputs:
       filesystem upon completion.
     default: true
     required: false
+
+branding:
+  icon: 'terminal'
+  color: 'blue'
 
 runs:
   using: 'node16'

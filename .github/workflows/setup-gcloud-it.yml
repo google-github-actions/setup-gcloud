@@ -22,8 +22,8 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-node@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
       - id: build
@@ -50,8 +50,8 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-node@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
       - name: Build dependency
@@ -82,8 +82,8 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-node@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
       - id: build
@@ -111,8 +111,8 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-node@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 
@@ -141,7 +141,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: build
         name: Build dist
         run: |-
@@ -165,7 +165,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: build
         name: Build dist
         run: |-
@@ -201,9 +201,9 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
 
-      - uses: "actions/setup-node@v2"
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 
@@ -241,9 +241,9 @@ jobs:
       id-token: "write"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v2"
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 
@@ -279,9 +279,9 @@ jobs:
           - "macos-latest"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v2"
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 
@@ -316,9 +316,9 @@ jobs:
           - "macos-latest"
 
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
 
-      - uses: "actions/setup-node@v2"
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 
@@ -356,9 +356,9 @@ jobs:
       id-token: "write"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v2"
+      - uses: "actions/setup-node@v3"
         with:
           node-version: "16.x"
 

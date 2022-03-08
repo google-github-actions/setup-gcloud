@@ -41,6 +41,16 @@ Or integrate natively with other Google Cloud GitHub Actions:
     +  uses: google-github-actions/deploy-cloudrun@v0
     ```
 
+
+## Prerequisites
+
+-   This action requires Google Cloud credentials to execute gcloud commands.
+    See [Authorization](#Authorization) for more details.
+
+-   This action runs using Node 16. If you are using self-hosted GitHub Actions
+    runners, you must use runner version [2.285.0](https://github.com/actions/virtual-environments)
+    or newer.
+
 ## Usage
 
 ```yaml

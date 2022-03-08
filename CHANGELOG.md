@@ -17,6 +17,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.5.1...v0.6.0) (2022-03-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Require Node 16 (#532)
+
+### Features
+
+* switch to node16 ([#524](https://www.github.com/google-github-actions/setup-gcloud/issues/524)) ([c66a06c](https://www.github.com/google-github-actions/setup-gcloud/commit/c66a06cb89c6c4ceab6ae8cb679bc07b689c243d))
+
+
+### Miscellaneous Chores
+
+* Require Node 16 ([#532](https://www.github.com/google-github-actions/setup-gcloud/issues/532)) ([6194e1d](https://www.github.com/google-github-actions/setup-gcloud/commit/6194e1dc5928f3bf0f24eb73e8fc2734421e84f9))
+
 ### [0.5.1](https://www.github.com/google-github-actions/setup-gcloud/compare/v0.5.0...v0.5.1) (2022-02-16)
 
 

@@ -7,10 +7,14 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
     commit-message:
       prefix: "chore(deps): "
     rebase-strategy: "disabled"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: [
+            "version-update:semver-patch",
+            "version-update:semver-minor",
+          ] # Security updates are unaffected by this setting

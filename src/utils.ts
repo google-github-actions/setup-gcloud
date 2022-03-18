@@ -19,24 +19,6 @@
 import { promises as fs } from 'fs';
 
 /**
- * writeSecureFile writes a file to disk in a given directory with a
- * random name.
- *
- * @param outputPath Path in which to create random file in.
- * @param data Data to write to file.
- * @returns Path to written file.
- */
-export async function writeSecureFile(
-  outputPath: string,
-  data: string,
-): Promise<string> {
-  // Write the file as 0640 so the owner has RW, group as R, and the file is
-  // otherwise unreadable. Also write with EXCL to prevent a symlink attack.
-  await fs.writeFile(outputPath, data, { mode: 0o640, flag: 'wx' });
-  return outputPath;
-}
-
-/**
  * removeExportedCredentials removes any exported credentials file. If the file
  * does not exist, it does nothing.
  *

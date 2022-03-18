@@ -29,8 +29,8 @@ import {
   errorMessage,
   isPinnedToHead,
   pinnedToHeadWarning,
+  writeSecureFile,
 } from '@google-github-actions/actions-utils';
-import { writeSecureFile } from './utils';
 import path from 'path';
 import crypto from 'crypto';
 

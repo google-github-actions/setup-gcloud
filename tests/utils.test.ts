@@ -24,8 +24,9 @@ import { tmpdir } from 'os';
 import crypto from 'crypto';
 import path from 'path';
 
+import { writeSecureFile } from '@google-github-actions/actions-utils';
+
 import { removeExportedCredentials } from '../src/utils';
-import { writeSecureFile } from '../src/utils';
 
 describe('post', () => {
   describe('#removeExportedCredentials', () => {

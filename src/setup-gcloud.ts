@@ -40,7 +40,44 @@ export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 export async function run(): Promise<void> {
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
-    core.warning(pinnedToHeadWarning('v0'));
+    // TODO(sethvargo): switch back to warning level after branch is renamed
+    // from "master" -> "main".
+    core.error(pinnedToHeadWarning('v0'));
+
+    // TODO(sethvargo): remove after branch is renamed from "master" -> "main".
+    const envvar =
+      'SETUP_GCLOUD_I_UNDERSTAND_USING_MASTER_WILL_BREAK_MY_WORKFLOW_ON_2022_04_05';
+    const issueURL =
+      'https://github.com/google-github-actions/setup-gcloud/issues/539';
+    const isMaster = process.env.GITHUB_ACTION_REF === 'master';
+    const isOurs =
+      process.env.GITHUB_REPOSITORY_OWNER === 'google-github-actions';
+    const isAccepted = process.env[envvar];
+    if (isMaster && !(isOurs || isAccepted)) {
+      throw new Error(
+        `On 2022-04-05, the default branch will be renamed from "master" to ` +
+          `"main". Your action is currently pinned to "@master". Even though ` +
+          `GitHub creates redirects for renamed branches, testing found that ` +
+          `this rename breaks existing GitHub Actions workflows that are ` +
+          `pinned to the old branch name.\n` +
+          `\n` +
+          `We strongly advise updating your GitHub Action YAML from:\n` +
+          `\n` +
+          `    uses: 'google-github-actions/setup-gcloud@master'\n` +
+          `\n` +
+          `to:\n` +
+          `\n` +
+          `    uses: 'google-github-actions/setup-gcloud@v0'\n` +
+          `\n` +
+          `While not recommended, you can still pin to the "master" branch ` +
+          `by setting the environment variable "${envvar}=1". However, on ` +
+          `2022-04-05 when the branch is renamed, all your workflows will ` +
+          `begin failing with an obtuse and difficult to diagnose error ` +
+          `message.\n` +
+          `\n` +
+          `For more information, please see ${issueURL}.`,
+      );
+    }
   }
 
   core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);

@@ -40,9 +40,7 @@ export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 export async function run(): Promise<void> {
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
-    // TODO(sethvargo): switch back to warning level after branch is renamed
-    // from "master" -> "main".
-    core.error(pinnedToHeadWarning('v0'));
+    core.warning(pinnedToHeadWarning('v0'));
 
     // TODO(sethvargo): remove after branch is renamed from "master" -> "main".
     const envvar =
@@ -54,7 +52,7 @@ export async function run(): Promise<void> {
       process.env.GITHUB_REPOSITORY_OWNER === 'google-github-actions';
     const isAccepted = process.env[envvar];
     if (isMaster && !(isOurs || isAccepted)) {
-      throw new Error(
+      core.setFailed(
         `On 2022-04-05, the default branch will be renamed from "master" to ` +
           `"main". Your action is currently pinned to "@master". Even though ` +
           `GitHub creates redirects for renamed branches, testing found that ` +
@@ -75,8 +73,9 @@ export async function run(): Promise<void> {
           `begin failing with an obtuse and difficult to diagnose error ` +
           `message.\n` +
           `\n` +
-          `For more information, please see ${issueURL}.`,
+          `For more information, please see: ${issueURL}`,
       );
+      return;
     }
   }
 

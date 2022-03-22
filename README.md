@@ -156,7 +156,7 @@ authenticate via:
 
 ### Workload Identity Federation (preferred)
 
-**⚠️ The `bq` and `gsutil` tools do no currently support Workload Identity
+**⚠️ The `bq` and `gsutil` tools do not currently support Workload Identity
 Federation!** You will need to use traditional service account key
 authentication for now.
 

@@ -3,10 +3,11 @@ name: setup-gcloud Integration
 on:
   push:
     branches:
-      - "master"
+    - 'main'
   pull_request:
     branches:
-      - "master"
+    - 'main'
+  workflow_dispatch:
 
 concurrency:
   group: "${{github.workflow}}-${{ github.head_ref || github.ref }}"

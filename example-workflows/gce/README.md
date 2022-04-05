@@ -8,7 +8,7 @@ update values to match your setup.
 
 ## Workflow description
 
-For pushes to the `master` branch, this workflow will:
+For pushes to the `main` branch, this workflow will:
 
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
@@ -83,10 +83,10 @@ For pushes to the `master` branch, this workflow will:
     $ git commit -m "Set up GitHub workflow"
     ```
 
-1.  Push to the `master` branch:
+1.  Push to the `main` branch:
 
     ```text
-    $ git push -u origin master
+    $ git push -u origin main
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top

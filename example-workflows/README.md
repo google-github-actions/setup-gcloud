@@ -25,4 +25,4 @@ update values to match your setup.
 Learn more about [Automating your workflow with Github Actions](https://help.github.com/en/actions/automating-your-workflow-with-github-actions).
 
 
-[action]: https://github.com/GoogleCloudPlatform/github-actions/tree/master/setup-gcloud
+[action]: https://github.com/google-github-actions/setup-gcloud

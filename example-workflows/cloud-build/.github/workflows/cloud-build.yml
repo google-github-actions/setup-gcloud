@@ -17,7 +17,7 @@ name: Build using Cloud Build
 on:
   push:
     branches:
-    - master
+    - 'main'
 
 env:
   PROJECT_ID: ${{ secrets.RUN_PROJECT }}

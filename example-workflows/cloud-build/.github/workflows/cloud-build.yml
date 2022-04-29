@@ -43,13 +43,13 @@ jobs:
       uses: 'google-github-actions/auth@v0'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+        service_account: '${{ secrets.RUN_SA }}'
 
     # Alternative option - authentication via credentials json
     # - id: 'auth'
     #   uses: 'google-github-actions/auth@v0'
     #   with:
-    #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+    #     credentials_json: '${{ secrets.RUN_SA_KEY }}'
 
     # Setup gcloud CLI
     - name: Set up Cloud SDK

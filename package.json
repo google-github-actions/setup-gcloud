@@ -25,7 +25,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.7.0",
-    "@actions/tool-cache": "^1.7.2",
+    "@actions/tool-cache": "^2.0.1",
     "@google-github-actions/actions-utils": "^0.3.0",
     "@google-github-actions/setup-cloud-sdk": "^0.5.0"
   },

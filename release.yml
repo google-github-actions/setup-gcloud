@@ -1,0 +1,12 @@
+name: 'Release'
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  release:
+    if: "startsWith(github.event.head_commit.message, 'Release: v')"
+    name: 'Release'
+    uses: 'google-github-actions/.github/.github/workflows/release.yml@v0'

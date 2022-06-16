@@ -19,3 +19,6 @@ jobs:
     uses: 'google-github-actions/.github/.github/workflows/draft-release.yml@v0'
     with:
       version_strategy: '${{ github.event.inputs.version_strategy }}'
+    # secrets must be explicitly passed to reusable workflows https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/reusing-workflows#using-inputs-and-secrets-in-a-reusable-workflow
+    secrets:
+      ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'

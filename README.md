@@ -127,9 +127,8 @@ authenticate via:
 
 ### Workload Identity Federation (preferred)
 
-**⚠️ The `bq` and `gsutil` tools do not currently support Workload Identity
-Federation!** You will need to use traditional service account key
-authentication for now.
+**⚠️ You must use the Cloud SDK version 390.0.0 or later to authenticate the
+`bq` and `gsutil` tools.**
 
 ```yaml
 jobs:

@@ -3,12 +3,11 @@ name: setup-gcloud Unit
 on:
   push:
     branches:
-    - 'main'
+      - 'main'
   pull_request:
     branches:
-    - 'main'
+      - 'main'
   workflow_dispatch:
-
 
 concurrency:
   group: '${{github.workflow}}-${{ github.head_ref || github.ref }}'
@@ -23,23 +22,23 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v3'
 
-    - uses: 'actions/setup-node@v3'
-      with:
-        node-version: '16.x'
+      - uses: 'actions/setup-node@v3'
+        with:
+          node-version: '16.x'
 
-    - name: 'npm ci'
-      run: 'npm ci'
+      - name: 'npm ci'
+        run: 'npm ci'
 
-    - name: 'npm build'
-      run: 'npm run build'
+      - name: 'npm build'
+        run: 'npm run build'
 
-    - name: 'run lint'
-      run: 'npm run lint'
-      # There's no need to run the linter for each operating system, since it
-      # will find the same thing 3x and clog up the PR review.
-      if: ${{matrix.operating-system == 'ubuntu-latest'}}
+      - name: 'run lint'
+        run: 'npm run lint'
+        # There's no need to run the linter for each operating system, since it
+        # will find the same thing 3x and clog up the PR review.
+        if: ${{matrix.operating-system == 'ubuntu-latest'}}
 
-    - name: 'test'
-      run: 'npm test'
+      - name: 'test'
+        run: 'npm test'

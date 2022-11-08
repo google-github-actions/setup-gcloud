@@ -17,7 +17,6 @@ jobs:
   versioned:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud versioned
-    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +24,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: ${{ matrix.os }}
 
     permissions:
       id-token: 'write'
@@ -59,7 +59,6 @@ jobs:
   latest:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud latest
-    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
@@ -67,6 +66,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: ${{ matrix.os }}
 
     permissions:
       id-token: 'write'
@@ -106,7 +106,6 @@ jobs:
   project_id:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud with configured project
-    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
@@ -114,6 +113,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: ${{ matrix.os }}
 
     permissions:
       id-token: 'write'
@@ -143,7 +143,6 @@ jobs:
   components:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: setup-gcloud with components
-    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +150,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: ${{ matrix.os }}
 
     permissions:
       id-token: 'write'
@@ -192,7 +192,7 @@ jobs:
   docker:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'setup-gcloud with docker-based steps'
-    runs-on: 'ubuntu-latest'
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -234,7 +234,6 @@ jobs:
   wif:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'with wif'
-    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
@@ -242,6 +241,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
 
     permissions:
       id-token: 'write'
@@ -275,7 +275,6 @@ jobs:
   credentials_json:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'with key and auth action'
-    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
@@ -283,6 +282,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
 
     permissions:
       id-token: 'write'
@@ -315,7 +315,6 @@ jobs:
   credentials_json_exported:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'auth action with json key and setup-gcloud export'
-    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
@@ -323,6 +322,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
 
     steps:
       - uses: 'actions/checkout@v3'
@@ -341,8 +341,6 @@ jobs:
 
       - name: 'setup-gcloud'
         uses: './'
-        with:
-          export_default_credentials: true
 
       - id: 'gcloud'
         shell: 'bash'
@@ -352,7 +350,6 @@ jobs:
   multi_credentials:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'with two setup gcloud with different SA'
-    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
@@ -360,6 +357,7 @@ jobs:
           - 'ubuntu-latest'
           - 'windows-latest'
           - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
 
     permissions:
       id-token: 'write'
@@ -396,8 +394,6 @@ jobs:
         uses: ./
         with:
           version: 'latest'
-          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
       # current SA should be SETUP_GCLOUD_IT_EMAIL
       - name: 'check current SA'

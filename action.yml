@@ -27,20 +27,6 @@ inputs:
     default: latest
     required: false
 
-  service_account_email:
-    description: |-
-      Service account email address to use for authentication. This is required
-      for legacy .p12 keys but can be omitted for .json keys. This is usually of
-      the format <name>@<project-id>.iam.gserviceaccount.com.
-    required: false
-
-  service_account_key:
-    description: |-
-      Service account key to use for authentication. This should be the JSON
-      formatted private key which can be exported from the Cloud Console. The
-      value can be raw or base64-encoded.
-    required: false
-
   project_id:
     description: |-
       ID of the Google Cloud project. If provided, this will configure gcloud to
@@ -53,32 +39,6 @@ inputs:
     description: List of Cloud SDK components to install
     required: false
 
-  export_default_credentials:
-    description: |-
-      Export the provided credentials as Google Default Application Credentials.
-      This will make the credentials available to later steps via the
-      GOOGLE_APPLICATION_CREDENTIALS environment variable. Future steps that
-      consume Default Application Credentials will automatically detect and use
-      these credentials.
-    default: false
-    required: false
-
-  credentials_file_path:
-    description: |-
-      The path and name of the file to which to write the shared default
-      credentials. This option is only valid when
-      export_default_credentials=true. By default, the credentials will be
-      written to a new file in the root of GITHUB_WORKSPACE.
-    default: null
-    required: false
-
-  cleanup_credentials:
-    description: |-
-      If true, the action will remove any generated credentials from the
-      filesystem upon completion.
-    default: true
-    required: false
-
 branding:
   icon: 'terminal'
   color: 'blue'
@@ -86,4 +46,3 @@ branding:
 runs:
   using: 'node16'
   main: 'dist/main/index.js'
-  post: 'dist/post/index.js'

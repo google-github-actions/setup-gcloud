@@ -3,14 +3,14 @@ name: setup-gcloud Integration
 on:
   push:
     branches:
-    - 'main'
+      - 'main'
   pull_request:
     branches:
-    - 'main'
+      - 'main'
   workflow_dispatch:
 
 concurrency:
-  group: "${{github.workflow}}-${{ github.head_ref || github.ref }}"
+  group: '${{github.workflow}}-${{ github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 jobs:
@@ -21,22 +21,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
     steps:
       - uses: actions/checkout@v3
-      - uses: "actions/setup-node@v3"
+
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
+
       - id: build
         name: Build dist
         run: |-
           npm ci
           npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
       - name: setup-gcloud
         uses: ./
         with:
-          version: "374.0.0"
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+          version: '374.0.0'
 
       - name: Integration Tests
         shell: bash
@@ -49,89 +63,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
     steps:
       - uses: actions/checkout@v3
-      - uses: "actions/setup-node@v3"
+
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
+
       - name: Build dependency
         run: |-
           npm ci
           npm run build
+
       - id: build
         name: Build dist
         run: |-
           npm ci
           npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
       - name: setup-gcloud
         uses: ./
         with:
-          version: "latest"
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+          version: 'latest'
 
       - name: Integration Tests
         shell: bash
         run: ./tests/integration-tests.sh
-
-  email:
-    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: setup-gcloud user-defined email
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      fail-fast: false
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: "actions/setup-node@v3"
-        with:
-          node-version: "16.x"
-      - id: build
-        name: Build dist
-        run: |-
-          npm ci
-          npm run build
-      - name: setup-gcloud
-        uses: ./
-        with:
-          version: "latest"
-          service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-
-      - name: Integration Tests
-        shell: bash
-        run: ./tests/integration-tests.sh
-
-  exported:
-    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: setup-gcloud exported credentials
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      fail-fast: false
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: "actions/setup-node@v3"
-        with:
-          node-version: "16.x"
-
-      - id: build
-        name: Build dist
-        run: |-
-          npm ci
-          npm run build
-      - name: setup-gcloud
-        uses: ./
-        with:
-          version: "latest"
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-          export_default_credentials: true
-
-      - name: Verify Exported
-        shell: bash
-        run: test -f $GOOGLE_APPLICATION_CREDENTIALS
 
   project_id:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
@@ -140,7 +110,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
     steps:
       - uses: actions/checkout@v3
       - id: build
@@ -148,6 +125,12 @@ jobs:
         run: |-
           npm ci
           npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
       - name: setup-gcloud
         uses: ./
         with:
@@ -164,7 +147,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
     steps:
       - uses: actions/checkout@v3
       - id: build
@@ -172,6 +162,12 @@ jobs:
         run: |-
           npm ci
           npm run build
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
       - name: setup-gcloud
         uses: ./
         with:
@@ -195,58 +191,67 @@ jobs:
   # has permissions to read the file.
   docker:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: "setup-gcloud with docker-based steps"
-    runs-on: "ubuntu-latest"
-    strategy:
-      fail-fast: false
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: "actions/checkout@v3"
-
-      - uses: "actions/setup-node@v3"
-        with:
-          node-version: "16.x"
-
-      - name: "npm ci"
-        run: "npm ci"
-
-      - name: "npm build"
-        run: "npm run build"
-
-      - name: "setup-gcloud"
-        uses: "./"
-        with:
-          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-          export_default_credentials: true
-
-      - name: "docker"
-        uses: "docker://alpine:3"
-        with:
-          entrypoint: "/bin/sh"
-          args: '-euc "test -n "${GOOGLE_APPLICATION_CREDENTIALS}" && test -r "${GOOGLE_APPLICATION_CREDENTIALS}"'
-
-  wif:
-    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: "with wif"
-    runs-on: "${{ matrix.os }}"
+    name: 'setup-gcloud with docker-based steps'
+    runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
-          - "windows-latest"
-          - "macos-latest"
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
 
     permissions:
-      id-token: "write"
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - uses: 'actions/setup-node@v3'
+        with:
+          node-version: '16.x'
+
+      - name: 'npm ci'
+        run: 'npm ci'
+
+      - name: 'npm build'
+        run: 'npm run build'
+
+      - uses: google-github-actions/auth@main
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+
+      - name: 'setup-gcloud'
+        uses: './'
+
+      - name: 'docker'
+        uses: 'docker://alpine:3'
+        with:
+          entrypoint: '/bin/sh'
+          args: '-euc "test -n "${GOOGLE_APPLICATION_CREDENTIALS}" && test -r "${GOOGLE_APPLICATION_CREDENTIALS}"'
+
+  wif:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: 'with wif'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v3"
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
 
       - id: build
         name: Build dist
@@ -259,32 +264,35 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
           service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
 
-      - name: "setup-gcloud"
-        uses: "./"
+      - name: 'setup-gcloud'
+        uses: './'
 
-      - id: "gcloud"
-        shell: "bash"
+      - id: 'gcloud'
+        shell: 'bash'
         run: |-
           gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
 
   credentials_json:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: "with key and auth action"
-    runs-on: "${{ matrix.os }}"
+    name: 'with key and auth action'
+    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
-          - "windows-latest"
-          - "macos-latest"
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v3"
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
 
       - id: build
         name: Build dist
@@ -296,72 +304,72 @@ jobs:
         with:
           credentials_json: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
-      - name: "setup-gcloud"
-        uses: "./"
+      - name: 'setup-gcloud'
+        uses: './'
 
-      - id: "gcloud"
-        shell: "bash"
+      - id: 'gcloud'
+        shell: 'bash'
         run: |-
           gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
 
   credentials_json_exported:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: "auth action with json key and setup-gcloud export"
-    runs-on: "${{ matrix.os }}"
+    name: 'auth action with json key and setup-gcloud export'
+    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
-          - "windows-latest"
-          - "macos-latest"
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
 
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: 'actions/checkout@v3'
 
-      - uses: "actions/setup-node@v3"
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
 
-      - id: "build"
-        name: "Build dist"
-        run: "npm ci && npm run build"
+      - id: 'build'
+        name: 'Build dist'
+        run: 'npm ci && npm run build'
 
-      - uses: "google-github-actions/auth@main"
+      - uses: 'google-github-actions/auth@main'
         with:
-          credentials_json: "${{ secrets.SETUP_GCLOUD_IT_KEY }}"
+          credentials_json: '${{ secrets.SETUP_GCLOUD_IT_KEY }}'
 
-      - name: "setup-gcloud"
-        uses: "./"
+      - name: 'setup-gcloud'
+        uses: './'
         with:
           export_default_credentials: true
 
-      - id: "gcloud"
-        shell: "bash"
+      - id: 'gcloud'
+        shell: 'bash'
         run: |-
           gcloud secrets versions access "latest" --secret "${{ secrets.OIDC_AUTH_TEST_SECRET_NAME }}"
 
   multi_credentials:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
-    name: "with two setup gcloud with different SA"
-    runs-on: "${{ matrix.os }}"
+    name: 'with two setup gcloud with different SA'
+    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
-          - "windows-latest"
-          - "macos-latest"
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
 
     permissions:
-      id-token: "write"
+      id-token: 'write'
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: "actions/setup-node@v3"
+      - uses: 'actions/setup-node@v3'
         with:
-          node-version: "16.x"
+          node-version: '16.x'
 
       - id: build
         name: Build dist
@@ -374,12 +382,12 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
           service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
 
-      - name: "setup-gcloud"
-        uses: "./"
+      - name: 'setup-gcloud'
+        uses: './'
 
       # current SA should be OIDC_AUTH_SA_EMAIL
-      - name: "check current SA"
-        shell: "bash"
+      - name: 'check current SA'
+        shell: 'bash'
         run: |-
           CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
           if [ ${{ secrets.OIDC_AUTH_SA_EMAIL }} != $CURRENT_SA ]; then exit 1; fi
@@ -387,13 +395,13 @@ jobs:
       - name: setup-gcloud
         uses: ./
         with:
-          version: "latest"
+          version: 'latest'
           service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
 
       # current SA should be SETUP_GCLOUD_IT_EMAIL
-      - name: "check current SA"
-        shell: "bash"
+      - name: 'check current SA'
+        shell: 'bash'
         run: |-
           CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
           if [ ${{ secrets.SETUP_GCLOUD_IT_EMAIL }} != $CURRENT_SA ]; then exit 1; fi

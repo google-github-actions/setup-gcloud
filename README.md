@@ -34,13 +34,13 @@ jobs:
 
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v1'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -71,39 +71,6 @@ jobs:
     ```yaml
     install_components: 'alpha,cloud-datastore-emulator'
     ```
-
-### Authentication inputs
-
-**⚠️ Deprecated**: The following authentication inputs are deprecated and will
-be removed in a future release. See [Authorization](#authorization) for more
-information.
-
--   `service_account_key`: (**Deprecated**, optional) The Google Cloud service
-    account key JSON. This key should be created and stored as a GitHub secret.
-    It can be the raw JSON contents or a base64-encoded string of the raw JSON
-    contents. There is no default value.
-
--   `service_account_email`: (**Deprecated**, optional) Email address of the
-    service account to use for authentication. This is only required for p12
-    service account keys, which are no longer recommended. This input is not
-    required if using a JSON service account key. There is no default value.
-
--   `export_default_credentials`: (**Deprecated**, optional) If true, the action
-    will write credentials to the filesystem and export the
-    `GOOGLE_APPLICATION_CREDENTIALS` environment variable for future steps to
-    consume [Application Default Credentials][adc]. The default value is false.
-
--   `credentials_file_path`: (**Deprecated**, optional) The path at which the
-    exported credentials should be written on disk. In order for the credentials
-    to be available for future steps, it must be in `$GITHUB_WORKSPACE` or
-    `$RUNNER_TEMP`. This is only valid when `export_default_credentials` is
-    true. The default value is a temporary file inside `$GITHUB_WORKSPACE`.
-
--   `cleanup_credentials`: (**Deprecated**, optional) If true, the action will
-    remove any generated credentials from the filesystem after all steps have
-    completed. This only applies if `export_default_credentials` is true. The
-    default value is true.
-
 
 ## Example workflows
 
@@ -140,13 +107,13 @@ jobs:
 
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v1'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -159,12 +126,12 @@ job:
   job_id:
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v1'
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -180,7 +147,7 @@ job:
   job_id:
     steps:
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -192,7 +159,7 @@ job:
 We recommend pinning to the latest available major version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v0'
+- uses: 'google-github-actions/setup-gcloud@v1'
 ```
 
 While this action attempts to follow semantic versioning, but we're ultimately
@@ -200,7 +167,7 @@ human and sometimes make mistakes. To prevent accidental breaking changes, you
 can also pin to a specific version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v0.1.1'
+- uses: 'google-github-actions/setup-gcloud@v1.0.0'
 ```
 
 However, you will not get automatic security updates or new features without

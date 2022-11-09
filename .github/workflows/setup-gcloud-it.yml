@@ -192,14 +192,9 @@ jobs:
   docker:
     if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
     name: 'setup-gcloud with docker-based steps'
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
-      matrix:
-        os:
-          - 'ubuntu-latest'
-          - 'windows-latest'
-          - 'macos-latest'
 
     permissions:
       id-token: 'write'

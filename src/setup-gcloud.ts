@@ -36,7 +36,7 @@ export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 export async function run(): Promise<void> {
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
-    core.warning(pinnedToHeadWarning('v0'));
+    core.warning(pinnedToHeadWarning('v1'));
   }
 
   core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);

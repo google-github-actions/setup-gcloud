@@ -47,6 +47,7 @@ describe('#run', function () {
       setFailed: sinon.stub(core, 'setFailed'),
       warning: sinon.stub(core, 'warning'),
       installGcloudSDK: sinon.stub(setupGcloud, 'installGcloudSDK'),
+      authenticateGcloudSDK: sinon.stub(setupGcloud, 'authenticateGcloudSDK'),
       isInstalled: sinon.stub(setupGcloud, 'isInstalled').returns(false),
       setProject: sinon.stub(setupGcloud, 'setProject'),
       installComponent: sinon.stub(setupGcloud, 'installComponent'),
@@ -125,4 +126,10 @@ describe('#run', function () {
     await run();
     expect(this.stubs.setProject.callCount).to.eq(0);
   });
+
+  it('authenticates GCloud SDK with GOOGLE_GHA_CREDS_PATH', async function () {
+    this.stubs.env.value({ GOOGLE_GHA_CREDS_PATH: 'foo/bar/credpath' });
+    await run();
+    expect(this.stubs.authenticateGcloudSDK.callCount).to.eq(1);
+  })
 });

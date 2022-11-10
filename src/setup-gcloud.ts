@@ -17,6 +17,7 @@
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import {
+  authenticateGcloudSDK,
   getLatestGcloudSDKVersion,
   installComponent,
   installGcloudSDK,
@@ -65,6 +66,10 @@ export async function run(): Promise<void> {
     if (projectId) {
       await setProject(projectId);
       core.info('Successfully set default project');
+    }
+
+    if (process.env.GOOGLE_GHA_CREDS_PATH) {
+      await authenticateGcloudSDK();
     }
   } catch (err) {
     const msg = errorMessage(err);

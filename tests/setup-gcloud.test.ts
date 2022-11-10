@@ -26,7 +26,7 @@ import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 
-import { run } from '../src/setup-gcloud';
+import { run } from '../src/main';
 
 // These are mock data for github actions inputs, where camel case is expected.
 const fakeInputs: { [key: string]: string } = {
@@ -66,19 +66,13 @@ describe('#run', function () {
     await run();
     // getLatestGcloudSDKVersion is implemented as a getter on on exports and so stubbing doesn't work.
     // Instead, make sure that installGcloudSDK was called with an expected version string.
-    expect(
-      this.stubs.installGcloudSDK.withArgs(sinon.match(/\d+\.\d+\.\d+/))
-        .callCount,
-    ).to.eq(1);
+    expect(this.stubs.installGcloudSDK.withArgs(sinon.match(/\d+\.\d+\.\d+/)).callCount).to.eq(1);
   });
 
   it('downloads the latest gcloud SDK if version is "latest"', async function () {
     this.stubs.getInput.withArgs('version').returns('latest');
     await run();
-    expect(
-      this.stubs.installGcloudSDK.withArgs(sinon.match(/\d+\.\d+\.\d+/))
-        .callCount,
-    ).to.eq(1);
+    expect(this.stubs.installGcloudSDK.withArgs(sinon.match(/\d+\.\d+\.\d+/)).callCount).to.eq(1);
   });
 
   it('does not download the SDK if version is provided', async function () {
@@ -98,9 +92,7 @@ describe('#run', function () {
     this.stubs.isInstalled.returns(true);
     this.stubs.getInput.withArgs('version').returns('777');
     await run();
-    expect(this.stubs.toolCacheFind.withArgs('gcloud', '777').callCount).to.eq(
-      1,
-    );
+    expect(this.stubs.toolCacheFind.withArgs('gcloud', '777').callCount).to.eq(1);
   });
 
   it('installs 1 additional component', async function () {
@@ -116,9 +108,7 @@ describe('#run', function () {
   });
 
   it('authenticates if GOOGLE_GHA_CREDS is set', async function () {
-    this.stubs.env
-      .value({ GOOGLE_GHA_CREDS_PATH: 'foo/bar/path.json' })
-      .returns('{}');
+    this.stubs.env.value({ GOOGLE_GHA_CREDS_PATH: 'foo/bar/path.json' }).returns('{}');
     await run();
     expect(this.stubs.authenticateGcloudSDK.callCount).to.eq(1);
   });

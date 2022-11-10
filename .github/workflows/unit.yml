@@ -1,4 +1,4 @@
-name: setup-gcloud Unit
+name: 'Unit'
 
 on:
   push:
@@ -10,17 +10,20 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: '${{github.workflow}}-${{ github.head_ref || github.ref }}'
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 jobs:
-  run:
-    name: setup-gcloud
-    runs-on: ${{ matrix.operating-system }}
+  unit:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
+
     steps:
       - uses: 'actions/checkout@v3'
 
@@ -38,7 +41,7 @@ jobs:
         run: 'npm run lint'
         # There's no need to run the linter for each operating system, since it
         # will find the same thing 3x and clog up the PR review.
-        if: ${{matrix.operating-system == 'ubuntu-latest'}}
+        if: ${{matrix.os == 'ubuntu-latest'}}
 
       - name: 'test'
         run: 'npm test'

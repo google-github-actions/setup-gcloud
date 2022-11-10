@@ -372,8 +372,8 @@ jobs:
 
       - uses: google-github-actions/auth@main
         with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
-          service_account: ${{ secrets.OIDC_AUTH_SA_EMAIL }}
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
+          service_account: '${{ secrets.OIDC_AUTH_SA_EMAIL }}'
 
       - name: 'setup-gcloud'
         uses: './'
@@ -384,6 +384,10 @@ jobs:
         run: |-
           CURRENT_SA=$(gcloud auth list --format="value(account)" --filter="(status=ACTIVE)")
           if [ ${{ secrets.OIDC_AUTH_SA_EMAIL }} != $CURRENT_SA ]; then exit 1; fi
+
+      - uses: google-github-actions/auth@main
+        with:
+          credentials_json: '${{ secrets.SETUP_GCLOUD_IT_KEY }}'
 
       - name: setup-gcloud
         uses: ./

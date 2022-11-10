@@ -5,9 +5,10 @@
   "main": "dist/main/index.js",
   "scripts": {
     "build": "ncc build -m src/main.ts -o dist/main",
+    "format": "prettier --write **/*.ts",
+    "integration": "mocha -r ts-node/register -t 180s 'tests/integration/*.test.ts'",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'",
-    "format": "prettier --write **/*.ts"
+    "test": "mocha -r ts-node/register -t 180s 'tests/*.test.ts'"
   },
   "repository": {
     "type": "git",

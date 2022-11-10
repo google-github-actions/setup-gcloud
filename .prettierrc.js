@@ -19,7 +19,7 @@ module.exports = {
   bracketSpacing: true,
   endOfLine: 'auto',
   jsxSingleQuote: true,
-  printWidth: 80,
+  printWidth: 100,
   quoteProps: 'consistent',
   semi: true,
   singleQuote: true,

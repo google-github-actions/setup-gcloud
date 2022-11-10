@@ -46,6 +46,7 @@ describe('#run', function () {
       exportVariable: sinon.stub(core, 'exportVariable'),
       setFailed: sinon.stub(core, 'setFailed'),
       warning: sinon.stub(core, 'warning'),
+      authenticateGcloudSDK: sinon.stub(setupGcloud, 'authenticateGcloudSDK'),
       installGcloudSDK: sinon.stub(setupGcloud, 'installGcloudSDK'),
       isInstalled: sinon.stub(setupGcloud, 'isInstalled').returns(false),
       setProject: sinon.stub(setupGcloud, 'setProject'),
@@ -112,6 +113,14 @@ describe('#run', function () {
     this.stubs.getInput.withArgs('install_components').returns('beta, alpha');
     await run();
     expect(this.stubs.installComponent.callCount).to.eq(1);
+  });
+
+  it('authenticates if GOOGLE_GHA_CREDS is set', async function () {
+    this.stubs.env
+      .value({ GOOGLE_GHA_CREDS_PATH: 'foo/bar/path.json' })
+      .returns('{}');
+    await run();
+    expect(this.stubs.authenticateGcloudSDK.callCount).to.eq(1);
   });
 
   it('sets the project ID if provided', async function () {

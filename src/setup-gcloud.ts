@@ -17,6 +17,7 @@
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import {
+  authenticateGcloudSDK,
   getLatestGcloudSDKVersion,
   installComponent,
   installGcloudSDK,
@@ -58,6 +59,17 @@ export async function run(): Promise<void> {
     const components = core.getInput('install_components');
     if (components) {
       await installComponent(components.split(',').map((comp) => comp.trim()));
+    }
+
+    // Authenticate - this comes from google-github-actions/auth
+    const credFile = process.env.GOOGLE_GHA_CREDS_PATH;
+    if (credFile) {
+      await authenticateGcloudSDK(credFile);
+      core.info('Successfully authenticated');
+    } else {
+      core.warning(
+        'No authentication found for gcloud, authenticate with `google-github-actions/auth`.',
+      );
     }
 
     // Set the project ID, if given.

@@ -47,7 +47,7 @@ For pushes to the `main` branch, this workflow will:
 1.  [Create a Google Cloud service account][create-sa] if one does not already
     exist.
 
-1.  [Create an Antifact Registry docker repository](https://cloud.google.com/artifact-registry/docs/docker/quickstart#gcloud) if one does not already exist
+1.  [Create an Artifact Registry docker repository](https://cloud.google.com/artifact-registry/docs/docker/quickstart#gcloud) if one does not already exist
 
 1.  Add the following [Cloud IAM roles][roles] to your service account:
 

@@ -31,16 +31,23 @@ import {
 } from '@google-github-actions/actions-utils';
 import path from 'path';
 
-export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
-export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
+// Do not listen to the linter - this can NOT be rewritten as an ES6 import
+// statement.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version: appVersion } = require('../package.json');
 
 export async function run(): Promise<void> {
+  // Note: unlike the other actions, we actually want to export this as a
+  // persistent variable for future steps. Other actions should set process.env
+  // or use stubEnv to only set metrics for the duration of the step.
+  core.exportVariable('CLOUDSDK_METRICS_ENVIRONMENT', 'github-actions-setup-gcloud');
+  core.exportVariable('CLOUDSDK_METRICS_ENVIRONMENT_VERSION', appVersion);
+
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
     core.warning(pinnedToHeadWarning('v1'));
   }
 
-  core.exportVariable(GCLOUD_METRICS_ENV_VAR, GCLOUD_METRICS_LABEL);
   try {
     let version = core.getInput('version');
     if (!version || version == 'latest') {

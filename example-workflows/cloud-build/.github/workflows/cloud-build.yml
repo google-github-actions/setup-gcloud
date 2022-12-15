@@ -17,7 +17,7 @@ name: Build using Cloud Build
 on:
   push:
     branches:
-    - master
+    - 'main'
 
 env:
   PROJECT_ID: ${{ secrets.RUN_PROJECT }}
@@ -28,17 +28,32 @@ jobs:
     name: Setup, Build, and Deploy
     runs-on: ubuntu-latest
 
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: '${{ secrets.RUN_SA_EMAIL }}'
+
+    # Alternative option - authentication via credentials json
+    # - id: 'auth'
+    #   uses: 'google-github-actions/auth@v1'
+    #   with:
+    #     credentials_json: '${{ secrets.RUN_SA_KEY }}'
 
     # Setup gcloud CLI
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with:
-        version: '286.0.0'
-        service_account_email: ${{ secrets.RUN_SA_EMAIL }}
-        service_account_key: ${{ secrets.RUN_SA_KEY }}
-        project_id: ${{ secrets.RUN_PROJECT }}
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
 
     # Build and push image to Google Container Registry
     - name: Build

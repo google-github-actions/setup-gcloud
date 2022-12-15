@@ -15,12 +15,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gke-hello-app
+  name: gke-test
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: gke-hello-app
+      app: gke-test
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -29,27 +29,15 @@ spec:
   template:
     metadata:
       labels:
-        app: gke-hello-app
+        app: gke-test
     spec:
       containers:
-      - name: hello-app
-        image: gcr.io/google-samples/hello-app:1.0
+      - name: gke-test
+        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG
         ports:
-        - containerPort: 8080
+        - containerPort: 5000
         resources:
           requests:
             cpu: 100m
           limits:
             cpu: 100m
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gke-hello-app-service
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 8080
-  selector:
-    app: gke-hello-app

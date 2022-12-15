@@ -13,10 +13,10 @@
 # limitations under the License.
 
 name: Set up gcloud Cloud SDK environment
-author: GoogleCloudPlatform
+author: Google LLC
 description: |-
-  Downloads, installs, and configures a gcloud Cloud SDK environment for the
-  worker. This will add the `gcloud` CLI command to the worker's $PATH.
+  Downloads, installs, and configures a Google Cloud SDK environment.
+  Adds the `gcloud` CLI command to the $PATH.
 
 inputs:
   version:
@@ -27,20 +27,6 @@ inputs:
     default: latest
     required: false
 
-  service_account_email:
-    description: |-
-      Service account email address to use for authentication. This is required
-      for legacy .p12 keys but can be omitted for .json keys. This is usually of
-      the format <name>@<project-id>.iam.gserviceaccount.com.
-    required: false
-
-  service_account_key:
-    description: |-
-      Service account key to use for authentication. This should be the JSON
-      formatted private key which can be exported from the Cloud Console. The
-      value can be raw or base64-encoded.
-    required: false
-
   project_id:
     description: |-
       ID of the Google Cloud project. If provided, this will configure gcloud to
@@ -49,16 +35,14 @@ inputs:
     default: null
     required: false
 
-  export_default_credentials:
-    description: |-
-      Export the provided credentials as Google Default Application Credentials.
-      This will make the credentials available to later steps via the
-      GOOGLE_APPLICATION_CREDENTIALS environment variable. Future steps that
-      consume Default Application Credentials will automatically detect and use
-      these credentials.
-    default: false
+  install_components:
+    description: List of Cloud SDK components to install
     required: false
 
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
 runs:
-  using: node12
-  main: setup-gcloud/dist/index.js
+  using: 'node16'
+  main: 'dist/main/index.js'

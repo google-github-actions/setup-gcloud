@@ -1,10 +1,10 @@
-# Copyright 2021 Google LLC
+# Copyright 2019 Google, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,22 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Deploy simple hello app to GKE
-
 on:
   push:
     branches:
-    - main
+    - example
 
+name: Build and Deploy to Cloud Run
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: cluster-1    # TODO: update to cluster name
-  GKE_ZONE: europe-central2-a	   # TODO: update to cluster zone
-  DEPLOYMENT_NAME: gke-hello-app # TODO: update deployment name if changed in deployment.yaml
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE: YOUR_SERVICE_NAME
+  REGION: YOUR_SERVICE_REGION
 
 jobs:
-  setup-and-deploy:
-    name: Setup and Deploy
+  deploy:
     runs-on: ubuntu-latest
 
     # Add "id-token" with the intended permissions.
@@ -57,13 +54,18 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
 
-    # Get the GKE credentials so we can deploy to the cluster
-    - run: |-
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
 
-    # Deploy sample image to the GKE cluster
-    - name: Deploy
+    - name: Build and Push Container
       run: |-
-        kubectl apply -f deployment.yml
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
-        kubectl get services -o wide
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
+
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud run deploy ${{ env.SERVICE }} \
+          --region ${{ env.REGION }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --platform "managed" \
+          --quiet

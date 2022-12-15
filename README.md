@@ -1,54 +1,235 @@
-<!--
- Copyright 2019 Google LLC
+# `setup-gcloud` GitHub Action
 
- Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
- compliance with the License. You may obtain a copy of the License at
+Configures the [Google Cloud SDK][sdk] in the GitHub Actions environment. The Google Cloud SDK includes both the [gcloud][gcloud] and
+[gsutil][gsutil] binaries.
 
-        https://www.apache.org/licenses/LICENSE-2.0
+Or integrate natively with other Google Cloud GitHub Actions:
 
- Unless required by applicable law or agreed to in writing, software distributed under the License
- is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- implied. See the License for the specific language governing permissions and limitations under the
- License.
--->
+* [Authenticate to Google Cloud][auth]
+* [Deploy a Cloud Run service](https://github.com/google-github-actions/deploy-cloudrun)
+* [Deploy an App Engine app](https://github.com/google-github-actions/deploy-appengine)
+* [Deploy a Cloud Function](https://github.com/google-github-actions/deploy-cloud-functions)
+* [Access Secret Manager secrets](https://github.com/google-github-actions/get-secretmanager-secrets)
+* [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
+* [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
-# Google Cloud Platform: github-actions
+## Prerequisites
 
-This repository contains a library of [Github Actions](https://github.com/actions) providing functionality for working with [Google Cloud Platform](http://cloud.google.com/).
+-   This action requires Google Cloud credentials to execute gcloud commands.
+    See [Authorization](#Authorization) for more details.
 
-## Available Actions
+-   This action runs using Node 16. If you are using self-hosted GitHub Actions
+    runners, you must use runner version [2.285.0](https://github.com/actions/virtual-environments)
+    or newer.
 
-* [setup-gcloud](./setup-gcloud/README.md): This action downloads, installs, and configures a [gcloud Cloud SDK](https://cloud.google.com/sdk/) environment for the worker, adding the `gcloud` CLI command to the worker's $PATH.
+## Usage
 
-* [get-secretmanager-secrets](./get-secretmanager-secrets/README.md): This action accesses secrets from [Google Secret Manager](https://cloud.google.com/secret-manager) and makes their results available as output variables.
+```yaml
+jobs:
+  job_id:
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-## Example Workflows
+    steps:
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
-* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses [GitHub Actions][github-action] to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
-* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses [GitHub Actions][github-action] to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+```
 
-* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses [GitHub Actions](https://help.github.com/en/categories/automating-your-workflow-with-github-actions) to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
+## Inputs
 
-## Feature requests and bug reports
+### Cloud SDK inputs
 
-Please file feature requests and bug reports as
-[github issues](https://github.com/GoogleCloudPlatform/github-actions/issues).
+-   `version`: (Optional) A string representing the version of the Cloud SDK
+    (`gcloud`) to install (e.g. `"290.0.1"`). The default value is "latest",
+    which will install the latest available Cloud SDK version.
 
-## Community
+    **Warning!** Workload Identity Federation requires version
+    [363.0.0](https://cloud.google.com/sdk/docs/release-notes#36300_2021-11-02)
+    or newer.
 
-The GCP GitHub Actions community uses the **#gcp-github-actions** slack channel on
-[https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
-to ask questions and share feedback. Invitation link available here:
-[gcp-slack](https://cloud.google.com/community#home-support).
+-   `project_id`: (Optional) Project ID (**not** project _number_) of the Google
+    Cloud project. If provided, this will configure the `gcloud` CLI to use that
+    project ID for commands. Individual commands can still override the project
+    with the `--project` flag. If unspecified, the action attempts to find the
+    "best" project ID by looking at other inputs and environment variables.
+
+-   `install_components`: (Optional) List of [Cloud SDK
+    components](https://cloud.google.com/sdk/docs/components) to install
+    specified as a comma-separated list of strings:
+
+    ```yaml
+    install_components: 'alpha,cloud-datastore-emulator'
+    ```
+
+## Example workflows
+
+* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses GitHub Actions to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
+
+* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses GitHub Actions to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
+
+* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses GitHub Actions to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
+
+* [App Engine](./example-workflows/gae/README.md): An example workflow that uses GitHub Actions to deploy source
+code to [App Engine](https://cloud.google.com/appengine), a fully managed serverless platform.
+
+* [Cloud Build](./example-workflows/cloud-build/README.md): An example workflow that uses GitHub Actions to build a container image with [Cloud Build](https://cloud.google.com/cloud-build).
+
+
+## Authorization
+
+This action installs the Cloud SDK (`gcloud`). To configure its authentication
+to Google Cloud, use the [google-github-actions/auth][auth] action. You can
+authenticate via:
+
+### Workload Identity Federation (preferred)
+
+**⚠️ You must use the Cloud SDK version 390.0.0 or later to authenticate the
+`bq` and `gsutil` tools.**
+
+```yaml
+jobs:
+  job_id:
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+```
+
+### Service Account Key JSON
+
+```yaml
+job:
+  job_id:
+    steps:
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+```
+
+### Application Default Credentials
+
+If and only if you are using self-hosted runners that are hosted on Google Cloud Platform,
+the Cloud SDK will automatically authenticate using the machine credentials:
+
+```yaml
+job:
+  job_id:
+    steps:
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+```
+
+### Multiple Service Accounts
+
+To use multiple service accounts, a second auth step is required to update the credentials before using `setup-gcloud`:
+
+```yaml
+jobs:
+  job_id:
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - id: 'auth service account 1'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+          service_account: 'service-account-1@my-project.iam.gserviceaccount.com'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
+        # service-account-1@my-project.iam.gserviceaccount.com
+
+      - id: 'auth service account 2'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
+        # service-account-2@my-project.iam.gserviceaccount.com
+```
+
+
+## Versioning
+
+We recommend pinning to the latest available major version:
+
+```yaml
+- uses: 'google-github-actions/setup-gcloud@v1'
+```
+
+While this action attempts to follow semantic versioning, but we're ultimately
+human and sometimes make mistakes. To prevent accidental breaking changes, you
+can also pin to a specific version:
+
+```yaml
+- uses: 'google-github-actions/setup-gcloud@v1.0.0'
+```
+
+However, you will not get automatic security updates or new features without
+explicitly updating your version number. Note that we only publish `MAJOR` and
+`MAJOR.MINOR.PATCH` versions. There is **not** a floating alias for
+`MAJOR.MINOR`.
+
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+See [CONTRIBUTING](CONTRIBUTING.md).
 
 ## License
 
-See [LICENSE](LICENSE)
+See [LICENSE](LICENSE).
 
 
 [github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions
+[auth]: https://github.com/google-github-actions/auth
+[adc]: https://cloud.google.com/docs/authentication/production
+[sdk]: https://cloud.google.com/sdk/
+[gcloud]: https://cloud.google.com/sdk/gcloud/
+[gsutil]: https://cloud.google.com/storage/docs/gsutil
+[sa-iam-docs]: https://cloud.google.com/iam/docs/service-accounts
+[sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
+[wif]: https://cloud.google.com/iam/docs/workload-identity-federation

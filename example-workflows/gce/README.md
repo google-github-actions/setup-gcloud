@@ -8,7 +8,7 @@ update values to match your setup.
 
 ## Workflow description
 
-For pushes to the `master` branch, this workflow will:
+For pushes to the `main` branch, this workflow will:
 
 1.  Download and configure the Google [Cloud SDK][sdk] with the provided
     credentials.
@@ -45,7 +45,7 @@ For pushes to the `master` branch, this workflow will:
 1.  [Create a Google Cloud service account][create-sa] if one does not already
     exist.
 
-1.  Add the the following [Cloud IAM roles][roles] to your service account:
+1.  Add the following [Cloud IAM roles][roles] to your service account:
 
     - `Compute Instance Admin` - allows administering GCE VMs
 
@@ -54,7 +54,7 @@ For pushes to the `master` branch, this workflow will:
     - `Service Account User` - run operations as the compute storage account
 
     Note: These permissions are overly broad to favor a quick start. They do not
-    represent best practices around the Principle of Least Privledge. To
+    represent best practices around the Principle of Least Privilege. To
     properly restrict access, you should create a custom IAM role with the most
     restrictive permissions.
 
@@ -83,10 +83,10 @@ For pushes to the `master` branch, this workflow will:
     $ git commit -m "Set up GitHub workflow"
     ```
 
-1.  Push to the `master` branch:
+1.  Push to the `main` branch:
 
     ```text
-    $ git push -u origin master
+    $ git push -u origin main
     ```
 
 1.  View the GitHub Actions Workflow by selecting the `Actions` tab at the top

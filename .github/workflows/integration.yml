@@ -1,0 +1,111 @@
+name: 'Integration'
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
+
+    permissions:
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - uses: 'actions/setup-node@v3'
+        with:
+          node-version: '16.x'
+
+      - name: 'Build'
+        run: 'npm ci && npm run build'
+
+      # Default installation
+      - name: 'Install version'
+        uses: './'
+        with:
+          version: '374.0.0'
+
+      # Latest installation
+      - name: 'Install latest'
+        uses: './'
+        with:
+          version: 'latest'
+
+      # By default, there is no configuration
+      - name: 'Check defaults'
+        run: 'npm run integration'
+        env:
+          TEST_ACCOUNT: '(unset)'
+          TEST_PROJECT_ID: '(unset)'
+
+      # Install components
+      - name: 'Install components'
+        uses: './'
+        with:
+          install_components: 'cloud-run-proxy'
+
+      - name: 'Check components'
+        run: 'npm run integration'
+        env:
+          TEST_COMPONENTS: 'cloud-run-proxy'
+
+      # Set a project ID
+      - name: 'Set project ID'
+        uses: './'
+        with:
+          project_id: '${{ secrets.PROJECT_ID }}'
+
+      - name: 'Check project ID'
+        run: 'npm run integration'
+        env:
+          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+
+      # Authenticate via WIF
+      - name: 'Authenticate via WIF'
+        uses: 'google-github-actions/auth@main'
+        with:
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
+          service_account: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+
+      - name: 'Setup gcloud with WIF'
+        uses: './'
+
+      - name: 'Check WIF authentication'
+        run: 'npm run integration'
+        env:
+          TEST_ACCOUNT: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+
+      # Authenticate via SAKE
+      - name: 'Authenticate via SAKE'
+        uses: 'google-github-actions/auth@main'
+        with:
+          credentials_json: '${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}'
+
+      - name: 'Setup gcloud with SAKE'
+        uses: './'
+
+      - name: 'Check SAKE authentication'
+        run: 'npm run integration'
+        env:
+          TEST_ACCOUNT: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'

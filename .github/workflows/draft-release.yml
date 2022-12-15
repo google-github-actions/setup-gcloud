@@ -1,0 +1,24 @@
+name: 'Draft release'
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_strategy:
+        description: 'Version strategy: The strategy to used to update the version based on semantic versioning (more info at https://semver.org/).'
+        required: true
+        default: 'patch'
+        type: 'choice'
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
+
+jobs:
+  draft-release:
+    name: 'Draft release'
+    uses: 'google-github-actions/.github/.github/workflows/draft-release.yml@v0'
+    with:
+      version_strategy: '${{ github.event.inputs.version_strategy }}'
+    # secrets must be explicitly passed to reusable workflows https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/reusing-workflows#using-inputs-and-secrets-in-a-reusable-workflow
+    secrets:
+      ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'

@@ -1,0 +1,47 @@
+name: 'Unit'
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+    runs-on: '${{ matrix.os }}'
+
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - uses: 'actions/setup-node@v3'
+        with:
+          node-version: '16.x'
+
+      - name: 'npm ci'
+        run: 'npm ci'
+
+      - name: 'npm build'
+        run: 'npm run build'
+
+      - name: 'run lint'
+        run: 'npm run lint'
+        # There's no need to run the linter for each operating system, since it
+        # will find the same thing 3x and clog up the PR review.
+        if: ${{matrix.os == 'ubuntu-latest'}}
+
+      - name: 'test'
+        run: 'npm test'

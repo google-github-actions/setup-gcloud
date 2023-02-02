@@ -18,16 +18,17 @@ import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 import {
   authenticateGcloudSDK,
-  getLatestGcloudSDKVersion,
+  bestVersion,
   installComponent,
   installGcloudSDK,
-  isInstalled,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
 import {
   errorMessage,
   isPinnedToHead,
   pinnedToHeadWarning,
+  parseBoolean,
+  presence,
 } from '@google-github-actions/actions-utils';
 import path from 'path';
 
@@ -49,17 +50,33 @@ export async function run(): Promise<void> {
   }
 
   try {
-    let version = core.getInput('version');
-    if (!version || version == 'latest') {
-      version = await getLatestGcloudSDKVersion();
-    }
-
-    // Install the gcloud if not already present
-    if (!isInstalled(version)) {
-      await installGcloudSDK(version);
+    const skipInstall = parseBoolean(core.getInput('skip_install'));
+    if (skipInstall) {
+      core.info(`Skipping installation ("skip_install" was true)`);
     } else {
+      // Compute the version information. If the version was not specified,
+      // accept any installed version. If the version was specified as "latest",
+      // compute the latest version. Otherwise, accept the version/version
+      // constraint as-is.
+      let version = presence(core.getInput('version'));
+      if (!version) {
+        core.debug(`version was unset, defaulting to any version`);
+        version = '> 0.0.0';
+      }
+      if (version === 'latest') {
+        core.debug(`resolving latest version`);
+        version = await bestVersion('> 0.0.0');
+        core.debug(`resolved latest version to ${version}`);
+      }
+
+      // Install the gcloud if not already present
       const toolPath = toolCache.find('gcloud', version);
-      core.addPath(path.join(toolPath, 'bin'));
+      if (toolPath !== '') {
+        core.addPath(path.join(toolPath, 'bin'));
+      } else {
+        core.debug(`no version of gcloud matching "${version}" is installed`);
+        await installGcloudSDK(version);
+      }
     }
 
     // Install additional components

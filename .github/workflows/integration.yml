@@ -38,6 +38,18 @@ jobs:
       - name: 'Build'
         run: 'npm ci && npm run build'
 
+      # No installation
+      - name: 'Install constraint'
+        uses: './'
+        with:
+          skip_install: true
+
+      # Constraint installation
+      - name: 'Install constraint'
+        uses: './'
+        with:
+          version: '>= 1.0.0'
+
       # Default installation
       - name: 'Install version'
         uses: './'

@@ -55,9 +55,9 @@ jobs:
 -   `skip_install`: (Optional) Skip the `gcloud` installation and use the
     [system-installed gcloud][github-runners] instead. This can dramatically
     improve workflow speeds at the expense of a slightly older gcloud version.
-    Setting this to `true` ignores any value for the `version` input. Even if
-    installation is skipped, this GitHub Action will still configure any
-    components or project metadata. The default value is `false`.
+    Setting this to `true` ignores any value for the `version` input. If you
+    skip installation, you will be unable to install components because the
+    system-install gcloud is locked. The default value is `false`.
 
 -   `version`: (Optional) A string representing the version or version
     constraint of the Cloud SDK (`gcloud`) to install (e.g. `"290.0.1"` or `">=

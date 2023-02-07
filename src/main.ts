@@ -51,14 +51,27 @@ export async function run(): Promise<void> {
 
   try {
     const skipInstall = parseBoolean(core.getInput('skip_install'));
+    let version = presence(core.getInput('version'));
+    const components = core.getInput('install_components');
+    const projectId = core.getInput('project_id');
+
     if (skipInstall) {
       core.info(`Skipping installation ("skip_install" was true)`);
+      if (version) {
+        core.warning(`Ignoring "version" because "skip_install" was true!`);
+      }
+
+      if (components) {
+        core.warning(
+          `Installing custom components with the system-provided gcloud may fail. ` +
+            `Set "skip_install" to false to install a managed version.`,
+        );
+      }
     } else {
       // Compute the version information. If the version was not specified,
       // accept any installed version. If the version was specified as "latest",
       // compute the latest version. Otherwise, accept the version/version
       // constraint as-is.
-      let version = presence(core.getInput('version'));
       if (!version) {
         core.debug(`version was unset, defaulting to any version`);
         version = '> 0.0.0';
@@ -80,7 +93,6 @@ export async function run(): Promise<void> {
     }
 
     // Install additional components
-    const components = core.getInput('install_components');
     if (components) {
       await installComponent(components.split(',').map((comp) => comp.trim()));
     }
@@ -97,7 +109,6 @@ export async function run(): Promise<void> {
     }
 
     // Set the project ID, if given.
-    const projectId = core.getInput('project_id');
     if (projectId) {
       await setProject(projectId);
       core.info('Successfully set default project');

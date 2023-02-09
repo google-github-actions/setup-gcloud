@@ -19,12 +19,21 @@ description: |-
   Adds the `gcloud` CLI command to the $PATH.
 
 inputs:
+  skip_install:
+    description: |-
+      Skip installation of the gcloud SDK and use the system-supplied version
+      instead. The "version" input will be ignored.
+    default: false
+    required: false
+
   version:
     description: |-
-      Version of the gcloud SDK to install. If unspecified or set to "latest",
-      the latest available gcloud SDK version for the target platform will be
-      installed. Example: "290.0.1".
-    default: latest
+      Version or version constraint of the gcloud SDK to install. If
+      unspecified, it will accept any installed version of the gcloud SDK. If
+      set to "latest", it will download the latest available SDK. If set to a
+      version constraint, it will download the latest available version that
+      matches the constraint. Examples: "290.0.1" or ">= 197.0.1".
+    default: 'latest'
     required: false
 
   project_id:
@@ -32,7 +41,6 @@ inputs:
       ID of the Google Cloud project. If provided, this will configure gcloud to
       use this project ID by default for commands. Individual commands can still
       override the project using the --project flag which takes precedence.
-    default: null
     required: false
 
   install_components:

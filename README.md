@@ -41,6 +41,8 @@ jobs:
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 363.0.0'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -50,13 +52,42 @@ jobs:
 
 ### Cloud SDK inputs
 
--   `version`: (Optional) A string representing the version of the Cloud SDK
-    (`gcloud`) to install (e.g. `"290.0.1"`). The default value is "latest",
-    which will install the latest available Cloud SDK version.
+-   `skip_install`: (Optional) Skip the `gcloud` installation and use the
+    [system-installed gcloud][github-runners] instead. This can dramatically
+    improve workflow speeds at the expense of a slightly older gcloud version.
+    Setting this to `true` ignores any value for the `version` input. If you
+    skip installation, you will be unable to install components because the
+    system-install gcloud is locked. The default value is `false`.
+
+-   `version`: (Optional) A string representing the version or version
+    constraint of the Cloud SDK (`gcloud`) to install (e.g. `"290.0.1"` or `">=
+    197.0.1"`). The default value is `"latest"`, which will always download and
+    install the latest available Cloud SDK version.
+
+    ```yaml
+    - uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 416.0.0'
+    ```
+
+    If there is no installed `gcloud` version that matches the given constraint,
+    this GitHub Action will download and install the latest available version
+    that still matches the constraint.
 
     **Warning!** Workload Identity Federation requires version
     [363.0.0](https://cloud.google.com/sdk/docs/release-notes#36300_2021-11-02)
-    or newer.
+    or newer. If you need support for Workload Identity Federation, specify your
+    version constraint as such:
+
+    ```yaml
+    - uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 363.0.0'
+    ```
+
+    You are responsible for ensuring the `gcloud` version matches the features
+    and components required. See the [gcloud release
+    notes][gcloud-release-notes] for a full list of versions.
 
 -   `project_id`: (Optional) Project ID (**not** project _number_) of the Google
     Cloud project. If provided, this will configure the `gcloud` CLI to use that
@@ -233,3 +264,5 @@ See [LICENSE](LICENSE).
 [sa-iam-docs]: https://cloud.google.com/iam/docs/service-accounts
 [sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts
 [wif]: https://cloud.google.com/iam/docs/workload-identity-federation
+[github-runners]: https://github.com/actions/runner-images
+[gcloud-release-notes]: https://cloud.google.com/sdk/docs/release-notes

@@ -84,19 +84,19 @@ jobs:
       - name: 'Set project ID'
         uses: './'
         with:
-          project_id: '${{ secrets.PROJECT_ID }}'
+          project_id: '${{ vars.PROJECT_ID }}'
 
       - name: 'Check project ID'
         run: 'npm run integration'
         env:
-          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          TEST_PROJECT_ID: '${{ vars.PROJECT_ID }}'
 
       # Authenticate via WIF
       - name: 'Authenticate via WIF'
         uses: 'google-github-actions/auth@main'
         with:
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
-          service_account: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+          workload_identity_provider: '${{ vars.WIF_PROVIDER_NAME }}'
+          service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
 
       - name: 'Setup gcloud with WIF'
         uses: './'
@@ -104,8 +104,8 @@ jobs:
       - name: 'Check WIF authentication'
         run: 'npm run integration'
         env:
-          TEST_ACCOUNT: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
-          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          TEST_ACCOUNT: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          TEST_PROJECT_ID: '${{ vars.PROJECT_ID }}'
 
       # Authenticate via SAKE
       - name: 'Authenticate via SAKE'
@@ -119,5 +119,5 @@ jobs:
       - name: 'Check SAKE authentication'
         run: 'npm run integration'
         env:
-          TEST_ACCOUNT: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
-          TEST_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          TEST_ACCOUNT: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          TEST_PROJECT_ID: '${{ vars.PROJECT_ID }}'

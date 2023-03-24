@@ -20,7 +20,7 @@ on:
     - 'main'
 
 env:
-  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  PROJECT_ID: ${{ vars.GCE_PROJECT }}
   GCE_INSTANCE: my-githubactions-vm  # TODO: update to instance name
   GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
 

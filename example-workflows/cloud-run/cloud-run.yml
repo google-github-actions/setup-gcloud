@@ -19,7 +19,7 @@ on:
 
 name: Build and Deploy to Cloud Run
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT }}
   SERVICE: YOUR_SERVICE_NAME
   REGION: YOUR_SERVICE_REGION
 

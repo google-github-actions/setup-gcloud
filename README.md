@@ -103,20 +103,6 @@ jobs:
     install_components: 'alpha,cloud-datastore-emulator'
     ```
 
-## Example workflows
-
-* [Google Kubernetes Engine](./example-workflows/gke/README.md): An example workflow that uses GitHub Actions to deploy a static website to an existing [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) cluster.
-
-* [Cloud Run](./example-workflows/cloud-run/README.md): An example workflow that uses GitHub Actions to build and deploy a container to [Cloud Run](https://cloud.google.com/run/).
-
-* [Google Compute Engine](./example-workflows/gce/README.md): An example workflow that uses GitHub Actions to deploy a container to an existing [Google Compute Engine](https://cloud.google.com/compute-engine/) (GCE) instance.
-
-* [App Engine](./example-workflows/gae/README.md): An example workflow that uses GitHub Actions to deploy source
-code to [App Engine](https://cloud.google.com/appengine), a fully managed serverless platform.
-
-* [Cloud Build](./example-workflows/cloud-build/README.md): An example workflow that uses GitHub Actions to build a container image with [Cloud Build](https://cloud.google.com/cloud-build).
-
-
 ## Authorization
 
 This action installs the Cloud SDK (`gcloud`). To configure its authentication

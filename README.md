@@ -235,15 +235,6 @@ explicitly updating your version number. Note that we only publish `MAJOR` and
 `MAJOR.MINOR`.
 
 
-## Contributing
-
-See [CONTRIBUTING](CONTRIBUTING.md).
-
-## License
-
-See [LICENSE](LICENSE).
-
-
 [github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions
 [auth]: https://github.com/google-github-actions/auth
 [adc]: https://cloud.google.com/docs/authentication/production

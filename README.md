@@ -57,7 +57,10 @@ jobs:
     improve workflow speeds at the expense of a slightly older gcloud version.
     Setting this to `true` ignores any value for the `version` input. If you
     skip installation, you will be unable to install components because the
-    system-install gcloud is locked. The default value is `false`.
+    system-install gcloud is locked. The default value is `false`. ⚠️ Be aware
+    that GitHub [plans to remove](https://github.com/actions/runner-images/issues/7101)
+    the system-installed gcloud, and any workflows with `skip_install: true`
+    will stop working when that happens.
 
 -   `version`: (Optional) A string representing the version or version
     constraint of the Cloud SDK (`gcloud`) to install (e.g. `"290.0.1"` or `">=

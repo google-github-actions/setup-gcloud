@@ -21,6 +21,7 @@ import {
   bestVersion,
   installComponent,
   installGcloudSDK,
+  isAuthenticated,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
 import {
@@ -97,15 +98,18 @@ export async function run(): Promise<void> {
       await installComponent(components.split(',').map((comp) => comp.trim()));
     }
 
-    // Authenticate - this comes from google-github-actions/auth
-    const credFile = process.env.GOOGLE_GHA_CREDS_PATH;
-    if (credFile) {
-      await authenticateGcloudSDK(credFile);
-      core.info('Successfully authenticated');
-    } else {
-      core.warning(
-        'No authentication found for gcloud, authenticate with `google-github-actions/auth`.',
-      );
+    // Check if already authenticated.
+    if (! await isAuthenticated()) {
+      // Authenticate - this comes from google-github-actions/auth
+      const credFile = process.env.GOOGLE_GHA_CREDS_PATH;
+      if (credFile) {
+        await authenticateGcloudSDK(credFile);
+        core.info('Successfully authenticated');
+      } else {
+        core.warning(
+          'No authentication found for gcloud, authenticate with `google-github-actions/auth`.',
+        );
+      }
     }
 
     // Set the project ID, if given.

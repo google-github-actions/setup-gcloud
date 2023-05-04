@@ -13,6 +13,11 @@ Or integrate natively with other Google Cloud GitHub Actions:
 * [Upload to Cloud Storage](https://github.com/google-github-actions/upload-cloud-storage)
 * [Configure GKE credentials](https://github.com/google-github-actions/get-gke-credentials)
 
+**This is not an officially supported Google product, and it is not covered by a
+Google Cloud support contract. To report bugs or request features in a Google
+Cloud product, please contact [Google Cloud
+support](https://cloud.google.com/support).**
+
 ## Prerequisites
 
 -   This action requires Google Cloud credentials to execute gcloud commands.

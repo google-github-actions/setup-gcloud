@@ -35,7 +35,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.1.0",
     "@types/sinon": "^10.0.14",
-    "@typescript-eslint/eslint-plugin": "^5.59.2",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^5.59.2",
     "@vercel/ncc": "^0.36.1",
     "chai": "^4.3.7",

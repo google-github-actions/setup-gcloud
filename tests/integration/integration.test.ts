@@ -58,7 +58,7 @@ describe('#run', function () {
       '--format',
       'json',
     ]);
-    const parsed = JSON.parse(raw).map((entry: Record<string, any>) => entry['id']);
+    const parsed = JSON.parse(raw).map((entry: Record<string, any>) => entry['id']); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const members = TEST_COMPONENTS.split(',').map((component) => component.trim());
     expect(parsed).to.include.all.members(members);

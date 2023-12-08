@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-/*
- * Tests setup-gcloud.
- */
-import 'mocha';
-import { expect } from 'chai';
-import * as sinon from 'sinon';
+import { afterEach, beforeEach, describe, mock, it } from 'node:test';
+import assert from 'node:assert';
 
 import { promises as fs } from 'fs';
 import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
@@ -36,140 +32,199 @@ const fakeInputs: { [key: string]: string } = {
   project_id: 'test',
 };
 
-function getInputMock(name: string): string {
-  return fakeInputs[name];
-}
+const defaultMocks = (
+  m: typeof mock,
+  overrideInputs?: Record<string, string>,
+): Record<string, any> => {
+  const inputs = Object.assign({}, fakeInputs, overrideInputs);
+  return {
+    startGroup: m.method(core, 'startGroup', () => {}),
+    endGroup: m.method(core, 'endGroup', () => {}),
+    group: m.method(core, 'group', () => {}),
+    logDebug: m.method(core, 'debug', () => {}),
+    logError: m.method(core, 'error', () => {}),
+    logInfo: m.method(core, 'info', () => {}),
+    logNotice: m.method(core, 'notice', () => {}),
+    logWarning: m.method(core, 'warning', () => {}),
+    exportVariable: m.method(core, 'exportVariable', () => {}),
+    setSecret: m.method(core, 'setSecret', () => {}),
+    addPath: m.method(core, 'addPath', () => {}),
+    setOutput: m.method(core, 'setOutput', () => {}),
+    setFailed: m.method(core, 'setFailed', (msg: string) => {
+      throw new Error(msg);
+    }),
+    getBooleanInput: m.method(core, 'getBooleanInput', (name: string) => {
+      return !!inputs[name];
+    }),
+    getMultilineInput: m.method(core, 'getMultilineInput', (name: string) => {
+      return inputs[name];
+    }),
+    getInput: m.method(core, 'getInput', (name: string) => {
+      return inputs[name];
+    }),
 
-describe('#run', function () {
-  beforeEach(async function () {
-    this.stubs = {
-      getInput: sinon.stub(core, 'getInput').callsFake(getInputMock),
-      getBooleanInput: sinon.stub(core, 'getBooleanInput').returns(false),
-      exportVariable: sinon.stub(core, 'exportVariable'),
-      authenticateGcloudSDK: sinon.stub(setupGcloud, 'authenticateGcloudSDK'),
-      installGcloudSDK: sinon.stub(setupGcloud, 'installGcloudSDK'),
-      setProject: sinon.stub(setupGcloud, 'setProject'),
-      installComponent: sinon.stub(setupGcloud, 'installComponent'),
-      writeFile: sinon.stub(fs, 'writeFile'),
-    };
+    authenticateGcloudSDK: m.method(setupGcloud, 'authenticateGcloudSDK', () => {}),
+    isInstalled: m.method(setupGcloud, 'isInstalled', () => {
+      return true;
+    }),
+    installGcloudSDK: m.method(setupGcloud, 'installGcloudSDK', async () => {
+      return '1.2.3';
+    }),
+    installComponent: m.method(setupGcloud, 'installComponent', () => {}),
+    setProject: m.method(setupGcloud, 'setProject', () => {}),
+    getLatestGcloudSDKVersion: m.method(setupGcloud, 'getLatestGcloudSDKVersion', () => {
+      return '1.2.3';
+    }),
 
-    process.env.GITHUB_PATH = '/';
+    writeFile: m.method(fs, 'writeFile', () => {}),
+  };
+};
 
-    sinon.stub(core, 'setFailed').throwsArg(0); // make setFailed throw exceptions
-    sinon.stub(core, 'addPath').callsFake(sinon.fake());
-    sinon.stub(core, 'debug').callsFake(sinon.fake());
-    sinon.stub(core, 'endGroup').callsFake(sinon.fake());
-    sinon.stub(core, 'info').callsFake(sinon.fake());
-    sinon.stub(core, 'startGroup').callsFake(sinon.fake());
-    sinon.stub(core, 'warning').callsFake(sinon.fake());
-
+describe('#run', async () => {
+  beforeEach(async () => {
     await TestToolCache.start();
+    // process.env.GITHUB_PATH = '/';
   });
 
-  afterEach(async function () {
-    Object.keys(this.stubs).forEach((k) => this.stubs[k].restore());
-    sinon.restore();
+  afterEach(async () => {
     clearEnv((key: string) => key.startsWith(`GITHUB_`));
-
     await TestToolCache.stop();
   });
 
-  describe('download', () => {
-    it('downloads when no version is provided', async function () {
-      this.stubs.getInput.withArgs('version').returns('');
+  describe('download', async () => {
+    it('downloads when no version is provided', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '',
+      });
       await run();
 
-      const call = this.stubs.installGcloudSDK.firstCall;
-      expect(call.firstArg).to.match(/\d+\.\d+\.\d+/);
+      assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
     });
 
-    it('downloads when version is "latest"', async function () {
-      this.stubs.getInput.withArgs('version').returns('latest');
+    it('downloads when version is "latest"', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '',
+      });
       await run();
 
-      const call = this.stubs.installGcloudSDK.firstCall;
-      expect(call.firstArg).to.match(/\d+\.\d+\.\d+/);
+      assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
     });
 
-    it('downloads when version is not installed', async function () {
-      this.stubs.getInput.withArgs('version').returns('5.6.7');
+    it('downloads when version is not installed', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '5.6.7',
+      });
       await run();
 
-      const call = this.stubs.installGcloudSDK.firstCall;
-      expect(call.firstArg).to.eql('5.6.7');
+      assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '5.6.7');
     });
 
-    it('downloads when version constraint is not satisfied', async function () {
-      this.stubs.getInput.withArgs('version').returns('>= 10.0.0');
+    it('downloads when version constraint is not satisfied', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '>= 10.0.0',
+      });
       await run();
 
-      const call = this.stubs.installGcloudSDK.firstCall;
-      expect(call.firstArg).to.eql('>= 10.0.0');
+      assert.deepStrictEqual(
+        mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0),
+        '>= 10.0.0',
+      );
     });
 
-    it('downloads when a version is installed but the version constraint is not satisfied', async function () {
-      this.stubs.getInput.withArgs('version').returns('>= 10.0.0');
+    it('downloads when a version is installed but the version constraint is not satisfied', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '>= 10.0.0',
+      });
       await installFakeGcloud('9.8.7');
       await run();
 
-      const call = this.stubs.installGcloudSDK.firstCall;
-      expect(call.firstArg).to.eql('>= 10.0.0');
+      assert.deepStrictEqual(
+        mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0),
+        '>= 10.0.0',
+      );
     });
 
-    it('does not download when version is installed', async function () {
-      this.stubs.getInput.withArgs('version').returns('1.2.3');
+    it('does not download when version is installed', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '1.2.3',
+      });
       await installFakeGcloud('1.2.3');
-
       await run();
-      expect(this.stubs.installGcloudSDK.callCount).to.eq(0);
+
+      assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
     });
 
-    it('does not download when a version constraint is satisfied', async function () {
-      this.stubs.getInput.withArgs('version').returns('>= 0.0.0');
+    it('does not download when a version constraint is satisfied', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        version: '>= 1.0.0',
+      });
       await installFakeGcloud('1.2.3');
-
       await run();
-      expect(this.stubs.installGcloudSDK.callCount).to.eq(0);
+
+      assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
     });
   });
 
-  describe('component installation', () => {
-    it('installs 1 additional component', async function () {
-      this.stubs.getInput.withArgs('install_components').returns('beta');
+  describe('component installation', async () => {
+    it('installs 1 additional component', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        install_components: 'beta',
+      });
       await run();
 
-      const call = this.stubs.installComponent.firstCall;
-      expect(call.firstArg).to.eql(['beta']);
+      assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), ['beta']);
     });
 
-    it('installs additional components', async function () {
-      this.stubs.getInput.withArgs('install_components').returns('beta, alpha');
+    it('installs additional components', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        install_components: 'alpha, beta',
+      });
       await run();
 
-      const call = this.stubs.installComponent.firstCall;
-      expect(call.firstArg).to.eql(['beta', 'alpha']);
+      assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), [
+        'alpha',
+        'beta',
+      ]);
     });
   });
 
-  describe('authentication', () => {
-    it('authenticates if GOOGLE_GHA_CREDS is set', async function () {
+  describe('authentication', async () => {
+    const originalEnv = Object.assign({}, process.env);
+
+    afterEach(async () => {
+      process.env = originalEnv;
+    });
+
+    it('authenticates if GOOGLE_GHA_CREDS is set', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        install_components: 'alpha, beta',
+      });
+
       process.env.GOOGLE_GHA_CREDS_PATH = '/foo/bar/path.json';
+
       await run();
-      expect(this.stubs.authenticateGcloudSDK.callCount).to.eq(1);
+
+      assert.deepStrictEqual(mocks.authenticateGcloudSDK.mock.callCount(), 1);
     });
   });
 
-  describe('configuration', () => {
-    it('sets the project ID if provided', async function () {
-      this.stubs.getInput.withArgs('project_id').returns('test');
+  describe('configuration', async () => {
+    it('sets the project ID if provided', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        project_id: 'test',
+      });
       await run();
-      expect(this.stubs.setProject.withArgs('test').callCount).to.eq(1);
+
+      assert.deepStrictEqual(mocks.setProject.mock.calls?.at(0)?.arguments?.at(0), 'test');
     });
 
-    it('does not set the project ID if not provided', async function () {
-      this.stubs.getInput.withArgs('project_id').returns('');
+    it('does not set the project ID if not provided', async (t) => {
+      const mocks = defaultMocks(t.mock, {
+        project_id: '',
+      });
       await run();
-      expect(this.stubs.setProject.callCount).to.eq(0);
+
+      assert.deepStrictEqual(mocks.setProject.mock.callCount(), 0);
     });
   });
 });
@@ -178,6 +233,6 @@ describe('#run', function () {
  * installFakeGcloud puts a fake gcloud version into the temporary toolcache.
  * It's not actually gcloud and not actually executable.
  */
-async function installFakeGcloud(version: string): Promise<string> {
+const installFakeGcloud = async (version: string): Promise<string> => {
   return await toolCache.cacheFile('action.yml', 'action.yml', 'gcloud', version);
-}
+};

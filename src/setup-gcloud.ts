@@ -38,6 +38,17 @@ export const GCLOUD_METRICS_ENV_VAR = 'CLOUDSDK_METRICS_ENVIRONMENT';
 export const GCLOUD_METRICS_LABEL = 'github-actions-setup-gcloud';
 
 export async function run(): Promise<void> {
+  // v0 is deprecated and is no longer supported per our "two major versions"
+  // policy.
+  core.error(
+    `The v0 series of google-github-actions/setup-gcloud is no longer ` +
+      `maintained. It will not receive updates, improvements, or security ` +
+      `patches. Please upgrade to the latest supported versions: ` +
+      `\n` +
+      `\n` +
+      `    https://github.com/google-github-actions/setup-gcloud`,
+  );
+
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
     core.warning(pinnedToHeadWarning('v0'));

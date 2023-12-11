@@ -40,13 +40,13 @@ jobs:
 
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v1'
+      uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      uses: 'google-github-actions/setup-gcloud@v2'
       with:
         version: '>= 363.0.0'
 
@@ -74,7 +74,7 @@ jobs:
     install the latest available Cloud SDK version.
 
     ```yaml
-    - uses: 'google-github-actions/setup-gcloud@v1'
+    - uses: 'google-github-actions/setup-gcloud@v2'
       with:
         version: '>= 416.0.0'
     ```
@@ -89,7 +89,7 @@ jobs:
     version constraint as such:
 
     ```yaml
-    - uses: 'google-github-actions/setup-gcloud@v1'
+    - uses: 'google-github-actions/setup-gcloud@v2'
       with:
         version: '>= 363.0.0'
     ```
@@ -133,13 +133,13 @@ jobs:
 
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v1'
+      uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -152,12 +152,12 @@ job:
   job_id:
     steps:
     - id: 'auth'
-      uses: 'google-github-actions/auth@v1'
+      uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -173,7 +173,7 @@ job:
   job_id:
     steps:
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -193,25 +193,25 @@ jobs:
 
     steps:
       - id: 'auth service account 1'
-        uses: 'google-github-actions/auth@v1'
+        uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
           service_account: 'service-account-1@my-project.iam.gserviceaccount.com'
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: 'Use gcloud CLI'
         run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
         # service-account-1@my-project.iam.gserviceaccount.com
 
       - id: 'auth service account 2'
-        uses: 'google-github-actions/auth@v1'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: 'Use gcloud CLI'
         run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
@@ -224,7 +224,7 @@ jobs:
 We recommend pinning to the latest available major version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v1'
+- uses: 'google-github-actions/setup-gcloud@v2'
 ```
 
 While this action attempts to follow semantic versioning, but we're ultimately
@@ -232,7 +232,7 @@ human and sometimes make mistakes. To prevent accidental breaking changes, you
 can also pin to a specific version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v1.0.0'
+- uses: 'google-github-actions/setup-gcloud@v2.0.0'
 ```
 
 However, you will not get automatic security updates or new features without

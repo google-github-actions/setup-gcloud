@@ -46,7 +46,7 @@ export async function run(): Promise<void> {
 
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
-    core.warning(pinnedToHeadWarning('v1'));
+    core.warning(pinnedToHeadWarning('v2'));
   }
 
   try {
@@ -57,7 +57,7 @@ export async function run(): Promise<void> {
 
     if (skipInstall) {
       core.info(`Skipping installation ("skip_install" was true)`);
-      if (version) {
+      if (version && version !== 'latest') {
         core.warning(`Ignoring "version" because "skip_install" was true!`);
       }
 

@@ -21,6 +21,7 @@ import {
   bestVersion,
   installComponent,
   installGcloudSDK,
+  isAuthenticated,
   setProject,
 } from '@google-github-actions/setup-cloud-sdk';
 import {
@@ -102,9 +103,10 @@ export async function run(): Promise<void> {
     if (credFile) {
       await authenticateGcloudSDK(credFile);
       core.info('Successfully authenticated');
-    } else {
+    } else if (!(await isAuthenticated())) {
       core.warning(
-        'No authentication found for gcloud, authenticate with `google-github-actions/auth`.',
+        `The gcloud CLI is not authenticated. Authenticate by adding the ` +
+          `"google-github-actions/auth" step prior this one.`,
       );
     }
 

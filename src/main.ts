@@ -103,11 +103,21 @@ export async function run(): Promise<void> {
     if (credFile) {
       await authenticateGcloudSDK(credFile);
       core.info('Successfully authenticated');
-    } else if (!(await isAuthenticated())) {
-      core.warning(
-        `The gcloud CLI is not authenticated. Authenticate by adding the ` +
-          `"google-github-actions/auth" step prior this one.`,
-      );
+    } else {
+      let authed;
+      try {
+        authed = await isAuthenticated();
+      } catch {
+        authed = false;
+      }
+
+      if (!authed) {
+        core.warning(
+          `The gcloud CLI is not authenticated (or it is not installed). ` +
+            `Authenticate by adding the "google-github-actions/auth" step ` +
+            `prior this one.`,
+        );
+      }
     }
 
     // Set the project ID, if given.

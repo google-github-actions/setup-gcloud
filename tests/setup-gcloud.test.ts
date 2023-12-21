@@ -64,6 +64,7 @@ const defaultMocks = (
     }),
 
     authenticateGcloudSDK: m.method(setupGcloud, 'authenticateGcloudSDK', () => {}),
+    isAuthenticated: m.method(setupGcloud, 'isAuthenticated', () => {}),
     isInstalled: m.method(setupGcloud, 'isInstalled', () => {
       return true;
     }),

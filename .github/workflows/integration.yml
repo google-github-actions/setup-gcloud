@@ -41,7 +41,7 @@ jobs:
         run: 'npm ci && npm run build'
 
       # No installation
-      - name: 'Install constraint'
+      - name: 'Skip install'
         uses: './'
         with:
           skip_install: true

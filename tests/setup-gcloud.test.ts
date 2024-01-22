@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { afterEach, beforeEach, describe, mock, it } from 'node:test';
+import { mock, test } from 'node:test';
 import assert from 'node:assert';
 
 import { promises as fs } from 'fs';
@@ -22,7 +22,6 @@ import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
 import { TestToolCache } from '@google-github-actions/setup-cloud-sdk';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
-import { clearEnv } from '@google-github-actions/actions-utils';
 
 import { run } from '../src/main';
 
@@ -81,58 +80,57 @@ const defaultMocks = (
   };
 };
 
-describe('#run', async () => {
-  beforeEach(async () => {
+test('#run', { concurrency: true }, async (suite) => {
+  const originalEnv = Object.assign({}, process.env);
+
+  suite.beforeEach(async () => {
     await TestToolCache.start();
-    // process.env.GITHUB_PATH = '/';
   });
 
-  afterEach(async () => {
-    clearEnv((key: string) => key.startsWith(`GITHUB_`));
+  suite.afterEach(async () => {
+    process.env = originalEnv;
     await TestToolCache.stop();
   });
 
-  describe('download', async () => {
-    it('downloads when no version is provided', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '',
-      });
-      await run();
-
-      assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
+  await suite.test('downloads when no version is provided', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '',
     });
+    await run();
 
-    it('downloads when version is "latest"', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '',
-      });
-      await run();
+    assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
+  });
 
-      assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
+  await suite.test('downloads when version is "latest"', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '',
     });
+    await run();
 
-    it('downloads when version is not installed', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '5.6.7',
-      });
-      await run();
+    assert.match(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), /\d+\.\d+\.\d+/);
+  });
 
-      assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '5.6.7');
+  await suite.test('downloads when version is not installed', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '5.6.7',
     });
+    await run();
 
-    it('downloads when version constraint is not satisfied', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '>= 10.0.0',
-      });
-      await run();
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '5.6.7');
+  });
 
-      assert.deepStrictEqual(
-        mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0),
-        '>= 10.0.0',
-      );
+  await suite.test('downloads when version constraint is not satisfied', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '>= 10.0.0',
     });
+    await run();
 
-    it('downloads when a version is installed but the version constraint is not satisfied', async (t) => {
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '>= 10.0.0');
+  });
+
+  await suite.test(
+    'downloads when a version is installed but the version constraint is not satisfied',
+    async (t) => {
       const mocks = defaultMocks(t.mock, {
         version: '>= 10.0.0',
       });
@@ -143,90 +141,78 @@ describe('#run', async () => {
         mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0),
         '>= 10.0.0',
       );
+    },
+  );
+
+  await suite.test('does not download when version is installed', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '1.2.3',
     });
+    await installFakeGcloud('1.2.3');
+    await run();
 
-    it('does not download when version is installed', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '1.2.3',
-      });
-      await installFakeGcloud('1.2.3');
-      await run();
-
-      assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
-    });
-
-    it('does not download when a version constraint is satisfied', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        version: '>= 1.0.0',
-      });
-      await installFakeGcloud('1.2.3');
-      await run();
-
-      assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
-    });
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
   });
 
-  describe('component installation', async () => {
-    it('installs 1 additional component', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        install_components: 'beta',
-      });
-      await run();
-
-      assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), ['beta']);
+  await suite.test('does not download when a version constraint is satisfied', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      version: '>= 1.0.0',
     });
+    await installFakeGcloud('1.2.3');
+    await run();
 
-    it('installs additional components', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        install_components: 'alpha, beta',
-      });
-      await run();
-
-      assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), [
-        'alpha',
-        'beta',
-      ]);
-    });
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.callCount(), 0);
   });
 
-  describe('authentication', async () => {
-    const originalEnv = Object.assign({}, process.env);
-
-    afterEach(async () => {
-      process.env = originalEnv;
+  await suite.test('installs 1 additional component', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      install_components: 'beta',
     });
+    await run();
 
-    it('authenticates if GOOGLE_GHA_CREDS is set', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        install_components: 'alpha, beta',
-      });
-
-      process.env.GOOGLE_GHA_CREDS_PATH = '/foo/bar/path.json';
-
-      await run();
-
-      assert.deepStrictEqual(mocks.authenticateGcloudSDK.mock.callCount(), 1);
-    });
+    assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), ['beta']);
   });
 
-  describe('configuration', async () => {
-    it('sets the project ID if provided', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        project_id: 'test',
-      });
-      await run();
+  await suite.test('installs additional components', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      install_components: 'alpha, beta',
+    });
+    await run();
 
-      assert.deepStrictEqual(mocks.setProject.mock.calls?.at(0)?.arguments?.at(0), 'test');
+    assert.deepStrictEqual(mocks.installComponent.mock.calls?.at(0)?.arguments?.at(0), [
+      'alpha',
+      'beta',
+    ]);
+  });
+
+  await suite.test('authenticates if GOOGLE_GHA_CREDS is set', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      install_components: 'alpha, beta',
     });
 
-    it('does not set the project ID if not provided', async (t) => {
-      const mocks = defaultMocks(t.mock, {
-        project_id: '',
-      });
-      await run();
+    process.env.GOOGLE_GHA_CREDS_PATH = '/foo/bar/path.json';
 
-      assert.deepStrictEqual(mocks.setProject.mock.callCount(), 0);
+    await run();
+
+    assert.deepStrictEqual(mocks.authenticateGcloudSDK.mock.callCount(), 1);
+  });
+
+  await suite.test('sets the project ID if provided', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      project_id: 'test',
     });
+    await run();
+
+    assert.deepStrictEqual(mocks.setProject.mock.calls?.at(0)?.arguments?.at(0), 'test');
+  });
+
+  await suite.test('does not set the project ID if not provided', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      project_id: '',
+    });
+    await run();
+
+    assert.deepStrictEqual(mocks.setProject.mock.callCount(), 0);
   });
 });
 

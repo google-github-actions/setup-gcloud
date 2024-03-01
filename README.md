@@ -148,7 +148,7 @@ jobs:
 ### Service Account Key JSON
 
 ```yaml
-job:
+jobs:
   job_id:
     steps:
     - id: 'auth'
@@ -169,7 +169,7 @@ If and only if you are using self-hosted runners that are hosted on Google Cloud
 the Cloud SDK will automatically authenticate using the machine credentials:
 
 ```yaml
-job:
+jobs:
   job_id:
     steps:
     - name: 'Set up Cloud SDK'

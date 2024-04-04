@@ -114,8 +114,9 @@ jobs:
 
 ## Authorization
 
-This action installs the Cloud SDK (`gcloud`). To configure its authentication
-to Google Cloud, use the [google-github-actions/auth][auth] action. You can
+This action installs the Cloud SDK (`gcloud`) and credentials. To configure its authentication
+to Google Cloud, use the [google-github-actions/auth][auth] action. This action sets both
+[gcloud credentials][gcloud-credentials] and [Application Default Credentials][adc]. You can
 authenticate via:
 
 ### Workload Identity Federation (preferred)
@@ -163,10 +164,11 @@ jobs:
       run: 'gcloud info'
 ```
 
-### Application Default Credentials
+### Self-hosted runners on Google Cloud Platform
 
-If and only if you are using self-hosted runners that are hosted on Google Cloud Platform,
-the Cloud SDK will automatically authenticate using the machine credentials:
+If you are using self-hosted runners that are hosted on Google Cloud Platform, credentials
+are automatically obtained from the service account attached to the runner.
+In this scenario, you do not need to run the [google-github-actions/auth][auth] action.
 
 ```yaml
 jobs:
@@ -243,9 +245,10 @@ explicitly updating your version number. Note that we only publish `MAJOR` and
 
 [github-action]:https://help.github.com/en/categories/automating-your-workflow-with-github-actions
 [auth]: https://github.com/google-github-actions/auth
-[adc]: https://cloud.google.com/docs/authentication/production
+[adc]: https://cloud.google.com/docs/authentication/application-default-credentials
 [sdk]: https://cloud.google.com/sdk/
 [gcloud]: https://cloud.google.com/sdk/gcloud/
+[gcloud-credentials]: https://cloud.google.com/docs/authentication/gcloud#gcloud-credentials
 [gsutil]: https://cloud.google.com/storage/docs/gsutil
 [sa-iam-docs]: https://cloud.google.com/iam/docs/service-accounts
 [sa]: https://cloud.google.com/iam/docs/creating-managing-service-accounts

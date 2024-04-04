@@ -114,7 +114,7 @@ jobs:
 
 ## Authorization
 
-This action installs the Cloud SDK (`gcloud`) and credentials. To configure its authentication
+This action installs the Cloud SDK (`gcloud`). To configure its authentication
 to Google Cloud, use the [google-github-actions/auth][auth] action. This action sets both
 [gcloud credentials][gcloud-credentials] and [Application Default Credentials][adc]. You can
 authenticate via:

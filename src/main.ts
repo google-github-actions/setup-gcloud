@@ -45,6 +45,8 @@ export async function run(): Promise<void> {
   core.exportVariable('CLOUDSDK_METRICS_ENVIRONMENT', 'github-actions-setup-gcloud');
   core.exportVariable('CLOUDSDK_METRICS_ENVIRONMENT_VERSION', appVersion);
 
+  process.env.CLOUDSDK_CORE_DISABLE_PROMPTS = '1';
+
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
     core.warning(pinnedToHeadWarning('v2'));

@@ -19,20 +19,32 @@ description: |-
   Adds the `gcloud` CLI command to the $PATH.
 
 inputs:
-  skip_install:
-    description: |-
-      Skip installation of the gcloud SDK and use the system-supplied version
-      instead. The "version" input will be ignored.
-    default: false
-    required: false
-
   version:
     description: |-
-      Version or version constraint of the gcloud SDK to install. If
-      unspecified, it will accept any installed version of the gcloud SDK. If
-      set to "latest", it will download the latest available SDK. If set to a
-      version constraint, it will download the latest available version that
-      matches the constraint. Examples: "290.0.1" or ">= 197.0.1".
+      A string representing the version or version constraint of the Cloud SDK
+      (`gcloud`) to install (e.g. `"290.0.1"` or `">= 197.0.1"`). The default
+      value is `"latest"`, which will always download and install the latest
+      available Cloud SDK version.
+
+          - uses: 'google-github-actions/setup-gcloud@v2'
+            with:
+              version: '>= 416.0.0'
+
+      If there is no installed `gcloud` version that matches the given
+      constraint, this GitHub Action will download and install the latest
+      available version that still matches the constraint.
+
+      Authenticating via Workload Identity Federation requires version
+      [363.0.0](https://cloud.google.com/sdk/docs/release-notes#36300_2021-11-02)
+      or newer. If you need support for Workload Identity Federation, specify
+      your version constraint as such:
+
+          - uses: 'google-github-actions/setup-gcloud@v2'
+            with:
+              version: '>= 363.0.0'
+
+      You are responsible for ensuring the `gcloud` version matches the features
+      and components required.
     default: 'latest'
     required: false
 
@@ -40,12 +52,35 @@ inputs:
     description: |-
       ID of the Google Cloud project. If provided, this will configure gcloud to
       use this project ID by default for commands. Individual commands can still
-      override the project using the --project flag which takes precedence.
+      override the project using the `--project` flag which takes precedence. If
+      unspecified, the action attempts to find the "best" project ID by looking
+      at other inputs and environment variables.
     required: false
 
   install_components:
-    description: List of Cloud SDK components to install
+    description: |-
+      List of additional [gcloud
+      components](https://cloud.google.com/sdk/docs/components) to install,
+      specified as a comma-separated list of strings:
+
+          install_components: 'alpha,cloud-datastore-emulator'
     required: false
+
+  skip_install:
+    description: |-
+      Skip installation of gcloud and use the [system-supplied
+      version](https://github.com/actions/runner-images) instead. If specified,
+      the `version` input is ignored.
+
+      ⚠️ You will not be able to install additional gcloud components, because the
+      system installation is locked.
+    default: false
+    required: false
+
+outputs:
+  version:
+    description: |-
+      Version of gcloud that was installed.
 
 branding:
   icon: 'terminal'

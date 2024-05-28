@@ -56,61 +56,64 @@ jobs:
 
 ## Inputs
 
-### Cloud SDK inputs
+<!-- BEGIN_AUTOGEN_INPUTS -->
 
--   `skip_install`: (Optional) Skip the `gcloud` installation and use the
-    [system-installed gcloud][github-runners] instead. This can dramatically
-    improve workflow speeds at the expense of a slightly older gcloud version.
-    Setting this to `true` ignores any value for the `version` input. If you
-    skip installation, you will be unable to install components because the
-    system-install gcloud is locked. The default value is `false`. ⚠️ Be aware
-    that GitHub [plans to remove](https://github.com/actions/runner-images/issues/7101)
-    the system-installed gcloud, and any workflows with `skip_install: true`
-    will stop working when that happens.
+-   <a name="version"></a><a href="#user-content-version"><code>version</code></a>: _(Optional, default: `latest`)_ A string representing the version or version constraint of the Cloud SDK
+    (`gcloud`) to install (e.g. `"290.0.1"` or `">= 197.0.1"`). The default
+    value is `"latest"`, which will always download and install the latest
+    available Cloud SDK version.
 
--   `version`: (Optional) A string representing the version or version
-    constraint of the Cloud SDK (`gcloud`) to install (e.g. `"290.0.1"` or `">=
-    197.0.1"`). The default value is `"latest"`, which will always download and
-    install the latest available Cloud SDK version.
+        - uses: 'google-github-actions/setup-gcloud@v2'
+          with:
+            version: '>= 416.0.0'
 
-    ```yaml
-    - uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-        version: '>= 416.0.0'
-    ```
+    If there is no installed `gcloud` version that matches the given
+    constraint, this GitHub Action will download and install the latest
+    available version that still matches the constraint.
 
-    If there is no installed `gcloud` version that matches the given constraint,
-    this GitHub Action will download and install the latest available version
-    that still matches the constraint.
-
-    **Warning!** Workload Identity Federation requires version
+    Authenticating via Workload Identity Federation requires version
     [363.0.0](https://cloud.google.com/sdk/docs/release-notes#36300_2021-11-02)
-    or newer. If you need support for Workload Identity Federation, specify your
-    version constraint as such:
+    or newer. If you need support for Workload Identity Federation, specify
+    your version constraint as such:
 
-    ```yaml
-    - uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-        version: '>= 363.0.0'
-    ```
+        - uses: 'google-github-actions/setup-gcloud@v2'
+          with:
+            version: '>= 363.0.0'
 
     You are responsible for ensuring the `gcloud` version matches the features
-    and components required. See the [gcloud release
-    notes][gcloud-release-notes] for a full list of versions.
+    and components required.
 
--   `project_id`: (Optional) Project ID (**not** project _number_) of the Google
-    Cloud project. If provided, this will configure the `gcloud` CLI to use that
-    project ID for commands. Individual commands can still override the project
-    with the `--project` flag. If unspecified, the action attempts to find the
-    "best" project ID by looking at other inputs and environment variables.
+-   <a name="project_id"></a><a href="#user-content-project_id"><code>project_id</code></a>: _(Optional)_ ID of the Google Cloud project. If provided, this will configure gcloud to
+    use this project ID by default for commands. Individual commands can still
+    override the project using the `--project` flag which takes precedence. If
+    unspecified, the action attempts to find the "best" project ID by looking
+    at other inputs and environment variables.
 
--   `install_components`: (Optional) List of [Cloud SDK
-    components](https://cloud.google.com/sdk/docs/components) to install
+-   <a name="install_components"></a><a href="#user-content-install_components"><code>install_components</code></a>: _(Optional)_ List of additional [gcloud
+    components](https://cloud.google.com/sdk/docs/components) to install,
     specified as a comma-separated list of strings:
 
-    ```yaml
-    install_components: 'alpha,cloud-datastore-emulator'
-    ```
+        install_components: 'alpha,cloud-datastore-emulator'
+
+-   <a name="skip_install"></a><a href="#user-content-skip_install"><code>skip_install</code></a>: _(Optional)_ Skip installation of gcloud and use the [system-supplied
+    version](https://github.com/actions/runner-images) instead. If specified,
+    the `version` input is ignored.
+
+    ⚠️ You will not be able to install additional gcloud components, because the
+    system installation is locked.
+
+
+<!-- END_AUTOGEN_INPUTS -->
+
+## Outputs
+
+<!-- BEGIN_AUTOGEN_OUTPUTS -->
+
+-   `version`: Version of gcloud that was installed.
+
+
+<!-- END_AUTOGEN_OUTPUTS -->
+
 
 ## Authorization
 

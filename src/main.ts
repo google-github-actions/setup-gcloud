@@ -127,6 +127,8 @@ export async function run(): Promise<void> {
       await setProject(projectId);
       core.info('Successfully set default project');
     }
+
+    core.setOutput('version', version);
   } catch (err) {
     const msg = errorMessage(err);
     core.setFailed(`google-github-actions/setup-gcloud failed with: ${msg}`);

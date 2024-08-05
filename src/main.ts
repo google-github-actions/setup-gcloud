@@ -35,7 +35,6 @@ import path from 'path';
 
 // Do not listen to the linter - this can NOT be rewritten as an ES6 import
 // statement.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version: appVersion } = require('../package.json');
 
 export async function run(): Promise<void> {

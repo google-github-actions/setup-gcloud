@@ -1,6 +1,6 @@
 {
   "name": "setup-gcloud",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Setup gcloud GitHub action",
   "main": "dist/main/index.js",
   "scripts": {

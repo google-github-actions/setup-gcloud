@@ -8,6 +8,10 @@ on:
 
 jobs:
   release:
-    if: "startsWith(github.event.head_commit.message, 'Release: v')"
+    if: |-
+      ${{ startsWith(github.event.head_commit.message, 'Release: v') }}
     name: 'Release'
-    uses: 'google-github-actions/.github/.github/workflows/release.yml@v0'
+    uses: 'google-github-actions/.github/.github/workflows/release.yml@v1' # ratchet:exclude
+    # secrets must be explicitly passed to reusable workflows https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/reusing-workflows\#using-inputs-and-secrets-in-a-reusable-workflow
+    secrets:
+      ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'

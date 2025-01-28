@@ -43,7 +43,7 @@ jobs:
         run: 'npm run lint'
         # There's no need to run the linter for each operating system, since it
         # will find the same thing 3x and clog up the PR review.
-        if: ${{matrix.os == 'ubuntu-latest'}}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
 
       - name: 'test'
         run: 'npm test'

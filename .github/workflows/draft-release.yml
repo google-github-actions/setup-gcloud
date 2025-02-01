@@ -15,8 +15,7 @@ on:
 
 jobs:
   draft-release:
-    # TODO(sethvargo): revert to a tag when ready
-    uses: 'google-github-actions/.github/.github/workflows/draft-release.yml@main' # ratchet:exclude
+    uses: 'google-github-actions/.github/.github/workflows/draft-release.yml@v3' # ratchet:exclude
     with:
       version_strategy: '${{ github.event.inputs.version_strategy }}'
     secrets:

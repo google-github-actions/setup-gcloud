@@ -8,7 +8,6 @@ on:
 
 jobs:
   release:
-    # TODO(sethvargo): revert to a tag when ready
-    uses: 'google-github-actions/.github/.github/workflows/release.yml@main' # ratchet:exclude
+    uses: 'google-github-actions/.github/.github/workflows/release.yml@v3' # ratchet:exclude
     secrets:
       ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'

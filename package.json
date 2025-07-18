@@ -32,22 +32,22 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/tool-cache": "^2.0.2",
-    "@google-github-actions/actions-utils": "^0.8.6",
-    "@google-github-actions/setup-cloud-sdk": "^1.1.9"
+    "@google-github-actions/actions-utils": "^0.8.8",
+    "@google-github-actions/setup-cloud-sdk": "^1.2.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.19.0",
-    "@types/node": "^22.13.0",
-    "@typescript-eslint/eslint-plugin": "^8.22.0",
-    "@typescript-eslint/parser": "^8.22.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.31.0",
+    "@types/node": "^24.0.14",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "@vercel/ncc": "^0.38.3",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.3",
-    "eslint": "^9.19.0",
-    "prettier": "^3.4.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint": "^9.31.0",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "typescript-eslint": "^8.22.0",
-    "typescript": "^5.7.3"
+    "typescript-eslint": "^8.37.0",
+    "typescript": "^5.8.3"
   }
 }

@@ -11,6 +11,10 @@
     "lint": "eslint .",
     "test": "node --require ts-node/register --test-reporter spec --test tests/setup-gcloud.test.ts"
   },
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/google-github-actions/setup-gcloud"

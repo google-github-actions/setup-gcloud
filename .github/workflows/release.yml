@@ -9,5 +9,9 @@ on:
 jobs:
   release:
     uses: 'google-github-actions/.github/.github/workflows/release.yml@v3' # ratchet:exclude
+    permissions:
+      attestations: 'write'
+      contents: 'write'
+      packages: 'write'
     secrets:
       ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'

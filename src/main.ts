@@ -56,6 +56,7 @@ export async function run(): Promise<void> {
     let version = presence(core.getInput('version'));
     const components = core.getInput('install_components');
     const projectId = core.getInput('project_id');
+    const skipToolCache = parseBoolean(core.getInput('skip_tool_cache'));
 
     if (skipInstall) {
       core.info(`Skipping installation ("skip_install" was true)`);
@@ -90,7 +91,7 @@ export async function run(): Promise<void> {
         core.addPath(path.join(toolPath, 'bin'));
       } else {
         core.debug(`no version of gcloud matching "${version}" is installed`);
-        await installGcloudSDK(version);
+        await installGcloudSDK(version, skipToolCache);
       }
     }
 

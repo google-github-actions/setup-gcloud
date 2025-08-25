@@ -1,0 +1,5 @@
+paths:
+  '**/*.yml':
+    ignore:
+      # https://github.com/rhysd/actionlint/issues/559
+      - 'invalid runner name "node24"'

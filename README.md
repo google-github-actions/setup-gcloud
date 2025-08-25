@@ -23,7 +23,7 @@ support](https://cloud.google.com/support).**
 -   This action requires Google Cloud credentials to execute gcloud commands.
     See [Authorization](#Authorization) for more details.
 
--   This action runs using Node 20. If you are using self-hosted GitHub Actions
+-   This action runs using Node 24. If you are using self-hosted GitHub Actions
     runners, you must use a [runner
     version](https://github.com/actions/virtual-environments) that supports this
     version or newer.

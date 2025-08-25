@@ -102,13 +102,10 @@ jobs:
     ⚠️ You will not be able to install additional gcloud components, because the
     system installation is locked.
 
--   <a name="__input_skip_tool_cache"></a><a href="#user-content-__input_skip_tool_cache"><code>skip_tool_cache</code></a>: _(Optional)_ Skip transferring the downloaded artifacts into the runner's tool cache.
-    On GitHub-managed runners, this makes no difference since they are
-    ephemeral. On self-hosted runners, this controls whether the downloads are
-    cached stored on the disk.
-
-    For backwards-compatibility, this is is "false" by default. Setting the
-    value to "true" can significantly speed up installation times.
+-   <a name="__input_cache"></a><a href="#user-content-__input_cache"><code>cache</code></a>: _(Optional)_ Transfer the downloaded artifacts into the runner's tool cache. On
+    GitHub-managed runners, this have very little impact since runneres are
+    ephemeral. On self-hosted runners, this could improve future runs by
+    skipping future gcloud installations.
 
 
 <!-- END_AUTOGEN_INPUTS -->

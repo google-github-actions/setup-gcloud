@@ -58,7 +58,7 @@ jobs:
 
 <!-- BEGIN_AUTOGEN_INPUTS -->
 
--   <a name="version"></a><a href="#user-content-version"><code>version</code></a>: _(Optional, default: `latest`)_ A string representing the version or version constraint of the Cloud SDK
+-   <a name="__input_version"></a><a href="#user-content-__input_version"><code>version</code></a>: _(Optional, default: `latest`)_ A string representing the version or version constraint of the Cloud SDK
     (`gcloud`) to install (e.g. `"290.0.1"` or `">= 197.0.1"`). The default
     value is `"latest"`, which will always download and install the latest
     available Cloud SDK version.
@@ -83,26 +83,26 @@ jobs:
     You are responsible for ensuring the `gcloud` version matches the features
     and components required.
 
--   <a name="project_id"></a><a href="#user-content-project_id"><code>project_id</code></a>: _(Optional)_ ID of the Google Cloud project. If provided, this will configure gcloud to
+-   <a name="__input_project_id"></a><a href="#user-content-__input_project_id"><code>project_id</code></a>: _(Optional)_ ID of the Google Cloud project. If provided, this will configure gcloud to
     use this project ID by default for commands. Individual commands can still
     override the project using the `--project` flag which takes precedence. If
     unspecified, the action attempts to find the "best" project ID by looking
     at other inputs and environment variables.
 
--   <a name="install_components"></a><a href="#user-content-install_components"><code>install_components</code></a>: _(Optional)_ List of additional [gcloud
+-   <a name="__input_install_components"></a><a href="#user-content-__input_install_components"><code>install_components</code></a>: _(Optional)_ List of additional [gcloud
     components](https://cloud.google.com/sdk/docs/components) to install,
     specified as a comma-separated list of strings:
 
         install_components: 'alpha,cloud-datastore-emulator'
 
--   <a name="skip_install"></a><a href="#user-content-skip_install"><code>skip_install</code></a>: _(Optional)_ Skip installation of gcloud and use the [system-supplied
+-   <a name="__input_skip_install"></a><a href="#user-content-__input_skip_install"><code>skip_install</code></a>: _(Optional)_ Skip installation of gcloud and use the [system-supplied
     version](https://github.com/actions/runner-images) instead. If specified,
     the `version` input is ignored.
 
     ⚠️ You will not be able to install additional gcloud components, because the
     system installation is locked.
 
--   <a name="skip_tool_cache"></a><a href="#user-content-skip_tool_cache"><code>skip_tool_cache</code></a>: _(Optional)_ Skip transferring the downloaded artifacts into the runner's tool cache.
+-   <a name="__input_skip_tool_cache"></a><a href="#user-content-__input_skip_tool_cache"><code>skip_tool_cache</code></a>: _(Optional)_ Skip transferring the downloaded artifacts into the runner's tool cache.
     On GitHub-managed runners, this makes no difference since they are
     ephemeral. On self-hosted runners, this controls whether the downloads are
     cached stored on the disk.
@@ -117,7 +117,7 @@ jobs:
 
 <!-- BEGIN_AUTOGEN_OUTPUTS -->
 
--   `version`: Version of gcloud that was installed.
+-   <a name="__output_version"></a><a href="#user-content-__output_version"><code>version</code></a>: Version of gcloud that was installed.
 
 
 <!-- END_AUTOGEN_OUTPUTS -->

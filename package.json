@@ -12,8 +12,8 @@
     "test": "node --require ts-node/register --test-reporter spec --test tests/setup-gcloud.test.ts"
   },
   "engines": {
-    "node": ">= 20.x",
-    "npm": ">= 10.x"
+    "node": ">= 24.x",
+    "npm": ">= 11.x"
   },
   "repository": {
     "type": "git",

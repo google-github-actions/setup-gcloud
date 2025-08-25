@@ -48,7 +48,7 @@ export async function run(): Promise<void> {
 
   // Warn if pinned to HEAD
   if (isPinnedToHead()) {
-    core.warning(pinnedToHeadWarning('v2'));
+    core.warning(pinnedToHeadWarning('v3'));
   }
 
   try {

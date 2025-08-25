@@ -46,7 +46,7 @@ jobs:
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+      uses: 'google-github-actions/setup-gcloud@v3'
       with:
         version: '>= 363.0.0'
 
@@ -63,7 +63,7 @@ jobs:
     value is `"latest"`, which will always download and install the latest
     available Cloud SDK version.
 
-        - uses: 'google-github-actions/setup-gcloud@v2'
+        - uses: 'google-github-actions/setup-gcloud@v3'
           with:
             version: '>= 416.0.0'
 
@@ -76,7 +76,7 @@ jobs:
     or newer. If you need support for Workload Identity Federation, specify
     your version constraint as such:
 
-        - uses: 'google-github-actions/setup-gcloud@v2'
+        - uses: 'google-github-actions/setup-gcloud@v3'
           with:
             version: '>= 363.0.0'
 
@@ -152,7 +152,7 @@ jobs:
         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+      uses: 'google-github-actions/setup-gcloud@v3'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -170,7 +170,7 @@ jobs:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+      uses: 'google-github-actions/setup-gcloud@v3'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -187,7 +187,7 @@ jobs:
   job_id:
     steps:
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+      uses: 'google-github-actions/setup-gcloud@v3'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -213,7 +213,7 @@ jobs:
           service_account: 'service-account-1@my-project.iam.gserviceaccount.com'
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: 'google-github-actions/setup-gcloud@v3'
 
       - name: 'Use gcloud CLI'
         run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
@@ -225,7 +225,7 @@ jobs:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: 'google-github-actions/setup-gcloud@v3'
 
       - name: 'Use gcloud CLI'
         run: 'gcloud auth list --filter=status:ACTIVE --format="value(account)"'
@@ -238,7 +238,7 @@ jobs:
 We recommend pinning to the latest available major version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v2'
+- uses: 'google-github-actions/setup-gcloud@v3'
 ```
 
 While this action attempts to follow semantic versioning, but we're ultimately
@@ -246,7 +246,7 @@ human and sometimes make mistakes. To prevent accidental breaking changes, you
 can also pin to a specific version:
 
 ```yaml
-- uses: 'google-github-actions/setup-gcloud@v2.0.0'
+- uses: 'google-github-actions/setup-gcloud@v3.0.0'
 ```
 
 However, you will not get automatic security updates or new features without

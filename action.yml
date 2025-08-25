@@ -77,15 +77,12 @@ inputs:
     default: false
     required: false
 
-  skip_tool_cache:
+  cache:
     description: |-
-      Skip transferring the downloaded artifacts into the runner's tool cache.
-      On GitHub-managed runners, this makes no difference since they are
-      ephemeral. On self-hosted runners, this controls whether the downloads are
-      cached stored on the disk.
-
-      For backwards-compatibility, this is is "false" by default. Setting the
-      value to "true" can significantly speed up installation times.
+      Transfer the downloaded artifacts into the runner's tool cache. On
+      GitHub-managed runners, this have very little impact since runneres are
+      ephemeral. On self-hosted runners, this could improve future runs by
+      skipping future gcloud installations.
     default: false
     required: false
 

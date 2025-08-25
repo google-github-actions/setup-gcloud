@@ -46,28 +46,24 @@ jobs:
         uses: './'
         with:
           skip_install: true
-          skip_tool_cache: true
 
       # Constraint installation
       - name: 'Install constraint'
         uses: './'
         with:
           version: '>= 1.0.0'
-          skip_tool_cache: true
 
       # Default installation
       - name: 'Install version'
         uses: './'
         with:
           version: '374.0.0'
-          skip_tool_cache: true
 
       # Latest installation
       - name: 'Install latest'
         uses: './'
         with:
           version: 'latest'
-          skip_tool_cache: true
 
       # By default, there is no configuration
       - name: 'Check defaults'
@@ -81,7 +77,6 @@ jobs:
         uses: './'
         with:
           install_components: 'cloud-run-proxy'
-          skip_tool_cache: true
 
       - name: 'Check components'
         run: 'npm run integration'
@@ -93,7 +88,6 @@ jobs:
         uses: './'
         with:
           project_id: '${{ vars.PROJECT_ID }}'
-          skip_tool_cache: true
 
       - name: 'Check project ID'
         run: 'npm run integration'
@@ -109,8 +103,6 @@ jobs:
 
       - name: 'Setup gcloud with WIF'
         uses: './'
-        with:
-          skip_tool_cache: true
 
       - name: 'Check WIF authentication'
         run: 'npm run integration'
@@ -126,8 +118,6 @@ jobs:
 
       - name: 'Setup gcloud with SAKE'
         uses: './'
-        with:
-          skip_tool_cache: true
 
       - name: 'Check SAKE authentication'
         run: 'npm run integration'

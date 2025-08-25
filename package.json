@@ -33,7 +33,7 @@
     "@actions/core": "^1.11.1",
     "@actions/tool-cache": "^2.0.2",
     "@google-github-actions/actions-utils": "^0.8.10",
-    "@google-github-actions/setup-cloud-sdk": "^1.2.3"
+    "@google-github-actions/setup-cloud-sdk": "^2.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

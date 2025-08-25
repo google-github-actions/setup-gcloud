@@ -26,7 +26,7 @@ inputs:
       value is `"latest"`, which will always download and install the latest
       available Cloud SDK version.
 
-          - uses: 'google-github-actions/setup-gcloud@v2'
+          - uses: 'google-github-actions/setup-gcloud@v3'
             with:
               version: '>= 416.0.0'
 
@@ -39,7 +39,7 @@ inputs:
       or newer. If you need support for Workload Identity Federation, specify
       your version constraint as such:
 
-          - uses: 'google-github-actions/setup-gcloud@v2'
+          - uses: 'google-github-actions/setup-gcloud@v3'
             with:
               version: '>= 363.0.0'
 

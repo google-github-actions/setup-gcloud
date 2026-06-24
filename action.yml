@@ -48,6 +48,21 @@ inputs:
     default: 'latest'
     required: false
 
+  version_file:
+    description: |-
+      Path to a file containing the version or version constraint of the Cloud
+      SDK (`gcloud`) to install. Both a plain version file (containing only a
+      version string) and an asdf/mise-style `.tool-versions` file (containing a
+      `gcloud <version>` line) are supported:
+
+          - uses: 'google-github-actions/setup-gcloud@v3'
+            with:
+              version_file: '.tool-versions'
+
+      The `version` input takes precedence: if `version` is set to anything other
+      than the default `"latest"`, `version_file` is ignored.
+    required: false
+
   project_id:
     description: |-
       ID of the Google Cloud project. If provided, this will configure gcloud to

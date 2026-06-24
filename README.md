@@ -82,6 +82,18 @@ jobs:
     You are responsible for ensuring the `gcloud` version matches the features
     and components required.
 
+-   <a name="__input_version_file"></a><a href="#user-content-__input_version_file"><code>version_file</code></a>: _(Optional)_ Path to a file containing the version or version constraint of the Cloud
+    SDK (`gcloud`) to install. Both a plain version file (containing only a
+    version string) and an asdf/mise-style `.tool-versions` file (containing a
+    `gcloud <version>` line) are supported:
+
+        - uses: 'google-github-actions/setup-gcloud@v3'
+          with:
+            version_file: '.tool-versions'
+
+    The `version` input takes precedence: if `version` is set to anything other
+    than the default `"latest"`, `version_file` is ignored.
+
 -   <a name="__input_project_id"></a><a href="#user-content-__input_project_id"><code>project_id</code></a>: _(Optional)_ ID of the Google Cloud project. If provided, this will configure gcloud to
     use this project ID by default for commands. Individual commands can still
     override the project using the `--project` flag which takes precedence. If

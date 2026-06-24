@@ -17,13 +17,26 @@
 import { mock, test } from 'node:test';
 import assert from 'node:assert';
 
-import { promises as fs } from 'fs';
+import { promises as fs, writeFileSync } from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as setupGcloud from '@google-github-actions/setup-cloud-sdk';
 import { TestToolCache } from '@google-github-actions/setup-cloud-sdk';
 import * as core from '@actions/core';
 import * as toolCache from '@actions/tool-cache';
 
-import { run } from '../src/main';
+import { parseVersionFile, run } from '../src/main';
+
+/**
+ * writeTempVersionFile writes contents to a uniquely-named file in the OS temp
+ * directory and returns its path. It uses the synchronous fs API so it is
+ * unaffected by the mocked promise-based fs.writeFile in the test suite.
+ */
+const writeTempVersionFile = (name: string, contents: string): string => {
+  const tmp = path.join(os.tmpdir(), `setup-gcloud-${process.hrtime.bigint()}-${name}`);
+  writeFileSync(tmp, contents);
+  return tmp;
+};
 
 // These are mock data for github actions inputs, where camel case is expected.
 const fakeInputs: { [key: string]: string } = {
@@ -213,6 +226,61 @@ test('#run', { concurrency: true }, async (suite) => {
     await run();
 
     assert.deepStrictEqual(mocks.setProject.mock.callCount(), 0);
+  });
+
+  await suite.test('resolves the version from a .tool-versions version_file', async (t) => {
+    const versionFile = writeTempVersionFile('.tool-versions', 'nodejs 20.0.0\ngcloud 5.6.7\n');
+    const mocks = defaultMocks(t.mock, {
+      version: '',
+      version_file: versionFile,
+    });
+    await run();
+
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '5.6.7');
+  });
+
+  await suite.test('resolves the version from a plain version_file', async (t) => {
+    const versionFile = writeTempVersionFile('version', '5.6.7\n');
+    const mocks = defaultMocks(t.mock, {
+      version: '',
+      version_file: versionFile,
+    });
+    await run();
+
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '5.6.7');
+  });
+
+  await suite.test('prefers an explicit version over version_file', async (t) => {
+    const versionFile = writeTempVersionFile('version', '5.6.7\n');
+    const mocks = defaultMocks(t.mock, {
+      version: '9.9.9',
+      version_file: versionFile,
+    });
+    await run();
+
+    assert.deepStrictEqual(mocks.installGcloudSDK.mock.calls?.at(0)?.arguments?.at(0), '9.9.9');
+  });
+});
+
+test('#parseVersionFile', { concurrency: true }, async (suite) => {
+  await suite.test('extracts the gcloud entry from a .tool-versions file', async () => {
+    assert.deepStrictEqual(parseVersionFile('nodejs 20.0.0\ngcloud 416.0.0\n'), '416.0.0');
+  });
+
+  await suite.test('reads a plain version file', async () => {
+    assert.deepStrictEqual(parseVersionFile('416.0.0\n'), '416.0.0');
+  });
+
+  await suite.test('ignores comments and blank lines', async () => {
+    assert.deepStrictEqual(parseVersionFile('# comment\n\ngcloud 416.0.0\n'), '416.0.0');
+  });
+
+  await suite.test('preserves a version constraint', async () => {
+    assert.deepStrictEqual(parseVersionFile('>= 416.0.0\n'), '>= 416.0.0');
+  });
+
+  await suite.test('returns an empty string for an empty file', async () => {
+    assert.deepStrictEqual(parseVersionFile('\n# only a comment\n'), '');
   });
 });
 

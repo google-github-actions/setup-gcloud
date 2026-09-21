@@ -214,6 +214,41 @@ test('#run', { concurrency: true }, async (suite) => {
 
     assert.deepStrictEqual(mocks.setProject.mock.callCount(), 0);
   });
+
+  await suite.test('warns when there is no authentication', async (t) => {
+    const mocks = defaultMocks(t.mock, {});
+
+    // The suite restores process.env by assigning a copy back, which does not
+    // remove variables set by previous tests.
+    delete process.env.GOOGLE_GHA_CREDS_PATH;
+
+    await run();
+
+    assert.deepStrictEqual(mocks.isAuthenticated.mock.callCount(), 1);
+    assert.match(mocks.logWarning.mock.calls?.at(0)?.arguments?.at(0), /not authenticated/);
+  });
+
+  await suite.test('skips the authentication check when skip_auth_check is true', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      skip_auth_check: 'true',
+    });
+    await run();
+
+    assert.deepStrictEqual(mocks.isAuthenticated.mock.callCount(), 0);
+    assert.deepStrictEqual(mocks.logWarning.mock.callCount(), 0);
+  });
+
+  await suite.test('authenticates even when skip_auth_check is true', async (t) => {
+    const mocks = defaultMocks(t.mock, {
+      skip_auth_check: 'true',
+    });
+
+    process.env.GOOGLE_GHA_CREDS_PATH = '/foo/bar/path.json';
+
+    await run();
+
+    assert.deepStrictEqual(mocks.authenticateGcloudSDK.mock.callCount(), 1);
+  });
 });
 
 /**

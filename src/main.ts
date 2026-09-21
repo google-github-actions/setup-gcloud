@@ -56,6 +56,7 @@ export async function run(): Promise<void> {
     let version = presence(core.getInput('version'));
     const components = core.getInput('install_components');
     const projectId = core.getInput('project_id');
+    const skipAuthCheck = parseBoolean(core.getInput('skip_auth_check'));
     const cache = parseBoolean(core.getInput('cache'));
 
     if (skipInstall) {
@@ -105,6 +106,8 @@ export async function run(): Promise<void> {
     if (credFile) {
       await authenticateGcloudSDK(credFile);
       core.info('Successfully authenticated');
+    } else if (skipAuthCheck) {
+      core.debug(`Skipping the authentication check ("skip_auth_check" was true)`);
     } else {
       let authed;
       try {

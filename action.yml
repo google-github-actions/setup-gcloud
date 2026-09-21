@@ -86,6 +86,18 @@ inputs:
     default: false
     required: false
 
+  skip_auth_check:
+    description: |-
+      Skip the check for an authenticated `gcloud` and suppress the warning
+      emitted when none is found. This is useful when the action is only used
+      to install components or to put `gcloud` on the PATH (for example, to
+      drive a local emulator) and no Google Cloud credentials are needed.
+
+      ⚠️ If you enable this, the action will not tell you when `gcloud` is
+      unauthenticated, even if a later step needs credentials.
+    default: false
+    required: false
+
 outputs:
   version:
     description: |-
